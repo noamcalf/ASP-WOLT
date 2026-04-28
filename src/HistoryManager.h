@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "IStorage.h"
+using std::vector;
 
 class HistoryManager {
 private:
@@ -14,7 +15,8 @@ public:
     HistoryManager(IStorage& storageProvider);
 
     void addProductToUser(int userId, int productId);
-    std::vector<int> getUserHistory(int userId) const;
+    vector<int> getUserHistory(int userId) const;
+    int getSimilarityScore(int userId1, int userId2) const;
 };
 
 #endif
