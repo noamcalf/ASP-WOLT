@@ -1,0 +1,21 @@
+# CMake & Build artifacts
+CMakeCache.txt
+CMakeFiles/
+Makefile
+*.cmake
+
+# CTest & GTest generated files
+*Testfile.cmake
+*_include.cmake
+*_tests.cmake
+
+# Executables
+wolt_app
+wolt_tests
+
+# Compiled Object files
+*.o
+*.a
+
+# Mac OS system files (just in case)
+.DS_Store
