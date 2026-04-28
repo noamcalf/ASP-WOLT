@@ -7,18 +7,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find GTest installed in the system (from Dockerfile)
 find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
+
+# Tell CMake to always look for header files in the src/ directory
+include_directories(src)
+
+# Building the main application executable separately from the tests
+# TODO: Uncomment the line below when you create src/main.cpp in Epic 3!
+# add_executable(wolt_app src/main.cpp src/HistoryManager.cpp)
 
 # Configure Testing
 enable_testing()
 
-# Define the test executable
-add_executable(unit_tests tests.cpp)
+# Create a separate executable exclusively for running the unit tests
+add_executable(wolt_tests 
+    tests/history_test.cpp 
+    src/HistoryManager.cpp
+)
 
-# Link to GTest and GTest_Main libraries
-# GTest_Main provides the main() function automatically
-target_link_libraries(unit_tests GTest::GTest GTest::Main)
+# Link the test executable with Google Test libraries
+target_link_libraries(wolt_tests GTest::GTest GTest::Main)
 
-# Allow CTest to discover and list our tests
+# Allow CTest to automatically discover our test cases
 include(GoogleTest)
-gtest_discover_tests(unit_tests)
+gtest_discover_tests(wolt_tests)
