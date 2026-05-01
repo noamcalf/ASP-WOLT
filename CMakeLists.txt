@@ -22,7 +22,8 @@ enable_testing()
 add_executable(wolt_tests
     tests/similary_scoring_test.cpp
     tests/history_test.cpp
-    tests/MockStorage.cpp 
+    tests/MockStorage.cpp
+    tests/recommendation_test.cpp 
     src/HistoryManager.cpp
 )
 
