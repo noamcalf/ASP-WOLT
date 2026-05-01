@@ -1,4 +1,5 @@
 #include "HistoryManager.h"
+#include <unordered_set>
 using std::vector;
 
 // Constructor: Initializes the storage reference
@@ -22,6 +23,23 @@ std::vector<int> HistoryManager::getUserHistory(int userId) const {
 }
 
 int HistoryManager::getSimilarityScore(int userId1, int userId2) const {
-    // Implement in WOLT-14
-    return -1; 
+    // Get the purchase history vectors for both users
+    vector<int> history1 = storage.getUserHistory(userId1);
+    vector<int> history2 = storage.getUserHistory(userId2);
+    
+    // Create a hash set from the first user's history for O(1) lookups
+    std::unordered_set<int> user1Products(history1.begin(), history1.end());
+    
+    // Initialize a counter for similar products
+    int similarProductsCount = 0;
+    
+    // Iterate over the second user's history
+    for (int productId : history2) {
+        // If the product exists in user1's set, increment the counter
+        if (user1Products.count(productId) > 0) {
+            similarProductsCount++;
+        }
+    }
+    // Return the final similarity score
+    return similarProductsCount;
 }
