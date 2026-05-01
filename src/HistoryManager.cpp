@@ -1,16 +1,22 @@
 #include "HistoryManager.h"
+using std::vector;
 
 // Constructor: Initializes the storage reference
 HistoryManager::HistoryManager(IStorage& storageProvider) : storage(storageProvider) {
 }
 
 void HistoryManager::addProductToUser(int userId, int productId) {
-    // Task WOLT-12: We will implement this later to call storage.saveUserProduct()
+    // get the user's history: use storageProvider
+    vector<int> history = storage.getUserHistory(userId);
+    // check if this productId is already in this userid's history
+    for (int pid : history) {
+        if (productId == pid) return;
+    }
+    // the product is new, save it
+    storage.saveUserProduct(userId, productId);
 }
 
 std::vector<int> HistoryManager::getUserHistory(int userId) const {
-    // Task WOLT-12: We will implement this later to call storage.getUserHistory()
-    
-    // Returning an empty vector intentionally to make the test fail!
-    return std::vector<int>();
+    // return the vector of the user
+    return storage.getUserHistory(userId);
 }
