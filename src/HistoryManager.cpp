@@ -20,3 +20,8 @@ std::vector<int> HistoryManager::getUserHistory(int userId) const {
     // return the vector of the user
     return storage.getUserHistory(userId);
 }
+
+int HistoryManager::getSimilarityScore(int userId1, int userId2) const {
+    // Implement in WOLT-14
+    return -1; 
+}

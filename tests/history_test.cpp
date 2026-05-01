@@ -1,22 +1,7 @@
 #include <gtest/gtest.h>
 #include "HistoryManager.h"
 #include "IStorage.h"
-
-// Fake Storage for testing purposes only (Mock Object)
-class MockStorage : public IStorage {
-public:
-    std::vector<int> mockData;
-    
-    // Fake implementation: just pushes to a temporary vector
-    void saveUserProduct(int userId, int productId) override {
-        mockData.push_back(productId);
-    }
-    
-    // Fake implementation: returns the temporary vector
-    std::vector<int> getUserHistory(int userId) const override {
-        return mockData;
-    }
-};
+#include "MockStorage.h"
 
 TEST(HistoryManagerTest, AddAndRetrieveUserHistory) {
     // 1. Create the fake storage

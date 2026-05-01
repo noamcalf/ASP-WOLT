@@ -19,7 +19,8 @@ include_directories(src)
 enable_testing()
 
 # Create a separate executable exclusively for running the unit tests
-add_executable(wolt_tests 
+add_executable(wolt_tests
+    tests/similary_scoring_test.cpp
     tests/history_test.cpp 
     src/HistoryManager.cpp
 )
