@@ -7,8 +7,8 @@
 // An easy way to defer the different comman types
 enum class CommandType {
     RECOMMEND,
-    ADD_PRODUCT,
-    EXIT,
+    ADD,
+    HELP,
     INVALID
 };
 
