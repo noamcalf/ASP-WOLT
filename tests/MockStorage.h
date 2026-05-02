@@ -13,6 +13,7 @@ public:
     
     void saveUserProduct(int userId, int productId) override;
     std::vector<int> getUserHistory(int userId) const override;
+    std::vector<int> getAllUserIds() const override;
 };
 
 #endif

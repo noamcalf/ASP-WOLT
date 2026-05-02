@@ -1,5 +1,6 @@
 #include "HistoryManager.h"
 #include <unordered_set>
+#include <algorithm>
 using std::vector;
 
 // Constructor: Initializes the storage reference
@@ -44,7 +45,84 @@ int HistoryManager::getSimilarityScore(int userId1, int userId2) const {
     return similarProductsCount;
 }
 
-vector<int> HistoryManager::getRecommendations(int userId) const {
-    // TODO (WOLT-19): Implement the weighted relevance and dual sorting logic here.
-    return {};
+// Helper function
+std::unordered_map<int, int> HistoryManager::getRelevantUsers(int userId, int productId, const std::vector<int>& allUsers) const {
+    std::unordered_map<int, int> scores;
+    for (int otherId : allUsers) {
+        if (otherId == userId) continue;
+
+        auto history = storage.getUserHistory(otherId);
+        // If the user is not userId and his product vector contains productId
+        if (std::find(history.begin(), history.end(), productId) != history.end()) {
+            // Fill the hash table of his id with the result of the similarity score with userId
+            scores[otherId] = getSimilarityScore(userId, otherId);
+        }
+    }
+    return scores;
+}
+
+// Helper function
+std::unordered_map<int, int> HistoryManager::calculateProductScores(
+    int productId, 
+    const std::unordered_map<int, int>& relevantUsers, 
+    const std::unordered_set<int>& watchedProducts) const {
+    
+    std::unordered_map<int, int> productScores;
+    // For every pair of other_productid and similarity score
+    for (auto const& [otherId, simScore] : relevantUsers) {
+        // make sure it's possitive (0 means no simularity)
+        if (simScore <= 0) continue;
+        // For each product that is not productId and not included in userId vector
+        for (int pId : storage.getUserHistory(otherId)) {
+            if (pId != productId && watchedProducts.find(pId) == watchedProducts.end()) {
+                // Add his sim score to the table in the productId place
+                productScores[pId] += simScore;
+            }
+        }
+    }
+    return productScores;
+}
+
+// Helper function
+std::vector<int> HistoryManager::sortAndFilterTop10(std::unordered_map<int, int>& productScores) const {
+    // Create pairs vector for the keys and values of the productScores
+    std::vector<std::pair<int, int>> finalRecs(productScores.begin(), productScores.end());
+
+    
+    // Primary sort: By recommendation score in descending order.
+    // Secondary sort (tie-breaker): By product ID in ascending order.
+    std::sort(finalRecs.begin(), finalRecs.end(), [](const auto& a, const auto& b) {
+        if (a.second != b.second) {
+            return a.second > b.second; // Higher score first
+        }
+        return a.first < b.first; // Lower ID first in case of a tie
+    });
+
+    // Get the top-10 products by the sorting we did, or less if productScores size is less then 10
+    std::vector<int> result;
+    int numToReturn = std::min(static_cast<int>(finalRecs.size()), 10);
+    
+    for (int i = 0; i < numToReturn; ++i) {
+        result.push_back(finalRecs[i].first);
+    }
+
+    return result;
+}
+
+vector<int> HistoryManager::getRecommendations(int userId, int productId) const {
+    auto allUsers = storage.getAllUserIds();
+    if (std::find(allUsers.begin(), allUsers.end(), userId) == allUsers.end()) return {};
+
+    // Get all the users that has productId in their product vector
+    auto relevantUsers = getRelevantUsers(userId, productId, allUsers);
+    
+    // Set an unordered set for the products userId has in his product vector
+    auto history = storage.getUserHistory(userId);
+    std::unordered_set<int> watched(history.begin(), history.end());
+
+    // Calculate simscore for each product on the vectors
+    auto productScores = calculateProductScores(productId, relevantUsers, watched);
+
+    // Sort and return top-10 products
+    return sortAndFilterTop10(productScores);
 }

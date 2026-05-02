@@ -3,7 +3,7 @@
 #include "IStorage.h"
 #include "MockStorage.h"
 
-TEST(HistoryManagerTest, SimilarityScoreBasedOnAppendix) {
+TEST(HistoryManagerTest, SimilarityScoreTest) {
     // Setup
     MockStorage fakeStorage;
     HistoryManager manager(fakeStorage);
