@@ -10,3 +10,11 @@ std::vector<int> MockStorage::getUserHistory(int userId) const {
     }
     return {};
 }
+
+std::vector<int> MockStorage::getAllUserIds() const {
+    std::vector<int> userIds;
+    for (const auto& pair : mockDataMap) {
+        userIds.push_back(pair.first);
+    }
+    return userIds;
+}
