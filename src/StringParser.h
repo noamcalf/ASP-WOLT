@@ -3,8 +3,6 @@
 
 class StringParser : public IInputParser {
 public:
-    // Implement in WOLT-30
-    Command parse(const std::string& input) override {
-        return {CommandType::INVALID, {}, input};
-    }
+    // Declare the parsing function.
+    Command parse(const std::string& input) override;
 };
