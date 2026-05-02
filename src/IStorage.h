@@ -11,6 +11,7 @@ public:
     // Virtual functions to be implemented by concrete storage classes
     virtual void saveUserProduct(int userId, int productId) = 0;
     virtual std::vector<int> getUserHistory(int userId) const = 0;
+    virtual std::vector<int> getAllUserIds() const = 0;
 };
 
 #endif
