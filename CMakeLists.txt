@@ -21,9 +21,10 @@ enable_testing()
 # Create a separate executable exclusively for running the unit tests
 add_executable(wolt_tests
     tests/similary_scoring_test.cpp
-    tests/string_parsing_test.cpp
-    tests/history_test.cpp 
-    tests/MockStorage.cpp 
+    tests/string_parsing_test.cpp 
+    tests/history_test.cpp
+    tests/MockStorage.cpp
+    tests/recommendation_test.cpp
     src/HistoryManager.cpp
 )
 

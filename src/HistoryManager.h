@@ -17,6 +17,7 @@ public:
     void addProductToUser(int userId, int productId);
     vector<int> getUserHistory(int userId) const;
     int getSimilarityScore(int userId1, int userId2) const;
+    vector<int> getRecommendations(int userId) const;
 };
 
 #endif
