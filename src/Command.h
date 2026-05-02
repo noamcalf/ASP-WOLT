@@ -1,4 +1,4 @@
-// In the compilation stage- if you see this file during this compilation, ignore it
+// In the compilation stage- if you see this file more then 1 time during this compilation, ignore it
 #pragma once
 
 #include <string>
