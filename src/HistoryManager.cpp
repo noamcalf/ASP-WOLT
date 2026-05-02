@@ -43,3 +43,8 @@ int HistoryManager::getSimilarityScore(int userId1, int userId2) const {
     // Return the final similarity score
     return similarProductsCount;
 }
+
+vector<int> HistoryManager::getRecommendations(int userId) const {
+    // TODO (WOLT-19): Implement the weighted relevance and dual sorting logic here.
+    return {};
+}
