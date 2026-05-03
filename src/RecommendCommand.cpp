@@ -9,3 +9,8 @@ void RecommendCommand::execute() {
     // TODO: Fetch recommendations and print them separated by space.
     // Remember to handle the empty list case
 }
+
+// Returns how the command should look in the help menu
+std::string RecommendCommand::getSignature() const {
+    // implement 
+}
