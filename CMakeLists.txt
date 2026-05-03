@@ -26,6 +26,7 @@ add_executable(wolt_tests
     tests/MockStorage.cpp
     tests/recommendation_test.cpp
     src/HistoryManager.cpp
+    src/StringParser.cpp
 )
 
 # Link the test executable with Google Test libraries
