@@ -8,6 +8,8 @@ class CommandDispatcher {
 private:
     // Reference to the main logic engine to be passed to the commands
     HistoryManager& historyManager;
+    // List of objects that will use us to print the command signature for "help" command
+    std::vector<std::shared_ptr<ICommand>> commandPrototypes;
 
 public:
     // Constructor injecting the HistoryManager dependency

@@ -1,6 +1,7 @@
 #pragma once
 #include "ICommand.h"
 #include "HistoryManager.h"
+#include <string>
 
 class RecommendCommand : public ICommand {
 private:

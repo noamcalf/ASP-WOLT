@@ -1,4 +1,5 @@
 #include "AddCommand.h"
+#include <iostream>
 
 // Constructor
 AddCommand::AddCommand(HistoryManager& manager, int id, const std::vector<int>& prods)
@@ -6,10 +7,13 @@ AddCommand::AddCommand(HistoryManager& manager, int id, const std::vector<int>& 
 
 // Execute
 void AddCommand::execute() {
-    // TODO: Iterate over productIds and call historyManager.addProductToUser
+    // Iterate all the products, and add them to the userId
+    for (int pId : productIds) {
+        historyManager.addProductToUser(userId, pId);
+    }
 }
 
 // Returns how the command should look in the help menu
 std::string AddCommand::getSignature() const {
-    // implement 
+    return "add [userid] [productid1] [productid2] ...";
 }
