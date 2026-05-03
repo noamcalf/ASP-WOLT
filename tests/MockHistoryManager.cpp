@@ -1,20 +1,17 @@
 #include "MockHistoryManager.h"
 
-// Constructor implementation
 MockHistoryManager::MockHistoryManager(IStorage& storage) : HistoryManager(storage) {}
 
-// Method implementations
-void MockHistoryManager::addProductToUser(int userId, int productId) {
-    // Record that this method was called and save the arguments
-    addProductCalls.push_back({userId, productId});
+std::vector<int> MockHistoryManager::getRecommendations(int userId, int productId) const {
+    // We use const_cast because we need to update tracking fields in a const function
+    auto* nonConstThis = const_cast<MockHistoryManager*>(this);
+    nonConstThis->lastRecUserId = userId;
+    nonConstThis->lastRecProductId = productId;
+    nonConstThis->getRecommendationsCallCount++;
+    
+    return fakeRecommendationsToReturn;
 }
 
-std::vector<int> MockHistoryManager::getRecommendations(int userId, int productId) const {
-    // Record the call details
-    getRecommendationsCallCount++;
-    lastRecUserId = userId;
-    lastRecProductId = productId;
-    
-    // Return the fake data
-    return fakeRecommendationsToReturn;
+void MockHistoryManager::addProductToUser(int userId, int productId) {
+    addProductCalls.push_back({userId, productId});
 }
