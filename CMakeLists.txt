@@ -27,6 +27,7 @@ add_executable(wolt_tests
     tests/MockHistoryManager.cpp
     tests/recommendation_test.cpp
     tests/command_execution_test.cpp
+    tests/output_check_test.cpp
     src/HistoryManager.cpp
     src/HelpCommand.cpp
     src/AddCommand.cpp
