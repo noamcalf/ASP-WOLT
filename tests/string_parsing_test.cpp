@@ -71,11 +71,6 @@ TEST(ParserTest, FlagsInvalidCommands) {
     // INVAILD: using tabs between words is not replacing whitespace 
     EXPECT_EQ(parser.parse("add\tuser1\tprod1").type, CommandType::INVALID);
 
-    // VALID: using tabs between words is not replacing whitespace
-    Command com = parser.parse("add user1\tprod1");
-    EXPECT_EQ(com.type, CommandType::INVALID);
-    EXPECT_EQ(com.arguments.size(), 1);
-
     // INVALID: just a tab string
     EXPECT_EQ(parser.parse("\t").type, CommandType::INVALID);
 

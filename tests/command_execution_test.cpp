@@ -73,16 +73,29 @@ TEST(CommandExecutionTest, RecommendCommandHandlesEmptyList) {
 
 // Verify that executing a 'help' command exactly matches the PDF requirements
 TEST(CommandExecutionTest, HelpCommandDisplaysList) {
-    HelpCommand helpCmd;
+    // 1. Setup: Create a mock history manager for command prototypes
+    MockStorage mockStorage;
+    MockHistoryManager historyManager(mockStorage); 
     
-    // Capture std::cout
+    // 2. Setup: Initialize a vector and populate it with command prototypes
+    // We pass default values (0, empty vector) as these are only for signature retrieval
+    std::vector<std::shared_ptr<ICommand>> dummyCommands;
+    dummyCommands.push_back(std::make_shared<AddCommand>(historyManager, 0, std::vector<int>{}));
+    dummyCommands.push_back(std::make_shared<RecommendCommand>(historyManager, 0, 0));
+    
+    // 3. Setup: Create HelpCommand with a reference to the vector
+    auto helpCmd = std::make_shared<HelpCommand>(dummyCommands);
+    
+    // 4. Circular injection: Add HelpCommand to its own reference list
+    dummyCommands.push_back(helpCmd); 
+    
+    // 5. Execution: Capture the standard output
     testing::internal::CaptureStdout();
-    
-    // Execute the command
-    helpCmd.execute();
-    
-    // Verify exact string match
+    helpCmd->execute();
     std::string output = testing::internal::GetCapturedStdout();
+
+    // 6. Verification: Ensure output matches the exact PDF specification
+    // Note: Ensure your getSignature() implementations return these exact strings
     std::string expectedOutput = "add [userid] [productid1] [productid2] ...\n"
                                  "recommend [userid] [productid]\n"
                                  "help\n";

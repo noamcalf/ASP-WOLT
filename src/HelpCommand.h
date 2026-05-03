@@ -1,10 +1,17 @@
 #pragma once
+#include <memory>
+#include <vector>
 #include "ICommand.h"
-#include <string>
 
 class HelpCommand : public ICommand {
+private:
+    // Pointers vector to all command types
+    const std::vector<std::shared_ptr<ICommand>>& allCommands;
+
 public:
-// No need constractor, only prints to the screen
+
+    HelpCommand(const std::vector<std::shared_ptr<ICommand>>& commands) 
+        : allCommands(commands) {}
     void execute() override;
     std::string getSignature() const override;
 };
