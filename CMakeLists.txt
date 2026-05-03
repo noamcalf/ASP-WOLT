@@ -24,8 +24,14 @@ add_executable(wolt_tests
     tests/string_parsing_test.cpp 
     tests/history_test.cpp
     tests/MockStorage.cpp
+    tests/MockHistoryManager.cpp
     tests/recommendation_test.cpp
+    tests/command_execution_test.cpp
     src/HistoryManager.cpp
+    src/HelpCommand.cpp
+    src/AddCommand.cpp
+    src/RecommendCommand.cpp
+    src/CommandDispatcher.cpp
     src/StringParser.cpp
 )
 
