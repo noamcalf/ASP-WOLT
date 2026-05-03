@@ -6,6 +6,11 @@ using std::vector;
 using std::string;
 
 Command StringParser::parse(const std::string& input) {
+    // Make sure there is no '/t' label in the input
+    if (input.find('\t') != std::string::npos) {
+        return {CommandType::INVALID, {}, input};
+    }
+
     // Define variables to help with string splitting
     vector<string> tokens;
     string current_token = "";
