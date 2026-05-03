@@ -2,8 +2,8 @@
 #define HISTORY_MANAGER_H
 
 #include <vector>
-#include <unordered_map>  // Added
-#include <unordered_set>  // Added
+#include <unordered_map>  
+#include <unordered_set>  
 #include "IStorage.h"
 
 using std::vector;
@@ -25,10 +25,10 @@ private:
 public:
     HistoryManager(IStorage& storageProvider);
 
-    void addProductToUser(int userId, int productId);
+    virtual void addProductToUser(int userId, int productId);
     vector<int> getUserHistory(int userId) const;
     int getSimilarityScore(int userId1, int userId2) const;
-    vector<int> getRecommendations(int userId, int productId) const;
+    virtual vector<int> getRecommendations(int userId, int productId) const;
 };
 
 #endif
