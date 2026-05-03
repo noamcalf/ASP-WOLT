@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 // Interface for the Command pattern.
 class ICommand {
