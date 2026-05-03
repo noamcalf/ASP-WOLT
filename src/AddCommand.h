@@ -15,4 +15,7 @@ public:
     AddCommand(HistoryManager& manager, int uid, const std::vector<int>& pids);
     // Adds the products to the user's history via HistoryManager.
     void execute() override;
+
+    // Returns how the command should look in the help menu
+    std::string getSignature() const override;
 };
