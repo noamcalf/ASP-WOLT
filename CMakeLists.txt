@@ -32,6 +32,7 @@ add_executable(wolt_tests
     src/AddCommand.cpp
     src/RecommendCommand.cpp
     src/CommandDispatcher.cpp
+    src/StringParser.cpp
 )
 
 # Link the test executable with Google Test libraries
