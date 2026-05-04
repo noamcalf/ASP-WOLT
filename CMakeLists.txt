@@ -28,12 +28,14 @@ add_executable(wolt_tests
     tests/recommendation_test.cpp
     tests/command_execution_test.cpp
     tests/output_check_test.cpp
+    tests/file_storage_test.cpp
     src/HistoryManager.cpp
     src/HelpCommand.cpp
     src/AddCommand.cpp
     src/RecommendCommand.cpp
     src/CommandDispatcher.cpp
     src/StringParser.cpp
+    src/FileStorage.cpp
 )
 
 # Link the test executable with Google Test libraries
