@@ -1,4 +1,8 @@
 #include "FileStorage.h"
+#include <fstream>
+#include <sstream>
+#include <filesystem>
+
 
 // Constructor: Initializes the file path and triggers the initial data load
 FileStorage::FileStorage(const std::string& path) : filePath(path) {
@@ -7,24 +11,74 @@ FileStorage::FileStorage(const std::string& path) : filePath(path) {
 }
 
 void FileStorage::loadFromFile() {
-    // TODO: Implement reading from filePath.
-    // Read line by line ("userId productId") and populate memoryCache.
-    // Make sure to handle the case where the file does not exist yet.
+    // Make sure the file excists
+    if (!(std::filesystem::exists(filePath))) {
+        return; 
+    }
+
+    // Open the file
+    std::ifstream inFile(filePath);
+    // Make sure we can open the file and read from it
+    if (!inFile.is_open()) {
+        // Can't use getline() and read, history wont be save
+        return;
+    }
+
+    std::string line;
+    // Read line-by-line , until EOF
+    while (std::getline(inFile, line)) {
+        // Empty lines are not relevant
+        if (line.empty()) continue; 
+
+        // Create new stringstream to get uId, pId 
+        std::stringstream strs(line);
+        // Create variabels
+        int uId, pId;
+
+        // Use the stream rules with operator >> : the first value that is not whitespaces is uId (the read ends with the first whitespace)
+        // We will skip more whitespaces, and then: the second value is pId (the read ends with the first whitespace)
+        if (strs >> uId >> pId) {
+            memoryCache[uId].push_back(pId);
+        }
+    }
+    // Close the file 
+    inFile.close();
 }
 
 void FileStorage::saveUserProduct(int userId, int productId) {
-    // TODO: 
-    // 1. Add the productId to the memoryCache for the given userId.
-    // 2. Append the new action ("userId productId\n") to the physical file (use std::ios::app).
+    // Get the data into the memoryCache
+    memoryCache[userId].push_back(productId);
+
+    // Open the file for writing
+    std::ofstream outFile(filePath, std::ios::app);
+    // Make sure the command above worked
+    if (outFile.is_open()) {
+        // Append the wanted data
+        outFile << userId << " " << productId << "\n";
+        // Close the file
+        outFile.close();
+    }
 }
 
 std::vector<int> FileStorage::getUserHistory(int userId) const {
-    // TODO: Implement returning the user's history directly from memoryCache.
-    // If the user doesn't exist, return an empty vector.
-    return {}; 
+    // Search the userId in the memoryCache
+    auto it = memoryCache.find(userId);
+    // If userId found
+    if (it != memoryCache.end()) {
+        // return the products vector
+        return it->second;
+    }
+    // In case the user has not been found
+    return {};
 }
 
 std::vector<int> FileStorage::getAllUserIds() const {
-    // TODO: Implement returning all unique user IDs by extracting keys from memoryCache.
-    return {}; 
+    // Make an int vector for the return value
+    std::vector<int> usersVector;
+    // for each pair of <userId, std::vector<int> productsVector>
+    for (const auto& [userId, products] : memoryCache) {
+        // Add only the userId to the vector
+        usersVector.push_back(userId);
+    }
+    return usersVector; 
 }
