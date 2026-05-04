@@ -3,6 +3,7 @@
 #include "ICommand.h"
 #include "Command.h" // Contains the CommandType enum and Command struct
 #include "HistoryManager.h"
+#include <memory>
 
 class CommandDispatcher {
 private:
