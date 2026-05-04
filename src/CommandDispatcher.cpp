@@ -35,6 +35,7 @@ void CommandDispatcher::dispatch(const Command& rawCommand) {
             }
 
             case CommandType::RECOMMEND: {
+                
                 // Get the UID, PID and use stoi to make them int
                 int uId = std::stoi(rawCommand.arguments[0]);
                 int pId = std::stoi(rawCommand.arguments[1]);
