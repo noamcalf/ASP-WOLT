@@ -12,8 +12,17 @@ find_package(GTest REQUIRED)
 include_directories(src)
 
 # Building the main application executable separately from the tests
-# TODO: Uncomment the line below when you create src/main.cpp in Epic 3!
-# add_executable(wolt_app src/main.cpp src/HistoryManager.cpp)
+
+add_executable(wolt_app
+    src/main.cpp 
+    src/HistoryManager.cpp
+    src/HelpCommand.cpp
+    src/AddCommand.cpp
+    src/RecommendCommand.cpp
+    src/CommandDispatcher.cpp
+    src/StringParser.cpp
+    src/FileStorage.cpp
+)
 
 # Configure Testing
 enable_testing()
