@@ -18,7 +18,8 @@ Installation & Build:
 5.Create and enter "build" repository: [use command: mkdir build && cd build]
 6.Run Cmake: [use command: cmake ..]
 7.Compile with make: [use command: make]
-8.Run the app: [use command: ./wolt_app]
+8.Enter app repository: [use command: cd /app]
+9.Run the app: [use command: ./build/wolt_app]
 
 ![Installation & Build - 1](./images/loading1.png)
 ![Installation & Build - 2](./images/loading2.png)
