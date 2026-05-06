@@ -3,15 +3,17 @@
 #include <vector>
 #include "ICommand.h"
 
+using namespace std;
+
 class HelpCommand : public ICommand {
 private:
     // Pointers vector to all command types
-    const std::vector<std::shared_ptr<ICommand>>& allCommands;
+    const vector<shared_ptr<ICommand>>& allCommands;
 
 public:
 
-    HelpCommand(const std::vector<std::shared_ptr<ICommand>>& commands) 
+    HelpCommand(const vector<shared_ptr<ICommand>>& commands) 
         : allCommands(commands) {}
     void execute() override;
-    std::string getSignature() const override;
+    string getSignature() const override;
 };

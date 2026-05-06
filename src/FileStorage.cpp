@@ -3,30 +3,32 @@
 #include <sstream>
 #include <filesystem>
 
+using namespace std;
+
 
 // Constructor: Initializes the file path and triggers the initial data load
-FileStorage::FileStorage(const std::string& path) : filePath(path) {
+FileStorage::FileStorage(const string& path) : filePath(path) {
     // Call the helper function to populate the cache immediately upon creation
-    loadFromFile(); 
+    loadFromFile();
 }
 
 void FileStorage::loadFromFile() {
     // Make sure the file excists
-    if (!(std::filesystem::exists(filePath))) {
+    if (!(filesystem::exists(filePath))) {
         return; 
     }
 
     // Open the file
-    std::ifstream inFile(filePath);
+    ifstream inFile(filePath);
     // Make sure we can open the file and read from it
     if (!inFile.is_open()) {
         // Can't use getline() and read, history wont be save
         return;
     }
 
-    std::string line;
+    string line;
     // Read line-by-line , until EOF
-    while (std::getline(inFile, line)) {
+    while (getline(inFile, line)) {
         // Empty lines are not relevant
         if (line.empty()) continue; 
 
@@ -50,7 +52,7 @@ void FileStorage::saveUserProduct(int userId, int productId) {
     memoryCache[userId].push_back(productId);
 
     // Open the file for writing
-    std::ofstream outFile(filePath, std::ios::app);
+    ofstream outFile(filePath, ios::app);
     // Make sure the command above worked
     if (outFile.is_open()) {
         // Append the wanted data
@@ -60,7 +62,7 @@ void FileStorage::saveUserProduct(int userId, int productId) {
     }
 }
 
-std::vector<int> FileStorage::getUserHistory(int userId) const {
+vector<int> FileStorage::getUserHistory(int userId) const {
     // Search the userId in the memoryCache
     auto it = memoryCache.find(userId);
     // If userId found
@@ -72,9 +74,9 @@ std::vector<int> FileStorage::getUserHistory(int userId) const {
     return {};
 }
 
-std::vector<int> FileStorage::getAllUserIds() const {
+vector<int> FileStorage::getAllUserIds() const {
     // Make an int vector for the return value
-    std::vector<int> usersVector;
+    vector<int> usersVector;
     // for each pair of <userId, std::vector<int> productsVector>
     for (const auto& [userId, products] : memoryCache) {
         // Add only the userId to the vector
