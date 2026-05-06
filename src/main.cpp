@@ -5,6 +5,7 @@
 #include "CommandDispatcher.h"
 #include "StringParser.h"
 
+using namespace std;
 
 int main() {
     // Initialize the Data Layer
@@ -22,11 +23,11 @@ int main() {
     StringParser parser;
 
     // This string will keep the user's input.
-    std::string inputLine;
+    string inputLine;
     
     // The Main Event Loop will run infinitely, processing commands line by line from standard input,
     // until it is forcefully terminated externally.
-    while (std::getline(std::cin, inputLine)) {
+    while (getline(cin, inputLine)) {
         
         // Parse the raw string into a structured command
         Command cmd = parser.parse(inputLine);

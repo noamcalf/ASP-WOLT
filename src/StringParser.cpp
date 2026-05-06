@@ -2,12 +2,11 @@
 #include <vector>
 #include <string>
 
-using std::vector;
-using std::string;
+using namespace std;
 
-Command StringParser::parse(const std::string& input) {
+Command StringParser::parse(const string& input) {
     // Make sure there is no '/t' label in the input
-    if (input.find('\t') != std::string::npos) {
+    if (input.find('\t') != string::npos) {
         return {CommandType::INVALID, {}, input};
     }
 

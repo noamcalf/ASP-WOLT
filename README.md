@@ -22,7 +22,7 @@ Follow these steps to get your development environment running:
 
 **1. Clone the repository:**
 ```bash
-git clone [https://github.com/noamcalf/ASP-WOLT.git](https://github.com/noamcalf/ASP-WOLT.git)
+git clone https://github.com/noamcalf/ASP-WOLT.git
 ```
 
 **2. Enter the repository:**
