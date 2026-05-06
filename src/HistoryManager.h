@@ -6,21 +6,21 @@
 #include <unordered_set>  
 #include "IStorage.h"
 
-using std::vector;
+using namespace std;
 
 class HistoryManager {
 private:
     IStorage& storage;
 
     // Helper functions (moved to private as they are internal logic)
-    std::unordered_map<int, int> getRelevantUsers(int userId, int productId, const std::vector<int>& allUsers) const;
+    unordered_map<int, int> getRelevantUsers(int userId, int productId, const vector<int>& allUsers) const;
     
-    std::unordered_map<int, int> calculateProductScores(
+    unordered_map<int, int> calculateProductScores(
         int productId, 
-        const std::unordered_map<int, int>& relevantUsers, 
-        const std::unordered_set<int>& watchedProducts) const;
+        const unordered_map<int, int>& relevantUsers, 
+        const unordered_set<int>& watchedProducts) const;
 
-    std::vector<int> sortAndFilterTop10(std::unordered_map<int, int>& productScores) const;
+    vector<int> sortAndFilterTop10(unordered_map<int, int>& productScores) const;
 
 public:
     HistoryManager(IStorage& storageProvider);

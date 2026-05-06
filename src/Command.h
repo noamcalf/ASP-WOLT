@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 // An easy way to defer the different comman types
 enum class CommandType {
     RECOMMEND,
@@ -15,7 +17,7 @@ enum class CommandType {
 // The way the app should get the data from the user
 struct Command {
     CommandType type;
-    std::vector<std::string> arguments;
+    vector<string> arguments;
     // rawInput field is for returnning what the user enterd in case of an error
-    std::string rawInput;
+    string rawInput;
 };
