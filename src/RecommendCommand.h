@@ -13,6 +13,6 @@ private:
 
 public:
     RecommendCommand(HistoryManager& manager, int uid, int pid);
-    void execute() override;
+    std::string execute() override;
     std::string getSignature() const override;
 };
