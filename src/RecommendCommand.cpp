@@ -9,7 +9,7 @@ RecommendCommand::RecommendCommand(HistoryManager& manager, int uId, int pId)
     : historyManager(manager), userId(uId), productId(pId) {}
 
 // Execute
-void RecommendCommand::execute() {
+string RecommendCommand::execute() {
     // use the historyManager function to print the top-10 recommendation
     vector<int> result = historyManager.getRecommendations(userId, productId);
     // No more then 10 recommendations

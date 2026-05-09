@@ -3,11 +3,15 @@
 
 using namespace std;
 
-void HelpCommand::execute() {
+string HelpCommand::execute() {
+    // Output string
+    string output;
     // Print all the commands signatures using the reference vector "allCommands"
     for (const auto &com : allCommands) {
-        cout << com->getSignature() << endl;
+        output.append(com->getSignature());
+        output.append("\n");
     }
+    return output;
 }
 
 // Returns how the command should look in the help menu
