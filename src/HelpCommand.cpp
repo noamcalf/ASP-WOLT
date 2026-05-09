@@ -8,8 +8,7 @@ string HelpCommand::execute() {
     string output;
     // Print all the commands signatures using the reference vector "allCommands"
     for (const auto &com : allCommands) {
-        output.append(com->getSignature());
-        output.append("\n");
+        output += com->getSignature() + "\n";
     }
     return output;
 }

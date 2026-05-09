@@ -11,8 +11,8 @@ string AddCommand::execute() {
     for (int pId : productIds) {
         historyManager.addProductToUser(userId, pId);
     }
-    // Return the wanted string
-    return "201 Created";
+    // Return an empty - as was in ex1
+    return "";
 }
 
 // Returns how the command should look in the help menu
