@@ -6,11 +6,13 @@ AddCommand::AddCommand(HistoryManager& manager, int id, const std::vector<int>& 
     : historyManager(manager), userId(id), productIds(prods) {}
 
 // Execute
-void AddCommand::execute() {
+string AddCommand::execute() {
     // Iterate all the products, and add them to the userId
     for (int pId : productIds) {
         historyManager.addProductToUser(userId, pId);
     }
+    // Return an empty - as was in ex1
+    return "";
 }
 
 // Returns how the command should look in the help menu
