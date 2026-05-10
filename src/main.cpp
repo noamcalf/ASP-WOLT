@@ -32,8 +32,13 @@ int main() {
         // Parse the raw string into a structured command
         Command cmd = parser.parse(inputLine);
         
-        // Dispatch the command for execution
-        dispatcher.dispatch(cmd);
+        /// Dispatch the command for execution and get the string result
+        string result = dispatcher.dispatch(cmd);
+        
+        // Print the result if it's not empty
+        if (!result.empty()) {
+            cout << result;
+        }
     }
 
     return 0;
