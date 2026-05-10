@@ -18,7 +18,7 @@ CommandDispatcher::CommandDispatcher(HistoryManager& manager) : historyManager(m
     commandPrototypes.push_back(helpProto);
 }
 
-void CommandDispatcher::dispatch(const Command& rawCommand) {
+string CommandDispatcher::dispatch(const Command& rawCommand) {
     try {
         switch (rawCommand.type) {
             case CommandType::ADD: {
@@ -32,8 +32,7 @@ void CommandDispatcher::dispatch(const Command& rawCommand) {
 
                 // Create the right object, call execute()
                 AddCommand ac(historyManager, uId, pIds);
-                ac.execute();
-                break;
+                return ac.execute();
             }
 
             case CommandType::RECOMMEND: {
@@ -44,23 +43,22 @@ void CommandDispatcher::dispatch(const Command& rawCommand) {
 
                 // Create the right object, call execute()
                 RecommendCommand rc(historyManager, uId, pId);
-                rc.execute();
-                break;
+                return rc.execute();
             }
 
             case CommandType::HELP: {
                 // Create the right object, call execute()
                 HelpCommand hc(commandPrototypes); 
-                hc.execute();
-                break;
+                return hc.execute();
             }
 
             case CommandType::INVALID:
             default:
-                break;
+                return "";
         }
 
     } catch (const exception& e) {
         // Catch exceptions from stoi as requested, do nothing
+        return "";
     }
 }

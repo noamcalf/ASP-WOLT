@@ -14,6 +14,6 @@ public:
 
     HelpCommand(const vector<shared_ptr<ICommand>>& commands) 
         : allCommands(commands) {}
-    std::string execute() override;
+    string execute() override;
     string getSignature() const override;
 };

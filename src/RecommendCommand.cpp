@@ -9,12 +9,12 @@ RecommendCommand::RecommendCommand(HistoryManager& manager, int uId, int pId)
     : historyManager(manager), userId(uId), productId(pId) {}
 
 // Execute
-std::string RecommendCommand::execute() {
+string RecommendCommand::execute() {
     // Get the vector of product IDs from historyManager
-    std::vector<int> recs = historyManager.getRecommendations(userId, productId);
+    vector<int> recs = historyManager.getRecommendations(userId, productId);
 
     // Build the string from the vector
-    std::string output;
+    string output;
     for (size_t i = 0; i < recs.size(); ++i) {
         output += std::to_string(recs[i]);
         // Add a space between IDs, but not after the last one

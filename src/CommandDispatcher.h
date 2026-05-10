@@ -19,5 +19,5 @@ public:
     explicit CommandDispatcher(HistoryManager& manager);
 
     // Translates the raw command to an ICommand object and executes it
-    void dispatch(const Command& rawCommand);
+    string dispatch(const Command& rawCommand);
 };

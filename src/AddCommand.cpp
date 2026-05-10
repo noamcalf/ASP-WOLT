@@ -1,6 +1,8 @@
 #include "AddCommand.h"
 #include <iostream>
 
+using namespace std;
+
 // Constructor
 AddCommand::AddCommand(HistoryManager& manager, int id, const std::vector<int>& prods)
     : historyManager(manager), userId(id), productIds(prods) {}
@@ -16,6 +18,6 @@ string AddCommand::execute() {
 }
 
 // Returns how the command should look in the help menu
-std::string AddCommand::getSignature() const {
+string AddCommand::getSignature() const {
     return "add [userid] [productid1] [productid2] ...";
 }
