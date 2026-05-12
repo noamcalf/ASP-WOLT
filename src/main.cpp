@@ -5,6 +5,7 @@
 #include "HistoryManager.h"
 #include "CommandDispatcher.h"
 #include "StringParser.h"
+#include "TcpServer.h"
 
 using namespace std;
 
@@ -33,28 +34,10 @@ int main(int argc, char* argv[])  {
     // The dispatcher holds the history manager and initializes all supported commands.
     CommandDispatcher dispatcher(historyManager);
 
-    // Initialize the Parser
-    // Responsible for translating raw string input into structured Command objects.
-    StringParser parser;
-
-    // This string will keep the user's input.
-    string inputLine;
-    
-    // The Main Event Loop will run infinitely, processing commands line by line from standard input,
-    // until it is forcefully terminated externally.
-    while (getline(cin, inputLine)) {
-        
-        // Parse the raw string into a structured command
-        Command cmd = parser.parse(inputLine);
-        
-        /// Dispatch the command for execution and get the string result
-        string result = dispatcher.dispatch(cmd);
-        
-        // Print the result if it's not empty
-        if (!result.empty()) {
-            cout << result;
-        }
-    }
+    // Initialize and Start the Server
+    TcpServer server(port, dispatcher);
+    server.start();
+    server.run(); 
 
     return 0;
 }
