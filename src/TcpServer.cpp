@@ -2,6 +2,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cstdlib>
+#include <cstring>
 
 using namespace std;
 
@@ -60,6 +61,39 @@ void TcpServer::run() {
         exit(1);
     }
 
-    // Temporary close until WOLT-73 read/write loop implementation
+    // Buffer to store incoming data
+    char buffer[1024] = {0};
+    int bytes_read;
+
+    // Continuous loop to handle client communication
+    while (true) {
+        // Clear buffer before reading
+        memset(buffer, 0, sizeof(buffer));
+
+        // Read data from the client socket
+        bytes_read = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+
+        // Break the loop if the client disconnects or an error occurs
+        if (bytes_read <= 0) {
+            break;
+        }
+
+        // Convert received buffer to string
+        string inputLine(buffer);
+
+        // Clean up trailing newline characters like \r or \n
+        inputLine.erase(inputLine.find_last_not_of(" \n\r\t") + 1);
+
+        // Parse the raw string into a structured Command
+        Command cmd = parser.parse(inputLine);
+
+        // Execute the command and get the response string
+        string response = dispatcher.dispatch(cmd);
+
+        // Send the response back to the client socket
+        send(client_socket, response.c_str(), response.length(), 0);
+    }
+
+    // Close the client socket when the communication loop ends
     close(client_socket); 
 }

@@ -22,6 +22,7 @@ add_executable(wolt_app
     src/CommandDispatcher.cpp
     src/StringParser.cpp
     src/FileStorage.cpp
+    src/TcpServer.cpp
 )
 
 # Configure Testing
