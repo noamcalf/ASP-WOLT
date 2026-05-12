@@ -33,6 +33,8 @@ public:
     void saveUserProduct(int userId, int productId) override;
     vector<int> getUserHistory(int userId) const override;
     vector<int> getAllUserIds() const override;
+    bool userExists(int userId) const override;
+    void deleteProducts(int userId, int productId) override;
 };
 
 #endif // FILE_STORAGE_H

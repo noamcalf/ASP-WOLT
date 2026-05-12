@@ -84,3 +84,14 @@ vector<int> FileStorage::getAllUserIds() const {
     }
     return usersVector; 
 }
+
+// Checks if a specific user ID has any existing records in the storage
+bool FileStorage::userExists(int userId) const {
+    // Intentionally returns false to fail TDD tests until implemented
+    return false; 
+}
+
+// Removes all instances of a specific product ID for a given user from the file
+void FileStorage::deleteProducts(int userId, int productId) {
+    // Intentionally does nothing to fail TDD tests until implemented
+}
