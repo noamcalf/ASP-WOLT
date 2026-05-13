@@ -9,10 +9,11 @@ using namespace std;
 // An easy way to defer the different comman types
 enum class CommandType {
     RECOMMEND,
-    ADD,
+    ADD,        // Represents POST
     HELP,
     DELETE,
-    INVALID
+    PATCH,
+    INVALID     // Represents any unknown command
 };
 
 // The way the app should get the data from the user

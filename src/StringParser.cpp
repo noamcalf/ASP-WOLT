@@ -45,21 +45,26 @@ Command StringParser::parse(const string& input) {
     // Everything after the first token is an argument
     vector<string> arguments(tokens.begin() + 1, tokens.end());
 
-    // Case: 'add' command - requires at least 2 arguments (user and product)
-    if (commandName == "add" && arguments.size() >= 2) {
+    // POST: Replaces 'add' - requires at least 2 arguments (user and product)
+    if (commandName == "POST" && arguments.size() >= 2) {
         return {CommandType::ADD, arguments, input};
     } 
-    // Case: 'recommend' command - requires exactly 2 arguments (user and product)
-    else if (commandName == "recommend" && arguments.size() == 2) {
+    // GET: Replaces 'recommend' - requires exactly 2 arguments (user and product)
+    else if (commandName == "GET" && arguments.size() == 2) {
         return {CommandType::RECOMMEND, arguments, input};
     } 
-    // Case: 'help' command - requires zero arguments
+    // PATCH: New command - similar syntax to POST (at least 2 arguments)
+    else if (commandName == "PATCH" && arguments.size() >= 2) {
+        return {CommandType::PATCH, arguments, input};
+    }
+    // DELETE: New command - requires at least 2 arguments
+    else if (commandName == "DELETE" && arguments.size() >= 2) {
+        return {CommandType::DELETE, arguments, input};
+    }
+    // help: Remains the same, requires zero arguments
     else if (commandName == "help" && arguments.empty()) {
         return {CommandType::HELP, arguments, input};
     }
-
-    // Implement in WOLT-83 : Case: "DELETE"
-
     // If command name is unknown or arguments are invalid
     return {CommandType::INVALID, arguments, input};
 }

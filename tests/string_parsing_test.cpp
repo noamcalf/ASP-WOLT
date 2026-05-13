@@ -32,12 +32,12 @@ TEST(ParserTest, ValidatePATCHCommandSyntax) {
     
     // Valid: user and at least one product
     Command valid = parser.parse("PATCH user123 prod1");
-    EXPECT_EQ(valid.type, CommandType::ADD);
+    EXPECT_EQ(valid.type, CommandType::PATCH);
     EXPECT_EQ(valid.arguments.size(), 2);
 
     // Valid: PATCH, user and 10 products
     Command cmd1 = parser.parse("PATCH u1 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10");
-    EXPECT_EQ(cmd1.type, CommandType::ADD);
+    EXPECT_EQ(cmd1.type, CommandType::PATCH);
     EXPECT_EQ(cmd1.arguments.size(), 11);
 
     // Invalid: only "PATCH" command, or "PATCH" and user
@@ -134,7 +134,7 @@ TEST(ParserTest, FlagsInvalidCommands) {
     // VAILD: make sure parser is not treating a whitespace as a argument
     Command cmd2 = parser.parse("   PATCH    user123       prod1  prod2   ");
     
-    EXPECT_EQ(cmd2.type, CommandType::ADD);
+    EXPECT_EQ(cmd2.type, CommandType::PATCH);
     
     ASSERT_EQ(cmd2.arguments.size(), 3); 
     EXPECT_EQ(cmd2.arguments[0], "user123");
