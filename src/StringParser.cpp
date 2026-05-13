@@ -58,6 +58,8 @@ Command StringParser::parse(const string& input) {
         return {CommandType::HELP, arguments, input};
     }
 
+    // Implement in WOLT-83 : Case: "DELETE"
+
     // If command name is unknown or arguments are invalid
     return {CommandType::INVALID, arguments, input};
 }

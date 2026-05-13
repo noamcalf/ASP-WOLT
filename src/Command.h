@@ -11,6 +11,7 @@ enum class CommandType {
     RECOMMEND,
     ADD,
     HELP,
+    DELETE,
     INVALID
 };
 
