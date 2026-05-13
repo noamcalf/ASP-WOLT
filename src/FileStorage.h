@@ -22,6 +22,9 @@ private:
     // Helper function: Loads data from the text file into the memoryCache on startup.
     void loadFromFile();
 
+    // Helper function to update data from cache to file
+    void saveFromCacheToFile();
+
 public:
     // Constructor: Initializes the storage with a file path and loads existing data.
     explicit FileStorage(const string& path);
