@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <algorithm>
 
 using namespace std;
 
@@ -87,11 +88,49 @@ vector<int> FileStorage::getAllUserIds() const {
 
 // Checks if a specific user ID has any existing records in the storage
 bool FileStorage::userExists(int userId) const {
-    // Intentionally returns false to fail TDD tests until implemented
-    return false; 
+    return memoryCache.find(userId) != memoryCache.end();
+}
+
+void FileStorage::saveFromCacheToFile() {
+    // Delete the file content for re-write (also openning it)
+    ofstream outFile(filePath);
+    // Make sure the file is open
+    if (!outFile.is_open()) return;
+
+    // Copy all the data from the cache to the file
+    for (const auto& [uId, products] : memoryCache) {
+        for (int pId : products) {
+            outFile << uId << " " << pId << "\n";
+        }
+    }
+    // Close the file
+    outFile.close();
 }
 
 // Removes all instances of a specific product ID for a given user from the file
 void FileStorage::deleteProducts(int userId, int productId) {
-    // Intentionally does nothing to fail TDD tests until implemented
+    // Search the userId in the memoryCache
+    auto user = memoryCache.find(userId);
+    // Flag for changinf the data
+    bool flag = false;
+    // If userId found
+    if (user != memoryCache.end()) {
+        // Search for the specific productId in the userId's products vector
+        for (auto it = user->second.begin(); it != user->second.end(); ) {
+            // We found the wanted product, delete it
+            if (*it == productId) {
+            // Delete from cache
+            it = user->second.erase(it);
+            // Flag that change has been made
+            flag = true;
+            // Skip the producrId
+            } else {
+            it++;
+            }
+        }
+        // Update file if we changed somthing
+        if (flag) {
+            saveFromCacheToFile();
+        }
+    }
 }
