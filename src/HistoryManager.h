@@ -30,6 +30,7 @@ public:
     int getSimilarityScore(int userId1, int userId2) const;
     virtual vector<int> getRecommendations(int userId, int productId) const;
     bool checkUserExists(int uId) const;
+    virtual bool removeProductFromUser(int userId, int productId);
 };
 
 #endif
