@@ -3,6 +3,7 @@
 
 using namespace std;
 
+// Represents "POST" command
 // Constructor
 AddCommand::AddCommand(HistoryManager& manager, int id, const std::vector<int>& prods)
     : historyManager(manager), userId(id), productIds(prods) {}
@@ -13,8 +14,8 @@ string AddCommand::execute() {
     for (int pId : productIds) {
         historyManager.addProductToUser(userId, pId);
     }
-    // Return an empty - as was in ex1
-    return "";
+    // Return "201 Created" - as was in ex2
+    return "201 Created";
 }
 
 // Returns how the command should look in the help menu

@@ -24,6 +24,11 @@ string CommandDispatcher::dispatch(const Command& rawCommand) {
             case CommandType::ADD: {
                 // Get the UID and use stoi to make it int
                 int uId = stoi(rawCommand.arguments[0]);
+                // Check if the user is already exists
+                bool exist = historyManager.checkUserExists(uId);
+                if (exist) {
+                    return "404 Not Found";
+                }
                 // Create vector for the arguments, use stoi to make each one of them an int
                 vector<int> pIds;
                 for (size_t count = 1; count < rawCommand.arguments.size(); count++) {

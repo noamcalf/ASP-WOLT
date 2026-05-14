@@ -127,3 +127,7 @@ vector<int> HistoryManager::getRecommendations(int userId, int productId) const 
     // Sort and return top-10 products
     return sortAndFilterTop10(productScores);
 }
+
+bool HistoryManager::checkUserExists(int uId) const {
+    return storage.userExists(uId);
+}
