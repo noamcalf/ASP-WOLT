@@ -20,5 +20,5 @@ string AddCommand::execute() {
 
 // Returns how the command should look in the help menu
 string AddCommand::getSignature() const {
-    return "add [userid] [productid1] [productid2] ...";
+    return "POST, arguments: [userid] [productid1] [productid2] ...";
 }

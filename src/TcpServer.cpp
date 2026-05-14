@@ -37,8 +37,8 @@ void TcpServer::start() {
     address.sin_port = htons(port);       // 'htons' converts port to Network Byte Order (Big Endian)
 
     // Bind the socket to the specified port
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-        exit(1);
+    if (::bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+    exit(1);
     }
 
     // Listen for incoming connections with a backlog queue of 3
