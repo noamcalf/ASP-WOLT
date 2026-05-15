@@ -1,7 +1,9 @@
 #include "CommandDispatcher.h"
 #include "AddCommand.h"
 #include "RecommendCommand.h"
+#include "PatchCommand.h"
 #include "HelpCommand.h"
+#include "DeleteCommand.h"
 
 using namespace std;
 
@@ -21,9 +23,15 @@ CommandDispatcher::CommandDispatcher(HistoryManager& manager) : historyManager(m
 string CommandDispatcher::dispatch(const Command& rawCommand) {
     try {
         switch (rawCommand.type) {
+            // Represents POST
             case CommandType::ADD: {
                 // Get the UID and use stoi to make it int
                 int uId = stoi(rawCommand.arguments[0]);
+                // Check if the user is already exists
+                bool exist = historyManager.checkUserExists(uId);
+                if (exist) {
+                    return "404 Not Found";
+                }
                 // Create vector for the arguments, use stoi to make each one of them an int
                 vector<int> pIds;
                 for (size_t count = 1; count < rawCommand.arguments.size(); count++) {
@@ -33,6 +41,40 @@ string CommandDispatcher::dispatch(const Command& rawCommand) {
                 // Create the right object, call execute()
                 AddCommand ac(historyManager, uId, pIds);
                 return ac.execute();
+            }
+
+            case CommandType::PATCH: {
+                // Get the UID and use stoi to make it int
+                int uId = stoi(rawCommand.arguments[0]);
+                // Check if the user is already exists
+                bool exist = historyManager.checkUserExists(uId);
+                if (!exist) {
+                    return "404 Not Found";
+                }
+                // Create vector for the arguments, use stoi to make each one of them an int
+                vector<int> pIds;
+                for (size_t count = 1; count < rawCommand.arguments.size(); count++) {
+                    pIds.push_back(stoi(rawCommand.arguments[count]));
+                }
+
+                // Create the right object, call execute()
+                PatchCommand pc(historyManager, uId, pIds);
+                return pc.execute();
+            }
+
+            case CommandType::DELETE: {
+                // Get the UID and use stoi to make it int
+                int uId = stoi(rawCommand.arguments[0]);
+                
+                // Create vector for the arguments, use stoi to make each one of them an int
+                vector<int> pIds;
+                for (size_t count = 1; count < rawCommand.arguments.size(); count++) {
+                    pIds.push_back(stoi(rawCommand.arguments[count]));
+                }
+
+                // Create the right object, call execute()
+                DeleteCommand dc(historyManager, uId, pIds);
+                return dc.execute();
             }
 
             case CommandType::RECOMMEND: {
@@ -55,6 +97,8 @@ string CommandDispatcher::dispatch(const Command& rawCommand) {
             case CommandType::INVALID:
             default:
                 return "";
+
+            
         }
 
     } catch (const exception& e) {

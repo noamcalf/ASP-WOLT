@@ -127,3 +127,26 @@ vector<int> HistoryManager::getRecommendations(int userId, int productId) const 
     // Sort and return top-10 products
     return sortAndFilterTop10(productScores);
 }
+
+bool HistoryManager::checkUserExists(int uId) const {
+    return storage.userExists(uId);
+}
+
+bool HistoryManager::removeProductFromUser(int userId, int productId){
+    // get the user's history: use storageProvider
+    vector<int> history = storage.getUserHistory(userId);
+    bool flag = false;
+    // check if this productId is in this userid's history
+    for (int pid : history) {
+        if (productId == pid) {
+            flag = true;
+        }
+    }
+    // productId is not on userId's list
+    if (!flag) {return false;};
+
+    storage.deleteProducts(userId, productId);
+
+    // The product deleted
+    return true;
+}

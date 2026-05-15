@@ -6,7 +6,8 @@
 using namespace std;
 
 class AddCommand : public ICommand {
-private:
+// Enable inheritance
+protected:
     // Access to the logic engine
     HistoryManager& historyManager;
     int userId;
@@ -16,8 +17,8 @@ private:
 public:
     AddCommand(HistoryManager& manager, int uid, const vector<int>& pids);
     // Adds the products to the user's history via HistoryManager.
-    string execute() override;
+    virtual string execute() override;
 
     // Returns how the command should look in the help menu
-    string getSignature() const override;
+    virtual string getSignature() const override;
 };
