@@ -1,15 +1,33 @@
 #include "HelpCommand.h"
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
 string HelpCommand::execute() {
-    // Output string
-    string output;
-    // Print all the commands signatures using the reference vector "allCommands"
-    for (const auto &com : allCommands) {
-        output += com->getSignature() + "\n";
+    // Output string vector
+    vector<string> comVector;
+    // Add all signatures to the vector
+    for (const auto& com : allCommands) {
+        // Help will be the lasr command to get printed
+        if (!(com->getSignature().compare("help"))) {continue;}
+        comVector.push_back(com->getSignature());
     }
+
+    // Sort the vector as mentioned in ex2
+    sort(comVector.begin(), comVector.end());
+
+    // Create the final string
+    string output = "";
+
+    // Build the string 
+    for (const auto& c : comVector) {
+        output += c + "\n";
+    }
+
+    // Add "help"
+    output += getSignature() + "\n";
+
     return output;
 }
 

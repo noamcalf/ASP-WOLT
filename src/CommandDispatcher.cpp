@@ -12,6 +12,8 @@ CommandDispatcher::CommandDispatcher(HistoryManager& manager) : historyManager(m
     // push all the commands except helpCommand 
     commandPrototypes.push_back(make_shared<AddCommand>(historyManager, 0, vector<int>{}));
     commandPrototypes.push_back(make_shared<RecommendCommand>(historyManager, 0, 0));
+    commandPrototypes.push_back(make_shared<PatchCommand>(historyManager, 0, vector<int>{}));
+    commandPrototypes.push_back(make_shared<DeleteCommand>(historyManager, 0, vector<int>{}));
     
     // creat "helpCommand" object with the vector and the commands we've pushed
     auto helpProto = make_shared<HelpCommand>(commandPrototypes);
