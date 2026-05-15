@@ -128,8 +128,8 @@ vector<int> HistoryManager::getRecommendations(int userId, int productId) const 
     return sortAndFilterTop10(productScores);
 }
 
-bool HistoryManager::checkUserExists(int uId) const {
-    return storage.userExists(uId);
+bool HistoryManager::checkUserExists(int userId) const {
+    return storage.userExists(userId);
 }
 
 bool HistoryManager::removeProductFromUser(int userId, int productId){

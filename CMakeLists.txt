@@ -23,6 +23,8 @@ add_executable(wolt_app
     src/StringParser.cpp
     src/FileStorage.cpp
     src/TcpServer.cpp
+    src/DeleteCommand.cpp
+    src/PatchCommand.cpp
 )
 
 # Configure Testing
@@ -46,6 +48,8 @@ add_executable(wolt_tests
     src/CommandDispatcher.cpp
     src/StringParser.cpp
     src/FileStorage.cpp
+    src/DeleteCommand.cpp
+    src/PatchCommand.cpp
 )
 
 # Link the test executable with Google Test libraries
