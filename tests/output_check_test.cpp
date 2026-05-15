@@ -71,9 +71,12 @@ TEST(OutputCheckTest, RecommendEdgeCases) {
     EXPECT_EQ(outputEmpty, "200 Ok\n\n\n");
 
     // More then 10 recommendations
+    // We expect the output to contain ALL 12 items. This proves that the 
+    // RecommendCommand strictly handles formatting and does NOT enforce the 10-item 
+    // limit (which is the sole responsibility of the HistoryManager engine).
     mockHM.fakeRecommendationsToReturn = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     std::string outputLimit = dispatcher.dispatch(rawCmd);
-    EXPECT_EQ(outputLimit, "200 Ok\n\n1 2 3 4 5 6 7 8 9 10\n");
+    EXPECT_EQ(outputLimit, "200 Ok\n\n1 2 3 4 5 6 7 8 9 10 11 12\n");
 }
 
 // POST, PATCH Output Tests

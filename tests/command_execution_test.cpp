@@ -64,7 +64,7 @@ TEST(CommandExecutionTest, RecommendCommandExecution) {
     RecommendCommand recCmd(mockManager, 1, 101);
     
     std::string output = recCmd.execute(); 
-    EXPECT_EQ(output, "201 202 203\n"); 
+    EXPECT_EQ(output, "200 Ok\n\n201 202 203\n"); 
     EXPECT_EQ(mockManager.getRecommendationsCallCount, 1);
 }
 

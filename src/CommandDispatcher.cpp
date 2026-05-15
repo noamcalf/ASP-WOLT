@@ -96,13 +96,14 @@ string CommandDispatcher::dispatch(const Command& rawCommand) {
 
             case CommandType::INVALID:
             default:
-                return "";
+                // Return 400 Bad Request for invalid commands
+                return "400 Bad Request\n";
 
             
         }
 
     } catch (const exception& e) {
-        // Catch exceptions from stoi as requested, do nothing
-        return "";
+        // Catch exceptions from stoi (invalid arguments), return 400 Bad Request
+        return "400 Bad Request\n";
     }
 }

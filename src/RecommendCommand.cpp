@@ -13,8 +13,9 @@ string RecommendCommand::execute() {
     // Get the vector of product IDs from historyManager
     vector<int> recs = historyManager.getRecommendations(userId, productId);
 
-    // Build the string from the vector
-    string output;
+    // Build the string from the vector, starting with the HTTP status
+    string output = "200 Ok\n\n";
+    
     for (size_t i = 0; i < recs.size(); ++i) {
         output += std::to_string(recs[i]);
         // Add a space between IDs, but not after the last one
