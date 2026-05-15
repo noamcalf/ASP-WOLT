@@ -18,19 +18,20 @@ TEST(OutputCheckTest, HelpCommandOutput) {
     rawCmd.type = CommandType::HELP;
 
     // Save the output we got from running "help"
-    testing::internal::CaptureStdout();
-    dispatcher.dispatch(rawCmd);
-    std::string output = testing::internal::GetCapturedStdout();
+    std::string output = dispatcher.dispatch(rawCmd);
 
-    // The expected output
+    // Expected output: Strictly alphabetically sorted, 'help' is always last
     std::string expected = 
-        "add [userid] [productid1] [productid2] ...\n"
-        "recommend [userid] [productid]\n"
+        "DELETE, arguments: [userid] [productid1] [productid2] ...\n"
+        "GET, arguments: [userid] [productid]\n"
+        "PATCH, arguments: [userid] [productid1] [productid2] ...\n"
+        "POST, arguments: [userid] [productid1] [productid2] ...\n"
         "help\n";
 
     EXPECT_EQ(output, expected);
 }
 
+// Recommend (GET) Command Output Tests
 TEST(OutputCheckTest, RecommendCommandFormatting) {
     // Init
     MockStorage storage;
@@ -46,12 +47,10 @@ TEST(OutputCheckTest, RecommendCommandFormatting) {
     rawCmd.arguments = {"1", "100"};
 
     // Save the output we got from running "recommend"
-    testing::internal::CaptureStdout();
-    dispatcher.dispatch(rawCmd);
-    std::string output = testing::internal::GetCapturedStdout();
+    std::string output = dispatcher.dispatch(rawCmd);
 
     // The expected output
-    EXPECT_EQ(output, "101 202 303\n");
+    EXPECT_EQ(output, "200 Ok\n\n101 202 303\n");
 }
 
 // Recommend edge cases
@@ -68,53 +67,90 @@ TEST(OutputCheckTest, RecommendEdgeCases) {
 
     // Empty recomendation vector
     mockHM.fakeRecommendationsToReturn = {}; 
-    testing::internal::CaptureStdout();
-    dispatcher.dispatch(rawCmd);
-    std::string outputEmpty = testing::internal::GetCapturedStdout();
-    EXPECT_EQ(outputEmpty, "\n");
+    std::string outputEmpty = dispatcher.dispatch(rawCmd);
+    EXPECT_EQ(outputEmpty, "200 Ok\n\n\n");
 
     // More then 10 recommendations
     mockHM.fakeRecommendationsToReturn = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    testing::internal::CaptureStdout();
-    dispatcher.dispatch(rawCmd);
-    std::string outputLimit = testing::internal::GetCapturedStdout();
-    EXPECT_EQ(outputLimit, "1 2 3 4 5 6 7 8 9 10\n");
+    std::string outputLimit = dispatcher.dispatch(rawCmd);
+    EXPECT_EQ(outputLimit, "200 Ok\n\n1 2 3 4 5 6 7 8 9 10\n");
 }
 
-TEST(OutputCheckTest, InvalidCommandSilence) {
+// POST, PATCH Output Tests
+TEST(OutputCheckTest, PostCommandOutput) {
+    MockStorage storage;
+    MockHistoryManager mockHM(storage);
+    CommandDispatcher dispatcher(mockHM);
+
+    Command rawCmd = {CommandType::ADD, {"1", "101"}, "POST 1 101"};
+    
+    // Success Case: User doesn't exist yet -> 201 Created
+    mockHM.mockUserExistsResult = false;
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "201 Created");
+
+    // Failure Case: User already exists -> 404 Not Found
+    mockHM.mockUserExistsResult = true;
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "404 Not Found");
+}
+
+TEST(OutputCheckTest, PatchCommandOutput) {
+    MockStorage storage;
+    MockHistoryManager mockHM(storage);
+    CommandDispatcher dispatcher(mockHM);
+
+    Command rawCmd = {CommandType::PATCH, {"1", "101"}, "PATCH 1 101"};
+    
+    // Success Case: User exists -> 204 No Content
+    mockHM.mockUserExistsResult = true;
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "204 No Content");
+
+    // Failure Case: User doesn't exist -> 404 Not Found
+    mockHM.mockUserExistsResult = false;
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "404 Not Found");
+}
+
+// DELETE Output Tests
+TEST(OutputCheckTest, DeleteCommandOutput) {
+    MockStorage storage;
+    MockHistoryManager mockHM(storage);
+    CommandDispatcher dispatcher(mockHM);
+
+    Command rawCmd = {CommandType::DELETE, {"1", "101"}, "DELETE 1 101"};
+    
+    // Success Case: Product successfully removed -> 204 No Content
+    mockHM.mockRemoveProductResult = true;
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "204 No Content");
+
+    // Failure Case: Product or user not found -> 404 Not Found
+    mockHM.mockRemoveProductResult = false;
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "404 Not Found");
+}
+
+
+TEST(OutputCheckTest, InvalidCommandReturns400) {
     // Init
     MockStorage storage;
     MockHistoryManager mockHM(storage);
     CommandDispatcher dispatcher(mockHM);
 
-    // Save the printed data
-    testing::internal::CaptureStdout();
-
-    // Valid ADD - should remain silent
-    Command validAdd;
-    validAdd.type = CommandType::ADD;
-    validAdd.arguments = {"1", "101", "102"};
-    dispatcher.dispatch(validAdd);
-    
     // Create the Command struct for the dispatcher: Invalid command
     Command invalidCmd;
     invalidCmd.type = CommandType::INVALID;
-    dispatcher.dispatch(invalidCmd);
 
-    // Create the Command struct for the dispatcher: Incomlete add command
-    Command incompleteAdd1;
-    incompleteAdd1.type = CommandType::ADD;
-    incompleteAdd1.arguments = {"1"}; 
-    dispatcher.dispatch(incompleteAdd1);
+    std::string outputInvalid = dispatcher.dispatch(invalidCmd);
+    EXPECT_EQ(outputInvalid, "400 Bad Request\n");
 
     // Create the Command struct for the dispatcher: Invalid command with arguments
     Command incompleteAdd3;
     incompleteAdd3.type = CommandType::INVALID;
     incompleteAdd3.arguments = {"1","2","3","4"}; 
-    dispatcher.dispatch(incompleteAdd3);
-    
-    // Get the data we saved
-    std::string output = testing::internal::GetCapturedStdout();
+    std::string outputIncomplete = dispatcher.dispatch(incompleteAdd3);
+    EXPECT_EQ(outputIncomplete, "400 Bad Request\n");
 
-    EXPECT_TRUE(output.empty());
+    // Invalid string arguments (should be caught by exception handler in dispatcher)
+    Command badArgsCmd;
+    badArgsCmd.type = CommandType::ADD;
+    badArgsCmd.arguments = {"not", "a", "number"}; 
+    std::string outputBadArgs = dispatcher.dispatch(badArgsCmd);
+    EXPECT_EQ(outputBadArgs, "400 Bad Request\n");
 }

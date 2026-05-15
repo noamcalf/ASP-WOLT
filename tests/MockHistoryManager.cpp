@@ -15,3 +15,13 @@ std::vector<int> MockHistoryManager::getRecommendations(int userId, int productI
 void MockHistoryManager::addProductToUser(int userId, int productId) {
     addProductCalls.push_back({userId, productId});
 }
+
+// Mock implementation for checking if a user exists
+bool MockHistoryManager::checkUserExists(int userId) const {
+    return mockUserExistsResult;
+}
+
+// Mock implementation for removing a product
+bool MockHistoryManager::removeProductFromUser(int userId, int productId) {
+    return mockRemoveProductResult;
+}

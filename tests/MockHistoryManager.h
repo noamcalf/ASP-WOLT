@@ -19,9 +19,17 @@ public:
     // Data for new output tests
     std::vector<int> fakeRecommendationsToReturn;
 
+    // New variables for the HTTP commands mock
+    // Controls what checkUserExists() returns in tests
+    bool mockUserExistsResult = false; 
+    // Controls what removeProductFromUser() returns in tests
+    bool mockRemoveProductResult = true; 
+
     // Declarations only
     std::vector<int> getRecommendations(int userId, int productId) const override;
     void addProductToUser(int userId, int productId) override;
+    bool checkUserExists(int userId) const override;
+    bool removeProductFromUser(int userId, int productId) override;
 };
 
 #endif
