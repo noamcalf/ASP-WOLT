@@ -39,7 +39,7 @@ def main():
                 break
 
             # Print the server's response
-            print(response.decode())
+            print(response.decode(), end="")
 
     # Catch the exeption, and do nothing
     except Exception as e:
