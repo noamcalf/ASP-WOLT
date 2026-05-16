@@ -14,7 +14,7 @@ string AddCommand::execute() {
     for (int pId : productIds) {
         historyManager.addProductToUser(userId, pId);
     }
-    // Return "201 Created" - as was in ex2
+    // Return "201 Created" - as asked in ex2
     return "201 Created";
 }
 

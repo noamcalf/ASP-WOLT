@@ -29,5 +29,5 @@ string RecommendCommand::execute() {
 
 // Returns how the command should look in the help menu
 string RecommendCommand::getSignature() const {
-    return "recommend [userid] [productid]";
+    return "GET, arguments: [userid] [productid]";
 }
