@@ -39,7 +39,7 @@ def main():
                 break
 
             # Print the server's response
-            print(response.decode(), end="")
+            print(response.decode())
 
     # Catch the exeption, and do nothing
     except Exception as e:
@@ -49,3 +49,6 @@ def main():
             # Close the socket in the end of the connection
             if client_socket is not None:
                 client_socket.close()
+
+if __name__ == "__main__":
+    main()
