@@ -14,10 +14,10 @@ string DeleteCommand::execute() {
     // If one of the remove methods fails - the DeleteCommand has logic failure
     for (int pId : productIds) {
         if (historyManager.removeProductFromUser(userId, pId) == false) {
-            return "404 Not Found";
+            return "404 Not Found\n";
         }
     }
-    return "204 No Content";
+    return "204 No Content\n";
 }
 
 // Returns how the command should look in the help menu

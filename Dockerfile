@@ -4,12 +4,13 @@ FROM ubuntu:22.04
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install essential C++ build tools, CMake, and GTest library
+# Install essential C++ build tools, CMake, GTest library, and Python 3 (WOLT-96)
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     g++ \
     libgtest-dev \
+    python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Pre-compile the GTest library so it's ready for the project
