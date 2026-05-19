@@ -53,6 +53,8 @@ void TcpServer::run() {
     int addrlen = sizeof(address);
     int client_socket;
 
+    while (true) {
+
     // Block and wait for a new client to connect
     client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
     
@@ -96,4 +98,5 @@ void TcpServer::run() {
 
     // Close the client socket when the communication loop ends
     close(client_socket); 
+    }
 }
