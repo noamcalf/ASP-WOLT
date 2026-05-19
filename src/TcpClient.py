@@ -32,6 +32,7 @@ def main():
             if not user_input.strip():
                 continue
 
+
             # Send the message to the server
             client_socket.sendall(user_input.encode())
 
