@@ -54,7 +54,6 @@ void TcpServer::run() {
     int client_socket;
 
     while (true) {
-    
     // Block and wait for a new client to connect
     client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
     
@@ -86,15 +85,18 @@ void TcpServer::run() {
         // Clean up trailing newline characters like \r or \n
         inputLine.erase(inputLine.find_last_not_of(" \n\r\t") + 1);
 
+        // Take care of empty message
+        if (inputLine.empty()) {
+            string response = "\n";
+            send(client_socket, response.c_str(), response.length(), 0);
+            continue;
+        }
+
         // Parse the raw string into a structured Command
         Command cmd = parser.parse(inputLine);
 
         // Execute the command and get the response string
         string response = dispatcher.dispatch(cmd);
-
-        if (response.empty()) {
-            response = "\n";
-        }
 
         // Send the response back to the client socket
         send(client_socket, response.c_str(), response.length(), 0);
@@ -102,5 +104,5 @@ void TcpServer::run() {
 
     // Close the client socket when the communication loop ends
     close(client_socket);
-    } 
+    }
 }
