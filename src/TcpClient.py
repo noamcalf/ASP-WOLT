@@ -28,6 +28,10 @@ def main():
         while True:
             user_input = input("> ")
 
+            # Check if the message is empty
+            if not user_input.strip():
+                continue
+
             # Send the message to the server
             client_socket.sendall(user_input.encode())
 
