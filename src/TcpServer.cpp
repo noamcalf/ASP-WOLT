@@ -53,6 +53,8 @@ void TcpServer::run() {
     int addrlen = sizeof(address);
     int client_socket;
 
+    while (true) {
+    
     // Block and wait for a new client to connect
     client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
     
@@ -90,10 +92,15 @@ void TcpServer::run() {
         // Execute the command and get the response string
         string response = dispatcher.dispatch(cmd);
 
+        if (response.empty()) {
+            response = "\n";
+        }
+
         // Send the response back to the client socket
         send(client_socket, response.c_str(), response.length(), 0);
     }
 
     // Close the client socket when the communication loop ends
-    close(client_socket); 
+    close(client_socket);
+    } 
 }
