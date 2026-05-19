@@ -32,7 +32,7 @@ string CommandDispatcher::dispatch(const Command& rawCommand) {
                 // Check if the user is already exists
                 bool exist = historyManager.checkUserExists(uId);
                 if (exist) {
-                    return "404 Not Found\n";
+                    return "404 Not Found";
                 }
                 // Create vector for the arguments, use stoi to make each one of them an int
                 vector<int> pIds;
@@ -51,7 +51,7 @@ string CommandDispatcher::dispatch(const Command& rawCommand) {
                 // Check if the user is already exists
                 bool exist = historyManager.checkUserExists(uId);
                 if (!exist) {
-                    return "404 Not Found\n";
+                    return "404 Not Found";
                 }
                 // Create vector for the arguments, use stoi to make each one of them an int
                 vector<int> pIds;

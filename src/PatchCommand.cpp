@@ -10,7 +10,7 @@ string PatchCommand::execute() {
     AddCommand::execute(); 
     
     // Return the wanted output - not the same as Add's
-    return "204 No Content\n"; 
+    return "204 No Content"; 
 }
 
 string PatchCommand::getSignature() const {
