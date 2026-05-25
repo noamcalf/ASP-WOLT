@@ -19,3 +19,23 @@ wolt_tests
 
 # Mac OS system files (just in case)
 .DS_Store
+
+# Node.js / JavaScript (Express Server)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Development / Environment secrets
+.env
+.env.local
+.env.development.local
+
+# IDEs and editors configuration
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

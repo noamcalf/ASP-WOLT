@@ -1,0 +1,33 @@
+{
+  "name": "asp-wolt",
+  "version": "1.0.0",
+  "description": "**ASP-WOLT** is a C++ based Client-Server application designed to provide personalized product recommendations for users based on their purchase history. The system calculates user similarity using advanced collaborative filtering algorithms. In this version, the architecture has been upgraded to a robust Client-Server model using TCP Sockets, supporting a standard HTTP-like communication protocol.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+  "start": "node src/app.js",
+  "test": "jest --watchAll"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noamcalf/ASP-WOLT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/noamcalf/ASP-WOLT/issues"
+  },
+  "homepage": "https://github.com/noamcalf/ASP-WOLT#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2"
+  }
+}
