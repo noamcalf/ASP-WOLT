@@ -89,11 +89,11 @@ TEST(OutputCheckTest, PostCommandOutput) {
     
     // Success Case: User doesn't exist yet -> 201 Created
     mockHM.mockUserExistsResult = false;
-    EXPECT_EQ(dispatcher.dispatch(rawCmd), "201 Created");
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "201 Created\n");
 
     // Failure Case: User already exists -> 404 Not Found
     mockHM.mockUserExistsResult = true;
-    EXPECT_EQ(dispatcher.dispatch(rawCmd), "404 Not Found");
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "404 Not Found\n");
 }
 
 TEST(OutputCheckTest, PatchCommandOutput) {
@@ -105,11 +105,11 @@ TEST(OutputCheckTest, PatchCommandOutput) {
     
     // Success Case: User exists -> 204 No Content
     mockHM.mockUserExistsResult = true;
-    EXPECT_EQ(dispatcher.dispatch(rawCmd), "204 No Content");
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "204 No Content\n");
 
     // Failure Case: User doesn't exist -> 404 Not Found
     mockHM.mockUserExistsResult = false;
-    EXPECT_EQ(dispatcher.dispatch(rawCmd), "404 Not Found");
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "404 Not Found\n");
 }
 
 // DELETE Output Tests
@@ -122,11 +122,11 @@ TEST(OutputCheckTest, DeleteCommandOutput) {
     
     // Success Case: Product successfully removed -> 204 No Content
     mockHM.mockRemoveProductResult = true;
-    EXPECT_EQ(dispatcher.dispatch(rawCmd), "204 No Content");
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "204 No Content\n");
 
     // Failure Case: Product or user not found -> 404 Not Found
     mockHM.mockRemoveProductResult = false;
-    EXPECT_EQ(dispatcher.dispatch(rawCmd), "404 Not Found");
+    EXPECT_EQ(dispatcher.dispatch(rawCmd), "404 Not Found\n");
 }
 
 
