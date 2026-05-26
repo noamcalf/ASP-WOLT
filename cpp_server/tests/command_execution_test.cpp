@@ -20,7 +20,7 @@ TEST(CommandExecutionTest, PostCommandExecution) {
     AddCommand addCmd(mockManager, 1, products);
     
     std::string output = addCmd.execute();
-    EXPECT_EQ(output, "201 Created");
+    EXPECT_EQ(output, "201 Created\n");
     EXPECT_EQ(mockManager.addProductCalls.size(), 3);
 }
 
@@ -33,7 +33,7 @@ TEST(CommandExecutionTest, PatchCommandExecution) {
     PatchCommand patchCmd(mockManager, 1, products);
     
     std::string output = patchCmd.execute();
-    EXPECT_EQ(output, "204 No Content");
+    EXPECT_EQ(output, "204 No Content\n");
     EXPECT_EQ(mockManager.addProductCalls.size(), 1);
 }
 
@@ -48,11 +48,11 @@ TEST(CommandExecutionTest, DeleteCommandExecutionSuccess) {
     
     // Success scenario
     mockManager.mockRemoveProductResult = true;
-    EXPECT_EQ(delCmd.execute(), "204 No Content");
+    EXPECT_EQ(delCmd.execute(), "204 No Content\n");
 
     // Failure scenario (product not found)
     mockManager.mockRemoveProductResult = false;
-    EXPECT_EQ(delCmd.execute(), "404 Not Found");
+    EXPECT_EQ(delCmd.execute(), "404 Not Found\n");
 }
 
 // Verify that RecommendCommand returns just the products (Dispatcher wraps it later)
