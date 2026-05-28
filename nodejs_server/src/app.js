@@ -3,13 +3,16 @@
  * Configures the Express server and global middleware.
  */
 const express = require('express');
+const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddleware');
 const app = express();
 
 // Set the port from environment variables, fallback to 3000
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse incoming JSON payloads in the request body
+// Middlewares
 app.use(express.json());
+app.use(notFoundMiddleware);
+app.use(globalErrorMiddleware);
 
 // --- Routes setup will go here ---
 

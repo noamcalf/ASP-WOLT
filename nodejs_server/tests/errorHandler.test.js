@@ -8,6 +8,7 @@ const express = require('express');
 // In WOLT-109, these middlewares will be implemented in the actual app.js.
 const app = express();
 app.use(express.json());
+const { notFoundMiddleware, globalErrorMiddleware } = require('../src/middlewares/errorMiddleware');
 
 /**
  * MOCK ROUTES FOR TESTING
@@ -28,8 +29,8 @@ app.get('/api/crash', (req, res, next) => {
  * In TDD, we write the assertions first. When we run this file now, 
  * the tests will fail because the middleware logic is missing.
  */
-// TODO: app.use(notFoundMiddleware);
-// TODO: app.use(globalErrorMiddleware);
+TODO: app.use(notFoundMiddleware);
+TODO: app.use(globalErrorMiddleware);
 
 /**
  * ASSERTION SUITES
