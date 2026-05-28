@@ -23,8 +23,7 @@
   },
   "homepage": "https://github.com/noamcalf/ASP-WOLT#readme",
   "dependencies": {
-    "express": "^5.2.1",
-    "uuid": "^14.0.0"
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "jest": "^30.4.2",

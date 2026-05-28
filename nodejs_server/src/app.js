@@ -20,7 +20,8 @@ app.get('/', (req, res) => {
 });
 
 // 2. Logical routes
-// app.use('/api/restaurants', restaurantRouter);  WOLT 113,114
+const restaurantRouter = require('./routes/restaurantRoutes');
+app.use('/api/restaurants', restaurantRouter);
 
 
 // 3. Error & Safety Middlewares 
