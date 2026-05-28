@@ -4,6 +4,9 @@
  */
 const dataStore = require('../models/DataStore');
 
+// Import Node.js built-in crypto module for UUID generation
+const crypto = require('crypto');
+
 // Retrieves all active restaurants and returns them as a JSON array
 const getRestaurants = (req, res) => {
     const restaurants = dataStore.restaurants;
@@ -37,8 +40,9 @@ const createRestaurant = (req, res) => {
         return res.status(400).json({ error: "Validation failed: 'houseNumber' is required" });
     }
 
-    // Construct the validated restaurant object
+    // Construct the new restaurant object with a unique ID.
     const newRestaurant = {
+        id: crypto.randomUUID(),
         name: name.trim(),
         cuisine: cuisine.trim(),
         address: {
