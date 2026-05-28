@@ -145,3 +145,59 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
         });
     });
 });
+
+describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
+    let testRestaurantId;
+
+    // Setup: Create a dummy restaurant before running these specific tests
+    beforeAll(async () => {
+        const testRestaurant = {
+            name: 'TDD Burger',
+            cuisine: 'American',
+            address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 100 }
+        };
+
+        const response = await request(app)
+            .post('/api/restaurants')
+            .send(testRestaurant);
+        
+        // Extract the ID from the Location header (e.g., "/api/restaurants/1234-5678")
+        const locationParts = response.headers.location.split('/');
+        testRestaurantId = locationParts[locationParts.length - 1];
+    });
+
+    // Teardown: Ensure memory is completely wiped after these tests finish
+    afterAll(() => {
+        dataStore.clearAll(); 
+    });
+
+    // Test 1: Handle unknown IDs (404)
+    it('Should return 404 Not Found when querying an unknown restaurant ID', async () => {
+        const response = await request(app).get('/api/restaurants/non-existent-uuid-1234');
+        
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty('error');
+    });
+
+    // Test 2: Successful PATCH (204)
+    it('Should cleanly modify fields and return 204 No Content', async () => {
+        const updatePayload = { name: 'TDD Burger Premium' };
+        
+        const response = await request(app)
+            .patch(`/api/restaurants/${testRestaurantId}`)
+            .send(updatePayload);
+            
+        expect(response.status).toBe(204);
+        // Verify payload body is completely empty as required by the professor
+        expect(response.text === '' || Object.keys(response.body).length === 0).toBe(true);
+    });
+
+    // Test 3: Successful DELETE (204)
+    it('Should drop items out of memory entirely and yield a 204 No Content code', async () => {
+        const response = await request(app).delete(`/api/restaurants/${testRestaurantId}`);
+        
+        expect(response.status).toBe(204);
+        // Verify payload body is completely empty
+        expect(response.text === '' || Object.keys(response.body).length === 0).toBe(true);
+    });
+});
