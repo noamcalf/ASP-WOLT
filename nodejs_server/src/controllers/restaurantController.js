@@ -105,10 +105,31 @@ const updateRestaurant = (req, res, next) => {
     res.status(204).end();   
 }
 
+const deleteRestaurant = (req, res, next) => {
+    // Get id from the URL
+    const { id } = req.params;
+
+    // Search the id in the restaurants array
+    const restaurant = dataStore.restaurants.find(r => r.id === id);
+
+    // We have not find it
+        if (!restaurant) {
+            // Set error message and call the error handler Middleware
+            const error = new Error(`Resource Error: Restaurant with ID '${id}' was not found`);
+            error.statusCode = 404;
+            return next(error); 
+        }
+    
+    
+    // Return response as Json 
+    res.status(204).end();    
+}
+
 
 module.exports = {
     getRestaurants,
     createRestaurant,
     getRestaurantById,
-    updateRestaurant
+    updateRestaurant,
+    deleteRestaurant
 };

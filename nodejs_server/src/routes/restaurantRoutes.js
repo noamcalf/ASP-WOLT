@@ -18,4 +18,7 @@ router.get('/:id', restaurantController.getRestaurantById);
 // Bind PATCH requests with id as parameter to getRestaurantById
 router.patch('/:id', restaurantController.updateRestaurant);
 
+// Bind DELETE requests with id as parameter to getRestaurantById
+router.delete('/:id', restaurantController.deleteRestaurant);
+
 module.exports = router;
