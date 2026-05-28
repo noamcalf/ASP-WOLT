@@ -5,6 +5,8 @@ const express = require('express');
 // Import the main Express application instance
 const app = require('../src/app'); 
 
+const dataStore = require('../src/models/DataStore');
+
 // Empty array GET
 describe('Restaurants Integration Tests (GET & POST)', () => {
     describe('GET /api/restaurants', () => {
@@ -150,25 +152,21 @@ describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
     let testRestaurantId;
 
     // Setup: Create a dummy restaurant before running these specific tests
-    beforeAll(async () => {
-        const testRestaurant = {
-            name: 'TDD Burger',
-            cuisine: 'American',
-            address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 100 }
-        };
+    beforeEach(async () => {
+    dataStore.clearAll();
+    
+    const testRestaurant = {
+        name: 'TDD Burger',
+        cuisine: 'American',
+        address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 100 }
+    };
 
-        const response = await request(app)
-            .post('/api/restaurants')
-            .send(testRestaurant);
-        
-        // Extract the ID from the Location header (e.g., "/api/restaurants/1234-5678")
-        const locationParts = response.headers.location.split('/');
-        testRestaurantId = locationParts[locationParts.length - 1];
-    });
+    const response = await request(app)
+        .post('/api/restaurants')
+        .send(testRestaurant);
 
-    // Teardown: Ensure memory is completely wiped after these tests finish
-    afterAll(() => {
-        dataStore.clearAll(); 
+    const locationParts = response.headers.location.split('/');
+    testRestaurantId = locationParts[locationParts.length - 1];
     });
 
     // Test 1: Handle unknown IDs (404)

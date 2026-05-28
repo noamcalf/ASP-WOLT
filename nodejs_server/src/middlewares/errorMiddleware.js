@@ -3,9 +3,13 @@ const notFoundMiddleware = (req, res, next) => {
     res.status(404).json({ error: 'Route not found' });
 };
 
-// Handle 500 code
+// Handle any any other error
 const globalErrorMiddleware = (err, req, res, next) => {
-    res.status(500).json({ error: 'Internal Server Error' });
+    // Get status code or default
+    const status = err.statusCode || 500;
+    // Get error message or default
+    const message = status === 500 ? 'Internal Server Error' : err.message; 
+    res.status(status).json({ error: message });
 };
 
 // Make those functions accessible

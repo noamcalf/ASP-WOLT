@@ -12,4 +12,7 @@ router.get('/', restaurantController.getRestaurants);
 // Bind POST requests to the createRestaurant controller
 router.post('/', restaurantController.createRestaurant);
 
+// Bind GET requests with id as parameter to getRestaurantById
+router.get('/:id', restaurantController.getRestaurantById);
+
 module.exports = router;

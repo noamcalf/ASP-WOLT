@@ -62,7 +62,29 @@ const createRestaurant = (req, res) => {
     res.status(201).end();
 };
 
+const getRestaurantById = (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // חיפוש מתוך ה-dataStore המיובא
+        const restaurant = dataStore.restaurants.find(r => r.id === id);
+
+        if (!restaurant) {
+            const error = new Error(`Resource Error: Restaurant with ID '${id}' was not found`);
+            error.statusCode = 404;
+            return next(error); 
+        }
+
+        res.status(200).json(restaurant);
+    } catch (err) {
+        // 🔥 זה ידפיס לנו בטרמינל בדיוק איזה שורה קורסת!
+        console.log("=== SERVER CRASH LOG ===", err);
+        return next(err);
+    }
+};
+
 module.exports = {
     getRestaurants,
-    createRestaurant
+    createRestaurant,
+    getRestaurantById
 };
