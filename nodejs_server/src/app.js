@@ -9,12 +9,8 @@ const app = express();
 // Set the port from environment variables, fallback to 3000
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
+// 1. Initial Middlewares (Global parsing)
 app.use(express.json());
-app.use(notFoundMiddleware);
-app.use(globalErrorMiddleware);
-
-// --- Routes setup will go here ---
 
 /**
  * Basic health-check endpoint to verify the server is running.
@@ -23,9 +19,23 @@ app.get('/', (req, res) => {
     res.status(200).json({ message: 'Wolt Web Server is running perfectly!' });
 });
 
+// 2. Logical routes
+// app.use('/api/restaurants', restaurantRouter);  WOLT 113,114
+
+
+// 3. Error & Safety Middlewares 
+app.use(notFoundMiddleware);      // Catches 404s (Only fires if no route matched above)
+app.use(globalErrorMiddleware);   // Catches 500s/400s (Our emergency ambulance)
+
+
 /**
- * Start listening for incoming HTTP requests.
+ * Start listening for incoming HTTP requests (Protected from Jest environment).
  */
-app.listen(PORT, () => {
-    console.log(`Web Server is listening on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(`Web Server is listening on port ${PORT}`);
+    });
+}
+
+// Export to any file that require it
+module.exports = app;
