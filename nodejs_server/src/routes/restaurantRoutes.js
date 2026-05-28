@@ -9,4 +9,7 @@ const restaurantController = require('../controllers/restaurantController');
 // Bind GET requests on the root path to the getRestaurants controller
 router.get('/', restaurantController.getRestaurants);
 
+// Bind POST requests to the createRestaurant controller
+router.post('/', restaurantController.createRestaurant);
+
 module.exports = router;
