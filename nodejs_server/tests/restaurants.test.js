@@ -39,15 +39,15 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
                 .post('/api/restaurants')
                 .send(validRestaurant); 
 
-            // Assert: Verify the server returns 201 Created and echoes back the resource with an ID
+            // Assert: Verify the server returns 201 Created and an empty body with Location header
             expect(response.status).toBe(201);
-            expect(response.headers['content-type']).toMatch(/json/);
-            expect(response.body).toHaveProperty('id'); 
-            expect(response.body.name).toBe(validRestaurant.name);
-            expect(response.body.cuisine).toBe(validRestaurant.cuisine);
-            expect(response.body.address.city).toBe(validRestaurant.address.city);
-            expect(response.body.address.street).toBe(validRestaurant.address.street);
-            expect(response.body.address.houseNumber).toBe(validRestaurant.address.houseNumber);
+            
+            // Check that the Location header exists and starts with the correct path
+            expect(response.headers).toHaveProperty('location');
+            expect(response.headers.location).toMatch(/^\/api\/restaurants\//);
+            
+            // Verify that the payload body is actually empty (Supertest returns {} or empty text)
+            expect(response.text === '' || Object.keys(response.body).length === 0).toBe(true);
         });
 
     

@@ -52,9 +52,14 @@ const createRestaurant = (req, res) => {
         }
     };
 
-    // Save to memory store and respond with 201 Created
+    // Save to memory store
     dataStore.restaurants.push(newRestaurant);
-    res.status(201).json(newRestaurant);
+    
+    // Set the Location header pointing to the new resource URI
+    res.location(`/api/restaurants/${newRestaurant.id}`);
+
+    // Respond with 201 Created and an empty payload body as instructed
+    res.status(201).end();
 };
 
 module.exports = {
