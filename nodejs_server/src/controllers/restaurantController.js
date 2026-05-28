@@ -63,28 +63,52 @@ const createRestaurant = (req, res) => {
 };
 
 const getRestaurantById = (req, res, next) => {
-    try {
+        // Get id from the URL
         const { id } = req.params;
 
-        // חיפוש מתוך ה-dataStore המיובא
+        // Search the id in the restaurants array
         const restaurant = dataStore.restaurants.find(r => r.id === id);
 
+        // We have not find it
         if (!restaurant) {
+            // Set error message and call the error handler Middleware
             const error = new Error(`Resource Error: Restaurant with ID '${id}' was not found`);
             error.statusCode = 404;
             return next(error); 
         }
 
+        // Return response as Json
         res.status(200).json(restaurant);
-    } catch (err) {
-        // 🔥 זה ידפיס לנו בטרמינל בדיוק איזה שורה קורסת!
-        console.log("=== SERVER CRASH LOG ===", err);
-        return next(err);
-    }
-};
+    };
+
+const updateRestaurant = (req, res, next) => {
+    // Get id from the URL
+    const { id } = req.params;
+    // Get the wanted data
+    const updates = req.body;
+
+    // Search the id in the restaurants array
+    const restaurant = dataStore.restaurants.find(r => r.id === id);
+
+    // We have not find it
+        if (!restaurant) {
+            // Set error message and call the error handler Middleware
+            const error = new Error(`Resource Error: Restaurant with ID '${id}' was not found`);
+            error.statusCode = 404;
+            return next(error); 
+        }
+
+    // Find() returns pointer to the restaurant int tha array
+    // Replace the pls data with updates in thr array
+    Object.assign(restaurant, req.body);
+    // Return response as Json 
+    res.status(204).end();   
+}
+
 
 module.exports = {
     getRestaurants,
     createRestaurant,
-    getRestaurantById
+    getRestaurantById,
+    updateRestaurant
 };

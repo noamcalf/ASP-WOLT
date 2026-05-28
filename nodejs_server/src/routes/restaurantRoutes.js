@@ -15,4 +15,7 @@ router.post('/', restaurantController.createRestaurant);
 // Bind GET requests with id as parameter to getRestaurantById
 router.get('/:id', restaurantController.getRestaurantById);
 
+// Bind PATCH requests with id as parameter to getRestaurantById
+router.patch('/:id', restaurantController.updateRestaurant);
+
 module.exports = router;
