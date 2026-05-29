@@ -199,3 +199,108 @@ describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
         expect(response.text === '' || Object.keys(response.body).length === 0).toBe(true);
     });
 });
+
+// Menu tests
+describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => {
+    // Setup: Create 2 dummy restaurant: one with dummy menu and one without products before running these specific tests
+    let testRestaurantId;
+    let testRestaurantId2;
+
+    beforeEach(async () => {
+        // Clean the data
+        dataStore.clearAll(); 
+        
+        // Create two restaurant's Json
+        const restaurantPayload = {
+            name: 'TDD Burger',
+            cuisine: 'American',
+            address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 100 }
+        };
+
+        const restaurantPayload2 = {
+            name: 'Taco tuesday',
+            cuisine: 'Mexican',
+            address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 2 }
+        };
+
+        // Create it in the server
+        const resResponse = await request(app)
+            .post('/api/restaurants')
+            .send(restaurantPayload);
+
+        const resResponse2 = await request(app)
+            .post('/api/restaurants')
+            .send(restaurantPayload2);    
+        
+        // Get the new restaurant's id
+        const locationHeader = resResponse.headers['location']; 
+        // Split the URL into argumets with '/' as delimiter 
+        testRestaurantId = locationHeader.split('/').pop(); 
+
+        // Get the new restaurant's id
+        const locationHeader2 = resResponse2.headers['location']; 
+        // Split the URL into argumets with '/' as delimiter 
+        testRestaurantId2 = locationHeader2.split('/').pop(); 
+
+        // Create dummy product
+        const productPayload = {
+            name: 'Classic Burger',
+            price: 60
+        };
+
+        // The server add's the product into the Restaurant's menu using POST
+        await request(app)
+            .post(`/api/restaurants/${testRestaurantId}/products`)
+            .send(productPayload);
+    });
+
+        // Test 1: Get all products from restaurant's menu
+    it('Setup test scopes confirming nested menu item objects return 200 states', async () => {
+        // Send GET request to the server, and get th response
+        const response = await request(app).get(`/api/restaurants/${testRestaurantId}/products`);
+
+        // Check the response status
+        expect(response.status).toBe(200);
+
+        // Check the response body:
+        // Check that the body of the response (menu) is an array
+        expect(Array.isArray(response.body)).toBe(true);
+        // Check that the body of the response (menu) is an array with size 1
+        expect(response.body.length).toBe(1);
+        // Check the parameters of the product
+        expect(response.body[0]).toHaveProperty('name', 'Classic Burger');
+        expect(response.body[0]).toHaveProperty('price', 60);
+        // Each product should have it's RestaurantId as parameter
+        expect(response.body[0]).toHaveProperty('restaurantId', testRestaurantId);
+    });
+
+    // Test 2: Make sure you can't GET,POST a non excisting RestaurantId
+    it('Design negative verification boundaries asserting 404 for unknown parent identifiers', async () => {
+        // Create not excisting id
+        const notExcistingId = 'non-existent-restaurant-99';
+
+        // Send GET request to the server, and get the response
+        const response = await request(app).get(`/api/restaurants/${notExcistingId}/products`);
+        // Check the response status
+        expect(response.status).toBe(404);
+        // Make sure we get error message
+        expect(response.body).toHaveProperty('error');
+
+        // Send POST request to the server, and get the response
+        const response2 = await request(app).post(`/api/restaurants/${notExcistingId}/products`);
+        // Check the response status
+        expect(response2.status).toBe(404);
+        // Make sure we get error message
+        expect(response2.body).toHaveProperty('error');
+    });
+
+    // Test 3: Make sure the user give product to add in POST
+    it('Enforce input checker filters to flag missing target properties with 400 codes.', async () => {
+        // Send POST request to the server, and get the response
+        const response = await request(app).post(`/api/restaurants/${testRestaurantId2}/products`);
+        // Check the response status
+        expect(response.status).toBe(400);
+        // Make sure we get error message
+        expect(response.body).toHaveProperty('error');
+    });
+});git
