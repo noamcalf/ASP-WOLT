@@ -62,7 +62,75 @@ const createRestaurant = (req, res) => {
     res.status(201).end();
 };
 
+const getRestaurantById = (req, res, next) => {
+        // Get id from the URL
+        const { id } = req.params;
+
+        // Search the id in the restaurants array
+        const restaurant = dataStore.restaurants.find(r => r.id === id);
+
+        // We have not find it
+        if (!restaurant) {
+            // Set error message and call the error handler Middleware
+            const error = new Error(`Resource Error: Restaurant with ID '${id}' was not found`);
+            error.statusCode = 404;
+            return next(error); 
+        }
+
+        // Return response as Json
+        res.status(200).json(restaurant);
+    };
+
+const updateRestaurant = (req, res, next) => {
+    // Get id from the URL
+    const { id } = req.params;
+    // Get the wanted data
+    const updates = req.body;
+
+    // Search the id in the restaurants array
+    const restaurant = dataStore.restaurants.find(r => r.id === id);
+
+    // We have not find it
+        if (!restaurant) {
+            // Set error message and call the error handler Middleware
+            const error = new Error(`Resource Error: Restaurant with ID '${id}' was not found`);
+            error.statusCode = 404;
+            return next(error); 
+        }
+
+    // Find() returns pointer to the restaurant int tha array
+    // Replace the pls data with updates in thr array
+    Object.assign(restaurant, req.body);
+    // Return response as Json 
+    res.status(204).end();   
+}
+
+const deleteRestaurant = (req, res, next) => {
+    // Get id from the URL
+    const { id } = req.params;
+
+    // Search the id in the restaurants array
+    const restaurant = dataStore.restaurants.find(r => r.id === id);
+
+    // We have not find it
+        if (!restaurant) {
+            // Set error message and call the error handler Middleware
+            const error = new Error(`Resource Error: Restaurant with ID '${id}' was not found`);
+            error.statusCode = 404;
+            return next(error); 
+        }
+    // From the restaurants array: save only restaurants with other id
+    dataStore.restaurants = dataStore.restaurants.filter(r => r.id !== id);
+    
+    // Return response as Json 
+    res.status(204).end();    
+}
+
+
 module.exports = {
     getRestaurants,
-    createRestaurant
+    createRestaurant,
+    getRestaurantById,
+    updateRestaurant,
+    deleteRestaurant
 };
