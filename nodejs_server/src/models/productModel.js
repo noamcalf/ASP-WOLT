@@ -59,10 +59,15 @@ const deleteProductFromRestaurant = (restaurantId, productId) => {
     return true;
 };
 
+const clearAll = () => {
+    dataStore.products = [];
+};
+
 module.exports = {
     getProductsByRestaurantId,
     createProductInRestaurant,
     getProductFromRestaurant,
     updateProductFromRestaurant,
-    deleteProductFromRestaurant
+    deleteProductFromRestaurant,
+    clearAll
 };

@@ -56,10 +56,15 @@ const deleteRestaurant = (id) => {
     return true;
 };
 
+const clearAll = () => {
+    dataStore.restaurants = [];
+};
+
 module.exports = {
     getAllRestaurants,
     getRestaurant,
     createRestaurant,
     updateRestaurant,
-    deleteRestaurant
+    deleteRestaurant,
+    clearAll
 };
