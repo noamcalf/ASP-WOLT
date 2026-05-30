@@ -1,10 +1,11 @@
 /**
- * Restaurant Routes
- * Maps HTTP methods and endpoints to the appropriate controller functions.
+ * Restaurant and Product Router
+ * Maps HTTP methods and nested endpoints to the appropriate controller functions.
  */
 const express = require('express');
 const router = express.Router();
 const restaurantController = require('../controllers/restaurantController');
+const productController = require('../controllers/productController');
 
 // Bind GET and POST requests on the root path to their respective controllers
 router.route('/')
@@ -17,9 +18,15 @@ router.route('/:id')
     .patch(restaurantController.updateRestaurant)
     .delete(restaurantController.deleteRestaurant);
 
-// Bind GET requests for products under a specific restaurant
+// Bind GET and POST requests for products catalog under a specific restaurant
 router.route('/:id/products')
-    .get(restaurantController.getProducts)
-    .post(restaurantController.createProduct);
+    .get(productController.getProducts)
+    .post(productController.createProduct);
+
+// Bind GET, PATCH, and DELETE requests for a specific nested product by its unique ID
+router.route('/:id/products/:pId') 
+    .get(productController.getProduct)
+    .patch(productController.updateProduct)
+    .delete(productController.deleteProduct);
 
 module.exports = router;

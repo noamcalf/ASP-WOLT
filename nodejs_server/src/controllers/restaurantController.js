@@ -5,13 +5,13 @@
 const RestaurantModel = require('../models/restaurantModel');
 
 // Retrieves all active restaurants and returns them as a JSON array
-const getRestaurants = (req, res) => {
+const getRestaurants = (req, res, next) => {
     const restaurants = RestaurantModel.getAllRestaurants();
-    res.status(200).json(restaurants);
+    return res.status(200).json(restaurants);
 };
 
 // Validates incoming payload and creates a new restaurant entity
-const createRestaurant = (req, res) => {
+const createRestaurant = (req, res, next) => {
     const { name, cuisine, address } = req.body || {};
 
     // Validate top-level fields
@@ -49,12 +49,11 @@ const createRestaurant = (req, res) => {
     
     // Set Location header and return empty body (201 Created)
     res.location(`/api/restaurants/${newRestaurant.id}`);
-    res.status(201).end();
+    return res.status(201).end();
 };
 
 // Retrieves a specific restaurant by its ID
 const getRestaurantById = (req, res, next) => {
-    // Get id from the URL
     const { id } = req.params;
     const restaurant = RestaurantModel.getRestaurant(id);
 
@@ -62,58 +61,16 @@ const getRestaurantById = (req, res, next) => {
         return res.status(404).json({ error: "Restaurant not found" });
     }
 
-    res.status(200).json(restaurant);
-};
-
-// Retrieves all products for a specific restaurant
-const getProducts = (req, res) => {
-    const { id } = req.params;
-    const restaurant = RestaurantModel.getRestaurant(id);
-
-    // Confirm target restaurant records are active before pulling sub-properties
-    if (!restaurant) {
-        return res.status(404).json({ error: "Restaurant not found" });
-    }
-
-    // Return targeted catalog array subsets attached to Status 200 codes
-    res.status(200).json(restaurant.products);
-};
-
-// Validates payload and adds a new product to the requested restaurant
-const createProduct = (req, res) => {
-    const { id } = req.params;
-    // Destructure payload properties, defaulting to an empty object to prevent crashes if req.body is undefined
-    const { name, price } = req.body || {};
-
-    // Confirm parent restaurant entities are registered
-    const restaurant = RestaurantModel.getRestaurant(id);
-    if (!restaurant) {
-        return res.status(404).json({ error: "Restaurant not found" });
-    }
-
-    // Catch formatting anomalies (missing properties)
-    if (!name || name.trim() === '') {
-        return res.status(400).json({ error: "Validation failed: 'name' is required" });
-    }
-    if (price === undefined || typeof price !== 'number') {
-        return res.status(400).json({ error: "Validation failed: 'price' is required and must be a number" });
-    }
-
-    // Create the product via the model
-    const newProduct = RestaurantModel.addProductToRestaurant(id, { name: name.trim(), price });
-
-    // Configure 201 status response with specific product Location header
-    res.location(`/api/restaurants/${id}/products/${newProduct.id}`);
-    res.status(201).end();
+    return res.status(200).json(restaurant);
 };
 
 // Updates a specific restaurant
 const updateRestaurant = (req, res, next) => {
-    // Get id from the URL
+    // Get the variabels
     const { id } = req.params;
-    // Get the wanted data
     const updates = req.body;
 
+    // Call the model's func
     const updatedRestaurant = RestaurantModel.updateRestaurant(id, updates);
 
     if (!updatedRestaurant) {
@@ -121,13 +78,15 @@ const updateRestaurant = (req, res, next) => {
     }
 
     // Return empty body (204 No Content)
-    res.status(204).end();   
+    return res.status(204).end();   
 };
 
+// Deletes a specific restaurant by its ID
 const deleteRestaurant = (req, res, next) => {
-    // Get id from the URL
+    // Get the variabels
     const { id } = req.params;
 
+    // Call the model's func
     const isDeleted = RestaurantModel.deleteRestaurant(id);
 
     if (!isDeleted) {
@@ -135,16 +94,13 @@ const deleteRestaurant = (req, res, next) => {
     }
     
     // Return empty body (204 No Content)
-    res.status(204).end();    
+    return res.status(204).end();    
 };
-
 
 module.exports = {
     getRestaurants,
     createRestaurant,
     getRestaurantById,
     updateRestaurant,
-    deleteRestaurant,
-    getProducts,
-    createProduct
+    deleteRestaurant
 };

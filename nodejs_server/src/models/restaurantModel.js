@@ -1,80 +1,63 @@
 /**
  * Restaurant Model
- * Manages the in-memory data array for restaurants and handles all direct data operations (CRUD).
+ * Manages restaurant entities inside the global dataStore.
  */
 const crypto = require('crypto');
+const dataStore = require('./dataStore');
 
-// The in-memory array for this specific resource
-let restaurants = [];
+// Retrieves all restaurants with their attached products
+const getAllRestaurants = () => {
+    return dataStore.restaurants.map(restaurant => ({
+        ...restaurant,
+        products: dataStore.products.filter(p => p.restaurantId === restaurant.id)
+    }));
+};
 
-// Retrieves all restaurants from the memory store
-const getAllRestaurants = () => restaurants;
+// Retrieves a single restaurant by its unique ID with its attached products
+const getRestaurant = (id) => {
+    const restaurant = dataStore.restaurants.find(r => r.id === id);
+    if (!restaurant) return null;
 
-// Retrieves a single restaurant by its unique ID
-const getRestaurant = (id) => restaurants.find(r => r.id === id);
+    // Attach products dynamically on read
+    return {
+        ...restaurant,
+        products: dataStore.products.filter(p => p.restaurantId === id)
+    };
+};
 
-// Creates a new restaurant with a generated UUID and saves it to memory
+// Creates a new restaurant and saves it to the global store
 const createRestaurant = (restaurantData) => {
     const newRestaurant = {
         id: crypto.randomUUID(),
-        products: [],
         ...restaurantData
     };
-    restaurants.push(newRestaurant);
+    dataStore.restaurants.push(newRestaurant);
     return newRestaurant;
 };
 
-// Updates specific fields of an existing restaurant safely
+// Updates a specific restaurant
 const updateRestaurant = (id, updates) => {
-    const restaurant = getRestaurant(id);
-    if (restaurant) {
-        // Securely update only allowed fields (prevents mass assignment of id)
-        if (updates.name) restaurant.name = updates.name.trim();
-        if (updates.cuisine) restaurant.cuisine = updates.cuisine.trim();
-        if (updates.address) restaurant.address = updates.address;
-    }
+    const restaurant = dataStore.restaurants.find(r => r.id === id);
+    if (!restaurant) return null;
+
+    Object.assign(restaurant, updates);
     return restaurant;
 };
 
-// Removes a restaurant from the memory store by its ID
+// Deletes a specific restaurant
 const deleteRestaurant = (id) => {
-    const initialLength = restaurants.length;
+    const index = dataStore.restaurants.findIndex(r => r.id === id);
+    if (index === -1) return false;
+
+    dataStore.restaurants.splice(index, 1);
+    // Delete all the restaurant's products by restaurant's id
+    dataStore.products = dataStore.products.filter(p => p.restaurantId !== id);
     
-    // Filter out the restaurant with the matching ID
-    restaurants = restaurants.filter(r => r.id !== id);
-    
-    // If the length changed, the deletion was successful
-    return restaurants.length !== initialLength; 
+    return true;
 };
 
-// Adds a new product to a specific restaurant's menu with a unique sub-identifier
-const addProductToRestaurant = (restaurantId, productData) => {
-    // Attempt to retrieve the parent restaurant by its ID
-    const restaurant = getRestaurant(restaurantId);
-
-    // If the parent restaurant does not exist, abort the operation and return null
-    if (!restaurant) return null;
-
-    // Construct the new product object, ensuring it has a unique ID and a reference to its parent
-    const newProduct = {
-        // Generate a unique identifier specifically for this product
-        id: crypto.randomUUID(),
-        // Link the product to its parent restaurant for easy lookup
-        restaurantId: restaurantId,
-        // Spread the validated product data (name, price) sent from the controller
-        ...productData
-    };
-    
-    // Append the newly created product to the restaurant's internal products array
-    restaurant.products.push(newProduct);
-    
-    // Return the created product object so the controller can use its ID for the 201 Location header
-    return newProduct;
-};
-
-// Teardown function for TDD - clears the array completely
 const clearAll = () => {
-    restaurants = [];
+    dataStore.restaurants = [];
 };
 
 module.exports = {
@@ -83,6 +66,5 @@ module.exports = {
     createRestaurant,
     updateRestaurant,
     deleteRestaurant,
-    addProductToRestaurant,
     clearAll
 };
