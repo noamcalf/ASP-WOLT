@@ -26,6 +26,9 @@ app.use('/api/restaurants', restaurantRouter);
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
 
+const tokenRoutes = require('./routes/tokenRoutes'); 
+app.use('/api/tokens', tokenRoutes);                
+
 
 // 3. Error & Safety Middlewares 
 app.use(notFoundMiddleware);      // Catches 404s (Only fires if no route matched above)
