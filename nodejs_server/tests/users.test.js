@@ -97,7 +97,7 @@ describe('User Authentication & Registration Integration Tests', () => {
 
             // his login data
             const loginCredentials = {
-                phoneNumber: '0501234567',
+                username: 'tester',
                 password: 'HashedPasswordHere'
             };
 
@@ -123,7 +123,7 @@ describe('User Authentication & Registration Integration Tests', () => {
         // In case we try to log in with wrong log in data
         it('Should reject login attempts with invalid credentials with a 401 status', async () => {
             const wrongCredentials = {
-                phoneNumber: '0501234567',
+                username: 'Wrongtester',
                 password: 'WrongPassword'
             };
 
@@ -132,7 +132,7 @@ describe('User Authentication & Registration Integration Tests', () => {
                 .send(wrongCredentials);
 
             expect(response.status).toBe(401);
-            expect(response.body).toHaveProperty('error', 'Invalid phone number or password');
+            expect(response.body).toHaveProperty('error', 'Invalid username or password');
         });
     });
 });
