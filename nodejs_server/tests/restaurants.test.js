@@ -318,3 +318,64 @@ describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => 
         RestaurantModel.clearAll();
     });
 });
+
+describe('Individual Product Operations Tests (GET, PATCH, DELETE by pId)', () => {
+    let testRestaurantId;
+    let testProductId;
+
+    // Setup: Create a restaurant and append a product before testing individual operations
+    beforeEach(async () => {
+        RestaurantModel.clearAll();
+        
+        // 1. Instantiate a parent restaurant
+        const restaurantPayload = {
+            name: 'TDD Pizza',
+            cuisine: 'Italian',
+            address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 12 }
+        };
+        const resResponse = await request(app).post('/api/restaurants').send(restaurantPayload);
+        testRestaurantId = resResponse.headers.location.split('/').pop();
+
+        // 2. Instantiate a nested product item
+        const productPayload = { name: 'Margherita', price: 50 };
+        const prodResponse = await request(app)
+            .post(`/api/restaurants/${testRestaurantId}/products`)
+            .send(productPayload);
+        
+        testProductId = prodResponse.headers.location.split('/').pop();
+    });
+
+    // Enforce lookups returning verified items to match 200 status signatures.
+    it('Should return 200 OK and the specific product details when querying by pId', async () => {
+        const response = await request(app).get(`/api/restaurants/${testRestaurantId}/products/${testProductId}`);
+        
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('id', testProductId);
+        expect(response.body).toHaveProperty('name', 'Margherita');
+        expect(response.body).toHaveProperty('price', 50);
+    });
+
+    // Confirm property mutations return clean 204 statuses with empty payloads.
+    it('Should update product fields and return 204 No Content', async () => {
+        const updatePayload = { price: 55 };
+        const response = await request(app)
+            .patch(`/api/restaurants/${testRestaurantId}/products/${testProductId}`)
+            .send(updatePayload);
+            
+        expect(response.status).toBe(204);
+        expect(response.text === '' || Object.keys(response.body).length === 0).toBe(true);
+    });
+
+    // Confirm purge actions return clean 204 statuses with empty payloads.
+    it('Should delete the product and return 204 No Content', async () => {
+        const response = await request(app).delete(`/api/restaurants/${testRestaurantId}/products/${testProductId}`);
+        
+        expect(response.status).toBe(204);
+        expect(response.text === '' || Object.keys(response.body).length === 0).toBe(true);
+    });
+
+    // Cleanup completely after all tests in this suite have finished
+    afterAll(() => {
+        RestaurantModel.clearAll();
+    });
+});
