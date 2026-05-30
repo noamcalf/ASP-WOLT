@@ -6,19 +6,15 @@ const express = require('express');
 const router = express.Router();
 const restaurantController = require('../controllers/restaurantController');
 
-// Bind GET requests on the root path to the getRestaurants controller
-router.get('/', restaurantController.getRestaurants);
+// Bind GET and POST requests on the root path to their respective controllers
+router.route('/')
+    .get(restaurantController.getRestaurants)
+    .post(restaurantController.createRestaurant);
 
-// Bind POST requests to the createRestaurant controller
-router.post('/', restaurantController.createRestaurant);
-
-// Bind GET requests with id as parameter to getRestaurantById
-router.get('/:id', restaurantController.getRestaurantById);
-
-// Bind PATCH requests with id as parameter to getRestaurantById
-router.patch('/:id', restaurantController.updateRestaurant);
-
-// Bind DELETE requests with id as parameter to getRestaurantById
-router.delete('/:id', restaurantController.deleteRestaurant);
+// Bind GET, PATCH, and DELETE requests with id as parameter to their respective controllers
+router.route('/:id')
+    .get(restaurantController.getRestaurantById)
+    .patch(restaurantController.updateRestaurant)
+    .delete(restaurantController.deleteRestaurant);
 
 module.exports = router;

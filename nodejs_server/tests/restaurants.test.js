@@ -5,7 +5,7 @@ const express = require('express');
 // Import the main Express application instance
 const app = require('../src/app'); 
 
-const dataStore = require('../src/models/DataStore');
+const RestaurantModel = require('../src/models/restaurantModel');
 
 // Empty array GET
 describe('Restaurants Integration Tests (GET & POST)', () => {
@@ -146,6 +146,10 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
             expect(response.body).toHaveProperty('error');
         });
     });
+    // Cleanup completely after all tests in this suite have finished
+    afterAll(() => {
+        RestaurantModel.clearAll();
+    });
 });
 
 describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
@@ -153,7 +157,7 @@ describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
 
     // Setup: Create a dummy restaurant before running these specific tests
     beforeEach(async () => {
-    dataStore.clearAll();
+    RestaurantModel.clearAll();
     
     const testRestaurant = {
         name: 'TDD Burger',
@@ -198,6 +202,11 @@ describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
         // Verify payload body is completely empty
         expect(response.text === '' || Object.keys(response.body).length === 0).toBe(true);
     });
+
+    // Cleanup completely after all tests in this suite have finished
+    afterAll(() => {
+        RestaurantModel.clearAll();
+    });
 });
 
 // Menu tests
@@ -208,7 +217,7 @@ describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => 
 
     beforeEach(async () => {
         // Clean the data
-        dataStore.clearAll(); 
+        RestaurantModel.clearAll(); 
         
         // Create two restaurant's Json
         const restaurantPayload = {
@@ -303,4 +312,9 @@ describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => 
         // Make sure we get error message
         expect(response.body).toHaveProperty('error');
     });
-});git
+
+    // Cleanup completely after all tests in this suite have finished
+    afterAll(() => {
+        RestaurantModel.clearAll();
+    });
+});
