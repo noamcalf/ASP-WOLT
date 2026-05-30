@@ -19,6 +19,7 @@ router.route('/:id')
 
 // Bind GET requests for products under a specific restaurant
 router.route('/:id/products')
-    .get(restaurantController.getProducts);
+    .get(restaurantController.getProducts)
+    .post(restaurantController.createProduct);
 
 module.exports = router;

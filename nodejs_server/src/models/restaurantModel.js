@@ -47,6 +47,31 @@ const deleteRestaurant = (id) => {
     return restaurants.length !== initialLength; 
 };
 
+// Adds a new product to a specific restaurant's menu with a unique sub-identifier
+const addProductToRestaurant = (restaurantId, productData) => {
+    // Attempt to retrieve the parent restaurant by its ID
+    const restaurant = getRestaurant(restaurantId);
+
+    // If the parent restaurant does not exist, abort the operation and return null
+    if (!restaurant) return null;
+
+    // Construct the new product object, ensuring it has a unique ID and a reference to its parent
+    const newProduct = {
+        // Generate a unique identifier specifically for this product
+        id: crypto.randomUUID(),
+        // Link the product to its parent restaurant for easy lookup
+        restaurantId: restaurantId,
+        // Spread the validated product data (name, price) sent from the controller
+        ...productData
+    };
+    
+    // Append the newly created product to the restaurant's internal products array
+    restaurant.products.push(newProduct);
+    
+    // Return the created product object so the controller can use its ID for the 201 Location header
+    return newProduct;
+};
+
 // Teardown function for TDD - clears the array completely
 const clearAll = () => {
     restaurants = [];
@@ -58,5 +83,6 @@ module.exports = {
     createRestaurant,
     updateRestaurant,
     deleteRestaurant,
+    addProductToRestaurant,
     clearAll
 };

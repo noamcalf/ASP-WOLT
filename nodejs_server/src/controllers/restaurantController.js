@@ -12,7 +12,7 @@ const getRestaurants = (req, res) => {
 
 // Validates incoming payload and creates a new restaurant entity
 const createRestaurant = (req, res) => {
-    const { name, cuisine, address } = req.body;
+    const { name, cuisine, address } = req.body || {};
 
     // Validate top-level fields
     if (!name || name.trim() === '') {
@@ -79,6 +79,34 @@ const getProducts = (req, res) => {
     res.status(200).json(restaurant.products);
 };
 
+// Validates payload and adds a new product to the requested restaurant
+const createProduct = (req, res) => {
+    const { id } = req.params;
+    // Destructure payload properties, defaulting to an empty object to prevent crashes if req.body is undefined
+    const { name, price } = req.body || {};
+
+    // Confirm parent restaurant entities are registered
+    const restaurant = RestaurantModel.getRestaurant(id);
+    if (!restaurant) {
+        return res.status(404).json({ error: "Restaurant not found" });
+    }
+
+    // Catch formatting anomalies (missing properties)
+    if (!name || name.trim() === '') {
+        return res.status(400).json({ error: "Validation failed: 'name' is required" });
+    }
+    if (price === undefined || typeof price !== 'number') {
+        return res.status(400).json({ error: "Validation failed: 'price' is required and must be a number" });
+    }
+
+    // Create the product via the model
+    const newProduct = RestaurantModel.addProductToRestaurant(id, { name: name.trim(), price });
+
+    // Configure 201 status response with specific product Location header
+    res.location(`/api/restaurants/${id}/products/${newProduct.id}`);
+    res.status(201).end();
+};
+
 // Updates a specific restaurant
 const updateRestaurant = (req, res, next) => {
     // Get id from the URL
@@ -117,5 +145,6 @@ module.exports = {
     getRestaurantById,
     updateRestaurant,
     deleteRestaurant,
-    getProducts
+    getProducts,
+    createProduct
 };
