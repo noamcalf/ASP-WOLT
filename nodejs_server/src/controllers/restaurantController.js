@@ -119,8 +119,10 @@ const deleteRestaurant = (req, res, next) => {
             error.statusCode = 404;
             return next(error); 
         }
-    // From the restaurants array: save only restaurants with other id
+    
+        // From the restaurants array: save only restaurants with other id
     dataStore.restaurants = dataStore.restaurants.filter(r => r.id !== id);
+
     
     // Return response as Json 
     res.status(204).end();    
