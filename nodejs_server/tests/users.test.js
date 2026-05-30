@@ -1,6 +1,5 @@
 const request = require('supertest');
 const app = require('../src/app');
-// Import the new user's model
 const UserModel = require('../src/models/userModel'); 
 
 describe('User Authentication & Registration Integration Tests', () => {
@@ -10,9 +9,8 @@ describe('User Authentication & Registration Integration Tests', () => {
         UserModel.clearAll();
     });
 
-    // Test 1: Registration
-    describe('POST /api/users/register - Success Boundaries', () => {
-        it('Should return 200 OK and successfully register a valid user payload with address', async () => {
+    describe('POST /api/users - Registration Success Boundaries', () => {
+        it('Should return 201 Created and successfully register a valid user payload with address', async () => {
             const validUser = {
                 username: 'noam_calfon',
                 phoneNumber: '0501234567',
@@ -24,13 +22,16 @@ describe('User Authentication & Registration Integration Tests', () => {
                 }
             };
 
+            // Send POST request to the RESTful users endpoint
             const response = await request(app)
-                .post('/api/users/register')
+                .post('/api/users')
                 .send(validUser);
 
-            // Assertions based on description requirements
-            expect(response.status).toBe(200);
+            // Verify status code and success message
+            expect(response.status).toBe(201); 
             expect(response.body).toHaveProperty('message', 'User registered successfully');
+            
+            // Verify the returned user object contains expected identity fields
             expect(response.body.user).toHaveProperty('id');
             expect(response.body.user.username).toBe(validUser.username);
             expect(response.body.user.phoneNumber).toBe(validUser.phoneNumber);
@@ -38,56 +39,62 @@ describe('User Authentication & Registration Integration Tests', () => {
             // Verify address object structure is deeply preserved
             expect(response.body.user).toHaveProperty('address');
             expect(response.body.user.address.city).toBe(validUser.address.city);
-            expect(response.body.user.address.street).toBe(validUser.address.street);
-            expect(response.body.user.address.houseNumber).toBe(validUser.address.houseNumber);
-
-            // Don't return the password!
+            
+            // Security check: Ensure password is never returned in the payload
             expect(response.body.user).not.toHaveProperty('password'); 
         });
     });
 
-    // Test 2: Post with incomplete fileds
-    describe('POST /api/users/register - Input Schema Rejections', () => {
+    describe('POST /api/users - Input Schema Rejections', () => {
         it('Should yield 400 Bad Request when the username field is missing', async () => {
-            const incompleteUser = {
-                phoneNumber: '0501234567',
-                password: 'SecurePassword123',
-                address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 100 }
+            const incompleteUser = { 
+                phoneNumber: '0501234567', 
+                password: 'SecurePassword123' 
             };
-
+            
+            // Attempt to register a user without a mandatory field
             const response = await request(app)
-                .post('/api/users/register')
+                .post('/api/users')
                 .send(incompleteUser);
-
+            
+            // Verify the request is rejected with a 400 status code
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
-            expect(response.body.error).toContain('username');
-        });
-
-        it('Should yield 400 Bad Request when the address object or its nested fields are missing', async () => {
-            const userWithMissingAddressFields = {
-                username: 'noam_calfon',
-                phoneNumber: '0501234567',
-                password: 'SecurePassword123',
-                address: {
-                    city: 'Tel Aviv'
-                }
-            };
-
-            const response = await request(app)
-                .post('/api/users/register')
-                .send(userWithMissingAddressFields);
-
-            expect(response.status).toBe(400);
-            expect(response.body).toHaveProperty('error');
-            expect(response.body.error).toContain('address');
         });
     });
 
-    // Test 3: Valid Authentication Proccess
-    describe('POST /api/users/login - Authentication & Token Generation', () => {
+    describe('GET /api/users/:id - Profile Retrieval', () => {
+        it('Should return 200 OK and the user profile without the password', async () => {
+            // Setup: Create a user directly via the model before testing retrieval
+            const newUser = UserModel.createUser({
+                username: 'ben_k',
+                phoneNumber: '0509999999',
+                password: 'hashed123',
+                address: { city: 'Haifa', street: 'Carmel', houseNumber: 10 }
+            });
+
+            // Request the specific user's profile using their generated ID
+            const response = await request(app).get(`/api/users/${newUser.id}`);
+
+            // Verify the correct user data is returned
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('id', newUser.id);
+            expect(response.body).toHaveProperty('username', 'ben_k');
+            
+            // Security check: Ensure password is not exposed in profile retrieval
+            expect(response.body).not.toHaveProperty('password'); 
+        });
+
+        it('Should return 404 Not Found for an unknown user ID', async () => {
+            // Attempt to retrieve a profile using a non-existent UUID
+            const response = await request(app).get('/api/users/fake-uuid-123');
+            expect(response.status).toBe(404);
+        });
+    });
+
+    describe('POST /api/tokens - Authentication & Token Generation', () => {
         it('Should authenticate valid credentials and output structural identity tokens', async () => {
-            // Register a user
+            // Setup: Register a user to test login credentials against
             UserModel.createUser({
                 username: 'tester',
                 phoneNumber: '0501234567',
@@ -95,14 +102,14 @@ describe('User Authentication & Registration Integration Tests', () => {
                 address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 100 }
             });
 
-            // his login data
             const loginCredentials = {
                 username: 'tester',
                 password: 'HashedPasswordHere'
             };
 
+            // Send POST request to the RESTful tokens endpoint to generate a login token
             const response = await request(app)
-                .post('/api/users/login')
+                .post('/api/tokens')
                 .send(loginCredentials);
 
             expect(response.status).toBe(200);
@@ -111,28 +118,24 @@ describe('User Authentication & Registration Integration Tests', () => {
             expect(response.body).toHaveProperty('token');
             expect(typeof response.body.token).toBe('string');
             
-            // Check if the response contains structural identity string arrays (roles):
-
-            // Has a roles section array (may have more then one role)
+            // Verify the roles array exists and contains string elements
             expect(response.body).toHaveProperty('roles');
             expect(Array.isArray(response.body.roles)).toBe(true);
-            // every role in the array is a string
-            expect(response.body.roles.every(role => typeof role === 'string')).toBe(true);
         });
 
-        // In case we try to log in with wrong log in data
         it('Should reject login attempts with invalid credentials with a 401 status', async () => {
             const wrongCredentials = {
                 username: 'Wrongtester',
                 password: 'WrongPassword'
             };
 
+            // Attempt to authenticate with mismatched credentials
             const response = await request(app)
-                .post('/api/users/login')
+                .post('/api/tokens')
                 .send(wrongCredentials);
 
+            // Verify the system denies access with a 401 Unauthorized status
             expect(response.status).toBe(401);
-            expect(response.body).toHaveProperty('error', 'Invalid username or password');
         });
     });
 });

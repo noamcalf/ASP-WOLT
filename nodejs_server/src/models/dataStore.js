@@ -4,7 +4,7 @@
  */
 const dataStore = {
     restaurants: [],
-    products: []
-};
+    products: [],
+    users: []};
 
 module.exports = dataStore;
