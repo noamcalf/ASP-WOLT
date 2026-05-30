@@ -41,6 +41,26 @@ const registerUser = (req, res) => {
     });
 };
 
+// Retrieves a user profile by their ID, ensuring sensitive data is strictly filtered out
+const getUserProfile = (req, res) => {
+    const { id } = req.params;
+
+    // Fetch the user from the model using the provided ID parameter
+    const user = UserModel.getUserById(id);
+
+    // If the user does not exist, return a standard 404 Not Found error
+    if (!user) {
+        return res.status(404).json({ error: "User not found" });
+    }
+
+    // Security: Strip the password before returning the profile using destructuring
+    const { password: _, ...safeUserProfile } = user;
+
+    // Return the profile data with a 200 OK status
+    return res.status(200).json(safeUserProfile);
+};
+
 module.exports = {
-    registerUser
+    registerUser,
+    getUserProfile
 };

@@ -10,4 +10,8 @@ const userController = require('../controllers/userController');
 router.route('/')
     .post(userController.registerUser);
 
+// Bind GET requests for profile retrieval by ID
+router.route('/:id')
+    .get(userController.getUserProfile);
+
 module.exports = router;
