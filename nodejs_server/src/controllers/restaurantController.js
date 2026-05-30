@@ -65,6 +65,20 @@ const getRestaurantById = (req, res, next) => {
     res.status(200).json(restaurant);
 };
 
+// Retrieves all products for a specific restaurant
+const getProducts = (req, res) => {
+    const { id } = req.params;
+    const restaurant = RestaurantModel.getRestaurant(id);
+
+    // Confirm target restaurant records are active before pulling sub-properties
+    if (!restaurant) {
+        return res.status(404).json({ error: "Restaurant not found" });
+    }
+
+    // Return targeted catalog array subsets attached to Status 200 codes
+    res.status(200).json(restaurant.products);
+};
+
 // Updates a specific restaurant
 const updateRestaurant = (req, res, next) => {
     // Get id from the URL
@@ -102,5 +116,6 @@ module.exports = {
     createRestaurant,
     getRestaurantById,
     updateRestaurant,
-    deleteRestaurant
+    deleteRestaurant,
+    getProducts
 };

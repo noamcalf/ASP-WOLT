@@ -17,6 +17,7 @@ const getRestaurant = (id) => restaurants.find(r => r.id === id);
 const createRestaurant = (restaurantData) => {
     const newRestaurant = {
         id: crypto.randomUUID(),
+        products: [],
         ...restaurantData
     };
     restaurants.push(newRestaurant);

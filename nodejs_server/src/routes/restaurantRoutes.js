@@ -17,4 +17,8 @@ router.route('/:id')
     .patch(restaurantController.updateRestaurant)
     .delete(restaurantController.deleteRestaurant);
 
+// Bind GET requests for products under a specific restaurant
+router.route('/:id/products')
+    .get(restaurantController.getProducts);
+
 module.exports = router;
