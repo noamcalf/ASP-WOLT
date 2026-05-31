@@ -27,7 +27,10 @@ const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
 
 const tokenRoutes = require('./routes/tokenRoutes'); 
-app.use('/api/tokens', tokenRoutes);                
+app.use('/api/tokens', tokenRoutes);   
+
+const orderRoutes = require('./routes/orderRoutes'); 
+app.use('/api/orders', orderRoutes);   
 
 
 // 3. Error & Safety Middlewares 

@@ -5,6 +5,8 @@
 const dataStore = {
     restaurants: [],
     products: [],
-    users: []};
+    users: [],
+    orders: []
+};
 
 module.exports = dataStore;

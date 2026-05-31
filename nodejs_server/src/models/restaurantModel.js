@@ -7,22 +7,17 @@ const dataStore = require('./dataStore');
 
 // Retrieves all restaurants with their attached products
 const getAllRestaurants = () => {
-    return dataStore.restaurants.map(restaurant => ({
-        ...restaurant,
-        products: dataStore.products.filter(p => p.restaurantId === restaurant.id)
-    }));
+    return dataStore.restaurants;
 };
 
 // Retrieves a single restaurant by its unique ID with its attached products
 const getRestaurant = (id) => {
+    // Search for the restaurant
     const restaurant = dataStore.restaurants.find(r => r.id === id);
     if (!restaurant) return null;
 
-    // Attach products dynamically on read
-    return {
-        ...restaurant,
-        products: dataStore.products.filter(p => p.restaurantId === id)
-    };
+    // Return it
+    return restaurant;
 };
 
 // Creates a new restaurant and saves it to the global store
