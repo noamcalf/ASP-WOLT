@@ -32,7 +32,7 @@ app.use('/api/tokens', tokenRoutes);
 
 // 3. Error & Safety Middlewares 
 app.use(notFoundMiddleware);      // Catches 404s (Only fires if no route matched above)
-app.use(globalErrorMiddleware);   // Catches 500s/400s (Our emergency ambulance)
+app.use(globalErrorMiddleware);   // Our emergency Middleware
 
 
 /**

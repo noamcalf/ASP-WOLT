@@ -6,6 +6,7 @@ const express = require('express');
 const router = express.Router();
 const restaurantController = require('../controllers/restaurantController');
 const productController = require('../controllers/productController');
+const identityMiddleware = require('../middleware/identityMiddleware');
 
 // Bind GET and POST requests on the root path to their respective controllers
 router.route('/')
