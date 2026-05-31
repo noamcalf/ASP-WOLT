@@ -7,7 +7,8 @@ const OrderModel = require('../src/models/orderModel');
 
 describe('Order Management & Header-Based Authentication Tests', () => {
     let activeUserId;
-    let unauthorizedUserId;
+    let activeUserPhone;
+    let unauthorizedUserPhone;
     let testRestaurantId;
     let testProductId;
 
@@ -26,6 +27,7 @@ describe('Order Management & Header-Based Authentication Tests', () => {
             address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 10 }
         });
         activeUserId = activeUser.id;
+        activeUserPhone = activeUser.phoneNumber;
 
         // 2. Create a secondary user to test data isolation
         const unauthorizedUser = UserModel.createUser({
@@ -34,7 +36,7 @@ describe('Order Management & Header-Based Authentication Tests', () => {
             password: 'hashed456',
             address: { city: 'Haifa', street: 'Carmel', houseNumber: 5 }
         });
-        unauthorizedUserId = unauthorizedUser.id;
+        unauthorizedUserPhone = unauthorizedUser.phoneNumber;
 
         // 3. Create a restaurant and a product to order
         const restaurant = RestaurantModel.createRestaurant({
@@ -48,13 +50,15 @@ describe('Order Management & Header-Based Authentication Tests', () => {
             name: 'Classic Burger',
             price: 65
         });
+        
+        // Extract the verifiable model identifier to match backend catalog queries
         testProductId = product.id;
     });
 
     describe('Security & Header-Based Identity Extraction', () => {
         
         // Verify that the system strictly blocks requests lacking the custom HTTP identity header
-        it('Should reject order operations with 401 Unauthorized if the x-user-id header is missing', async () => {
+        it('Should reject order operations with 401 Unauthorized if the x-user-phone header is missing', async () => {
             const orderPayload = {
                 restaurantId: testRestaurantId,
                 items: [{ productId: testProductId, quantity: 2 }]
@@ -81,7 +85,7 @@ describe('Order Management & Header-Based Authentication Tests', () => {
 
             const response = await request(app)
                 .post('/api/orders')
-                .set('x-user-id', activeUserId) // Mocking the header extraction
+                .set('x-user-phone', activeUserPhone) // Mocking the header extraction
                 .send(orderPayload);
 
             expect(response.status).toBe(201);
@@ -102,13 +106,13 @@ describe('Order Management & Header-Based Authentication Tests', () => {
             // First, create an order to populate the history
             await request(app)
                 .post('/api/orders')
-                .set('x-user-id', activeUserId)
+                .set('x-user-phone', activeUserPhone)
                 .send({ restaurantId: testRestaurantId, items: [{ productId: testProductId, quantity: 1 }] });
 
             // Fetch the history using the active user's header
             const response = await request(app)
                 .get('/api/orders')
-                .set('x-user-id', activeUserId);
+                .set('x-user-phone', activeUserPhone)
 
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
@@ -124,7 +128,7 @@ describe('Order Management & Header-Based Authentication Tests', () => {
             // Create an order owned by activeUserId
             const createResponse = await request(app)
                 .post('/api/orders')
-                .set('x-user-id', activeUserId)
+                .set('x-user-phone', activeUserPhone)
                 .send({ restaurantId: testRestaurantId, items: [{ productId: testProductId, quantity: 1 }] });
             
             const newOrderId = createResponse.headers.location.split('/').pop();
@@ -132,7 +136,7 @@ describe('Order Management & Header-Based Authentication Tests', () => {
             // Attempt to fetch it using unauthorizedUserId's header
             const response = await request(app)
                 .get(`/api/orders/${newOrderId}`)
-                .set('x-user-id', unauthorizedUserId);
+                .set('x-user-phone', unauthorizedUserPhone);
 
             // Access must be denied (either 404 to hide its existence, or 403 to deny permission)
             expect([403, 404]).toContain(response.status);
@@ -144,12 +148,12 @@ describe('Order Management & Header-Based Authentication Tests', () => {
         // Ensure completed orders cannot be mutated or deleted via standard REST actions, locking the invoice state
         it('Should return 404 or 405 when attempting to PATCH or DELETE an order', async () => {
             const patchResponse = await request(app)
-                .patch('/api/orders/some-id')
-                .set('x-user-id', activeUserId);
+                .patch(`/api/orders/some-id`)
+                .set('x-user-phone', activeUserPhone);
             
             const deleteResponse = await request(app)
-                .delete('/api/orders/some-id')
-                .set('x-user-id', activeUserId);
+                .delete(`/api/orders/some-id`)
+                .set('x-user-phone', activeUserPhone);
 
             expect([404, 405]).toContain(patchResponse.status);
             expect([404, 405]).toContain(deleteResponse.status);

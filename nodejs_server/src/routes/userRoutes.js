@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const identityMiddleware = require('../middleware/identityMiddleware');
+const identityMiddleware = require('../middlewares/identityMiddleware');
 
 // Bind POST requests for user registration
 router.route('/')

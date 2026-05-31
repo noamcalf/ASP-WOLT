@@ -3,6 +3,8 @@
  * Intercepts incoming requests, extracts user identity from HTTP headers,
  * and exposes it to downstream controllers via the request object.
  */
+const UserModel = require('../models/userModel');
+
 const identityMiddleware = (req, res, next) => {
     // Get the unique phone number from the headers
     const userPhone = req.headers['x-user-phone'] || req.headers['x-phonenumber'];
@@ -21,6 +23,13 @@ const identityMiddleware = (req, res, next) => {
     if (!user) {
         return res.status(401).json({ 
             error: "Authentication failed: User with this identity does not exist" 
+        });
+    }
+
+    // Enforce strict schema validation to ensure the retrieved user profile contains all mandatory fields
+    if (!user.id || !user.username || !user.address || !user.address.city) {
+        return res.status(400).json({
+            error: "Authentication failed: User profile data in storage is incomplete or corrupted"
         });
     }
 

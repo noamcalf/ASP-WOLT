@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
-const identityMiddleware = require('../middleware/identityMiddleware');
+const identityMiddleware = require('../middlewares/identityMiddleware');
 
 // Bind POST and GET requests 
 router.route('/')

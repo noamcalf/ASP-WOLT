@@ -38,8 +38,8 @@ const createOrder = (req, res) => {
         return res.status(400).json({ error: "Validation failed: 'items' array cannot be empty" });
     }
 
-    // Get all the restaurant's products
-    const restaurantProducts = ProductModel.getProductFromRestaurant(restaurantId);
+    // Get all the restaurant's products utilizing the correct filtering endpoint from the model
+    const restaurantProducts = ProductModel.getProductsByRestaurantId(restaurantId) || [];
 
     // Vars for calculations
     const validatedItems = [];
@@ -55,8 +55,8 @@ const createOrder = (req, res) => {
             return res.status(400).json({ error: "Validation failed: Each item must have a valid productId and quantity greater than 0" });
         }
 
-        // Search for the item in the restaurantProducts
-        const catalogProduct = restaurantProducts.find(p => p.id === productId);
+        // Search for the item in the restaurantProducts matching identifiers as string primitives safely
+        const catalogProduct = restaurantProducts.find(p => String(p.id) === String(productId));
         // Handle the case we did not find it
         if (!catalogProduct) {
             return res.status(400).json({ error: `Validation failed: Product ID ${productId} does not exist in this restaurant's catalog` });
@@ -74,8 +74,11 @@ const createOrder = (req, res) => {
         });
     }
 
-    // The order is valid
-    // Get the authenticated user data
+    // Ensure the request contains an authenticated user context
+    if (!req.authenticatedUser) {
+        return res.status(401).json({ error: "Unauthorized: Authenticated user context is missing" });
+    }
+
     const { id: userId, username, phoneNumber, address } = req.authenticatedUser;
 
     // Create the order via model func
@@ -89,13 +92,10 @@ const createOrder = (req, res) => {
         totalPrice: totalPrice            
     });
 
-    // Return the wanted response
-    return res.status(201).json({
-        message: "Order placed successfully",
-        path: order.path,
-        order: order
-    });
-
+    // Return the wanted response setting the location header properly
+    return res.status(201)
+        .setHeader('Location', order.path || `/api/orders/${order.id}`)
+        .end();
 };
 
 const getOrderDetails = (req, res) => {
@@ -110,9 +110,9 @@ const getOrderDetails = (req, res) => {
         return res.status(404).json({ error: "Order not found" });
     }
 
-    // Make sure that only the user is trying to get his order
+    // Enforce strict authorization checks to secure access scopes
     const currentUserId = req.authenticatedUser.id;
-    if (order.userId !== currentUserId) {
+    if (String(order.userId) !== String(currentUserId)) {
         return res.status(403).json({ error: "Access denied: You are not authorized to view this order" });
     }
 
@@ -135,7 +135,7 @@ const updateOrderDetails = (req, res) => {
 
     // Make sure only the user can update his order
     const currentUserId = req.authenticatedUser.id;
-    if (order.userId !== currentUserId) {
+    if (String(order.userId) !== String(currentUserId)) {
         return res.status(403).json({ error: "Access denied: You are not authorized to edit this order" });
     }
 
@@ -163,7 +163,7 @@ const deleteOrder = (req, res) => {
 
     // Make sure that only the user is trying to delete his order
     const currentUserId = req.authenticatedUser.id;
-    if (order.userId !== currentUserId) {
+    if (String(order.userId) !== String(currentUserId)) {
         return res.status(403).json({ error: "Access denied: You are not authorized to delete this order" });
     }
 

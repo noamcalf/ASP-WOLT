@@ -74,7 +74,9 @@ describe('User Authentication & Registration Integration Tests', () => {
             });
 
             // Request the specific user's profile using their generated ID
-            const response = await request(app).get(`/api/users/${newUser.id}`);
+            const response = await request(app)
+                .get(`/api/users/${newUser.id}`)
+                .set('x-user-phone', newUser.phoneNumber);
 
             // Verify the correct user data is returned
             expect(response.status).toBe(200);
@@ -86,8 +88,18 @@ describe('User Authentication & Registration Integration Tests', () => {
         });
 
         it('Should return 404 Not Found for an unknown user ID', async () => {
+            // Setup: Create a user to provide a valid phone number for the identity check
+            const newUser = UserModel.createUser({
+                username: 'auth_user',
+                phoneNumber: '0501111111',
+                password: 'password123',
+                address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 10 }
+            });
+
             // Attempt to retrieve a profile using a non-existent UUID
-            const response = await request(app).get('/api/users/fake-uuid-123');
+            const response = await request(app)
+                .get('/api/users/fake-uuid-123')
+                .set('x-user-phone', newUser.phoneNumber);
             expect(response.status).toBe(404);
         });
     });
@@ -102,8 +114,9 @@ describe('User Authentication & Registration Integration Tests', () => {
                 address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 100 }
             });
 
+            // Construct payload utilizing the production-required primary identifier
             const loginCredentials = {
-                username: 'tester',
+                phoneNumber: '0501234567',
                 password: 'HashedPasswordHere'
             };
 
@@ -124,8 +137,9 @@ describe('User Authentication & Registration Integration Tests', () => {
         });
 
         it('Should reject login attempts with invalid credentials with a 401 status', async () => {
+            // Construct unmatched authentication payload utilizing the required schema
             const wrongCredentials = {
-                username: 'Wrongtester',
+                phoneNumber: '0500000000',
                 password: 'WrongPassword'
             };
 
