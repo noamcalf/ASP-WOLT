@@ -3,7 +3,7 @@
  * Configures the Express server and global middleware.
  */
 const express = require('express');
-const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddleware');
+const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddlewares');
 const app = express();
 
 // Set the port from environment variables, fallback to 3000

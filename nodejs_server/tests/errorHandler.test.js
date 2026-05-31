@@ -8,7 +8,7 @@ const express = require('express');
 // In WOLT-109, these middlewares will be implemented in the actual app.js.
 const app = express();
 app.use(express.json());
-const { notFoundMiddleware, globalErrorMiddleware } = require('../src/middlewares/errorMiddleware');
+const { notFoundMiddleware, globalErrorMiddleware } = require('../src/middlewares/errorMiddlewares');
 
 /**
  * MOCK ROUTES FOR TESTING
