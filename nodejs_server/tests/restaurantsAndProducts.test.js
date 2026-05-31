@@ -6,9 +6,23 @@ const express = require('express');
 const app = require('../src/app'); 
 
 const RestaurantModel = require('../src/models/restaurantModel');
+const UserModel = require('../src/models/userModel');
 
 // Empty array GET
 describe('Restaurants Integration Tests (GET & POST)', () => {
+    let testUserPhone;
+
+    beforeEach(() => {
+        UserModel.clearAll();
+        const testUser = UserModel.createUser({
+            username: 'restaurant_manager',
+            phoneNumber: '0522222222',
+            password: 'password123',
+            address: { city: 'Tel Aviv', street: 'Rothschild', houseNumber: 1 }
+        });
+        testUserPhone = testUser.phoneNumber;
+    });
+
     describe('GET /api/restaurants', () => {
         it('Should return 200 OK and an empty array when no restaurants exist', async () => {
             // Act: Send a GET request to retrieve all restaurants
@@ -39,6 +53,7 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
             // Act: Send a POST request with the valid payload
             const response = await request(app)
                 .post('/api/restaurants')
+                .set('x-user-phone', testUserPhone)
                 .send(validRestaurant); 
 
             // Assert: Verify the server returns 201 Created and an empty body with Location header
@@ -70,6 +85,7 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
             // Act: Send a POST request with the incomplete data
             const response = await request(app)
                 .post('/api/restaurants')
+                .set('x-user-phone', testUserPhone)
                 .send(invalidRestaurant);
 
             // Assert: Verify that validation fails, triggering a 400 error handled by your error middleware
@@ -85,7 +101,10 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
                 address: { city: 'Tel Aviv', street: 'Ibn Gabirol', houseNumber: 45 }
             };
 
-            const response = await request(app).post('/api/restaurants').send(missingCuisine);
+            const response = await request(app)
+                .post('/api/restaurants')
+                .set('x-user-phone', testUserPhone)
+                .send(missingCuisine);
             
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -98,7 +117,10 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
                 cuisine: 'Asian'
             };
 
-            const response = await request(app).post('/api/restaurants').send(missingAddress);
+            const response = await request(app)
+                .post('/api/restaurants')
+                .set('x-user-phone', testUserPhone)
+                .send(missingAddress);
             
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -112,7 +134,10 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
                 address: { street: 'Ibn Gabirol', houseNumber: 45 } // No city
             };
 
-            const response = await request(app).post('/api/restaurants').send(missingCity);
+            const response = await request(app)
+                .post('/api/restaurants')
+                .set('x-user-phone', testUserPhone)
+                .send(missingCity);
             
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -126,7 +151,10 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
                 address: { city: 'Tel Aviv', houseNumber: 45 } // No street
             };
 
-            const response = await request(app).post('/api/restaurants').send(missingStreet);
+            const response = await request(app)
+                .post('/api/restaurants')
+                .set('x-user-phone', testUserPhone)
+                .send(missingStreet);
             
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -140,7 +168,10 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
                 address: { city: 'Tel Aviv', street: 'Ibn Gabirol' } // No houseNumber
             };
 
-            const response = await request(app).post('/api/restaurants').send(missingHouseNumber);
+            const response = await request(app)
+                .post('/api/restaurants')
+                .set('x-user-phone', testUserPhone)
+                .send(missingHouseNumber);
             
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('error');
@@ -154,10 +185,20 @@ describe('Restaurants Integration Tests (GET & POST)', () => {
 
 describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
     let testRestaurantId;
+    let testUserPhone;
 
     // Setup: Create a dummy restaurant before running these specific tests
     beforeEach(async () => {
+    UserModel.clearAll();
     RestaurantModel.clearAll();
+
+    const testUser = UserModel.createUser({
+        username: 'restaurant_manager',
+        phoneNumber: '0522222222',
+        password: 'password123',
+        address: { city: 'Tel Aviv', street: 'Rothschild', houseNumber: 1 }
+    });
+    testUserPhone = testUser.phoneNumber;
     
     const testRestaurant = {
         name: 'TDD Burger',
@@ -167,6 +208,7 @@ describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
 
     const response = await request(app)
         .post('/api/restaurants')
+        .set('x-user-phone', testUserPhone)
         .send(testRestaurant);
 
     const locationParts = response.headers.location.split('/');
@@ -187,6 +229,7 @@ describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
         
         const response = await request(app)
             .patch(`/api/restaurants/${testRestaurantId}`)
+            .set('x-user-phone', testUserPhone)
             .send(updatePayload);
             
         expect(response.status).toBe(204);
@@ -196,7 +239,9 @@ describe('Restaurants Integration Tests (GET, PATCH, DELETE by ID)', () => {
 
     // Test 3: Successful DELETE (204)
     it('Should drop items out of memory entirely and yield a 204 No Content code', async () => {
-        const response = await request(app).delete(`/api/restaurants/${testRestaurantId}`);
+        const response = await request(app)
+            .delete(`/api/restaurants/${testRestaurantId}`)
+            .set('x-user-phone', testUserPhone);
         
         expect(response.status).toBe(204);
         // Verify payload body is completely empty
@@ -214,10 +259,20 @@ describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => 
     // Setup: Create 2 dummy restaurant: one with dummy menu and one without products before running these specific tests
     let testRestaurantId;
     let testRestaurantId2;
+    let testUserPhone;
 
     beforeEach(async () => {
         // Clean the data
+        UserModel.clearAll();
         RestaurantModel.clearAll(); 
+
+        const testUser = UserModel.createUser({
+            username: 'restaurant_manager',
+            phoneNumber: '0522222222',
+            password: 'password123',
+            address: { city: 'Tel Aviv', street: 'Rothschild', houseNumber: 1 }
+        });
+        testUserPhone = testUser.phoneNumber;
         
         // Create two restaurant's Json
         const restaurantPayload = {
@@ -235,10 +290,12 @@ describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => 
         // Create it in the server
         const resResponse = await request(app)
             .post('/api/restaurants')
+            .set('x-user-phone', testUserPhone)
             .send(restaurantPayload);
 
         const resResponse2 = await request(app)
             .post('/api/restaurants')
+            .set('x-user-phone', testUserPhone)
             .send(restaurantPayload2);    
         
         // Get the new restaurant's id
@@ -260,6 +317,7 @@ describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => 
         // The server add's the product into the Restaurant's menu using POST
         await request(app)
             .post(`/api/restaurants/${testRestaurantId}/products`)
+            .set('x-user-phone', testUserPhone)
             .send(productPayload);
     });
 
@@ -296,7 +354,9 @@ describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => 
         expect(response.body).toHaveProperty('error');
 
         // Send POST request to the server, and get the response
-        const response2 = await request(app).post(`/api/restaurants/${notExcistingId}/products`);
+        const response2 = await request(app)
+            .post(`/api/restaurants/${notExcistingId}/products`)
+            .set('x-user-phone', testUserPhone);
         // Check the response status
         expect(response2.status).toBe(404);
         // Make sure we get error message
@@ -306,7 +366,9 @@ describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => 
     // Test 3: Make sure the user give product to add in POST
     it('Enforce input checker filters to flag missing target properties with 400 codes.', async () => {
         // Send POST request to the server, and get the response
-        const response = await request(app).post(`/api/restaurants/${testRestaurantId2}/products`);
+        const response = await request(app)
+            .post(`/api/restaurants/${testRestaurantId2}/products`)
+            .set('x-user-phone', testUserPhone);
         // Check the response status
         expect(response.status).toBe(400);
         // Make sure we get error message
@@ -322,24 +384,38 @@ describe('Restaurants Menu Integration Tests (GET, PATCH, DELETE by ID)', () => 
 describe('Individual Product Operations Tests (GET, PATCH, DELETE by pId)', () => {
     let testRestaurantId;
     let testProductId;
+    let testUserPhone;
 
     // Setup: Create a restaurant and append a product before testing individual operations
     beforeEach(async () => {
+        UserModel.clearAll();
         RestaurantModel.clearAll();
         
+        const testUser = UserModel.createUser({
+            username: 'restaurant_manager',
+            phoneNumber: '0522222222',
+            password: 'password123',
+            address: { city: 'Tel Aviv', street: 'Rothschild', houseNumber: 1 }
+        });
+        testUserPhone = testUser.phoneNumber;
+
         // 1. Instantiate a parent restaurant
         const restaurantPayload = {
             name: 'TDD Pizza',
             cuisine: 'Italian',
             address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 12 }
         };
-        const resResponse = await request(app).post('/api/restaurants').send(restaurantPayload);
+        const resResponse = await request(app)
+            .post('/api/restaurants')
+            .set('x-user-phone', testUserPhone)
+            .send(restaurantPayload);
         testRestaurantId = resResponse.headers.location.split('/').pop();
 
         // 2. Instantiate a nested product item
         const productPayload = { name: 'Margherita', price: 50 };
         const prodResponse = await request(app)
             .post(`/api/restaurants/${testRestaurantId}/products`)
+            .set('x-user-phone', testUserPhone)
             .send(productPayload);
         
         testProductId = prodResponse.headers.location.split('/').pop();
@@ -360,6 +436,7 @@ describe('Individual Product Operations Tests (GET, PATCH, DELETE by pId)', () =
         const updatePayload = { price: 55 };
         const response = await request(app)
             .patch(`/api/restaurants/${testRestaurantId}/products/${testProductId}`)
+            .set('x-user-phone', testUserPhone)
             .send(updatePayload);
             
         expect(response.status).toBe(204);
@@ -368,7 +445,9 @@ describe('Individual Product Operations Tests (GET, PATCH, DELETE by pId)', () =
 
     // Confirm purge actions return clean 204 statuses with empty payloads.
     it('Should delete the product and return 204 No Content', async () => {
-        const response = await request(app).delete(`/api/restaurants/${testRestaurantId}/products/${testProductId}`);
+        const response = await request(app)
+            .delete(`/api/restaurants/${testRestaurantId}/products/${testProductId}`)
+            .set('x-user-phone', testUserPhone);
         
         expect(response.status).toBe(204);
         expect(response.text === '' || Object.keys(response.body).length === 0).toBe(true);

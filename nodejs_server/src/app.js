@@ -3,7 +3,7 @@
  * Configures the Express server and global middleware.
  */
 const express = require('express');
-const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddleware');
+const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddlewares');
 const app = express();
 
 // Set the port from environment variables, fallback to 3000
@@ -27,12 +27,15 @@ const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
 
 const tokenRoutes = require('./routes/tokenRoutes'); 
-app.use('/api/tokens', tokenRoutes);                
+app.use('/api/tokens', tokenRoutes);   
+
+const orderRoutes = require('./routes/orderRoutes'); 
+app.use('/api/orders', orderRoutes);   
 
 
 // 3. Error & Safety Middlewares 
 app.use(notFoundMiddleware);      // Catches 404s (Only fires if no route matched above)
-app.use(globalErrorMiddleware);   // Catches 500s/400s (Our emergency ambulance)
+app.use(globalErrorMiddleware);   // Our emergency Middleware
 
 
 /**

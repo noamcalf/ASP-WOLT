@@ -23,6 +23,12 @@ const registerUser = (req, res) => {
         return res.status(400).json({ error: "Validation failed: 'city' is required" });
     }
 
+    // Verify phone number uniqueness using the correct payload property to ensure schema consistency
+    const isUserExist = phoneNumber ? UserModel.getUserByPhoneNumber(phoneNumber.trim()) : null;
+    if (isUserExist) {
+         return res.status(409).json({ error: "Username with the same phone number already exists" });
+    }
+
     // Delegate creation to the model
     const newUser = UserModel.createUser({
         username: username.trim(),

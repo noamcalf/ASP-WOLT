@@ -21,6 +21,12 @@ const getUserById = (id) => {
     return user ? user : null;
 };
 
+// Retrieves a single user by their unique ID
+const getUserByPhoneNumber = (id) => {
+    const user = dataStore.users.find(u => u.phoneNumber === id);
+    return user ? user : null;
+};
+
 // Retrieves a single user by their username (crucial for login authentication)
 const getUserByUsername = (username) => {
     const user = dataStore.users.find(u => u.username === username);
@@ -36,5 +42,6 @@ module.exports = {
     createUser,
     getUserById,
     getUserByUsername,
+    getUserByPhoneNumber,
     clearAll
 };

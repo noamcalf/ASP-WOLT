@@ -8,19 +8,19 @@ const crypto = require('crypto');
 // Authenticates user credentials and generates an access token upon success
 const generateToken = (req, res) => {
     // Defensive parsing for incoming login credentials
-    const { username, password } = req.body || {};
+    const { phoneNumber, password } = req.body || {};
 
-    // Validate payload presence
-    if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password are required' });
+    // Validate payload presence strictly enforcing the primary phone number identifier
+    if (!phoneNumber || !password) {
+        return res.status(400).json({ error: 'Phone number and password are required' });
     }
 
-    // Attempt to locate the user in the data store using the provided username
-    const user = UserModel.getUserByUsername(username);
+    // Attempt to locate the user in the data store using the provided phone number
+    const user = UserModel.getUserByPhoneNumber(phoneNumber);
 
     // Verify identity: Check if user exists and if the provided password matches
     if (!user || user.password !== password) {
-        return res.status(401).json({ error: 'Invalid username or password' });
+        return res.status(401).json({ error: 'Invalid phone number or password' });
     }
 
     // Authorization: Generate a random string to serve as the access token
