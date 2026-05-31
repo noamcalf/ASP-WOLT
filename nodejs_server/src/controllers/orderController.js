@@ -9,7 +9,7 @@ const { OrderStatus } = OrderModel;
 
 
 const getOrdersHistory = (req, res) => {
-    // Get the data from the request
+    // Get the data from the request (make sure its authenticate)
     const userId = req.authenticatedUser.id;
 
     // Search for orders via model
@@ -72,11 +72,6 @@ const createOrder = (req, res) => {
             price: catalogProduct.price,
             quantity: quantity
         });
-    }
-
-    // Ensure the request contains an authenticated user context
-    if (!req.authenticatedUser) {
-        return res.status(401).json({ error: "Unauthorized: Authenticated user context is missing" });
     }
 
     const { id: userId, username, phoneNumber, address } = req.authenticatedUser;

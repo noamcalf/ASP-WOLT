@@ -5,6 +5,11 @@
 const crypto = require('crypto');
 const dataStore = require('./dataStore');
 
+// Retrieves all products
+const getAllProducts = () => {
+    return dataStore.products;
+};
+
 // Retrieves all products assigned to a specific restaurant ID
 const getProductsByRestaurantId = (restaurantId) => {
     return dataStore.products.filter(product => product.restaurantId === restaurantId);
@@ -64,6 +69,7 @@ const clearAll = () => {
 };
 
 module.exports = {
+    getAllProducts,
     getProductsByRestaurantId,
     createProductInRestaurant,
     getProductFromRestaurant,
