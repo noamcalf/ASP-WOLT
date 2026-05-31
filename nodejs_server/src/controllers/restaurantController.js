@@ -68,7 +68,7 @@ const getRestaurantById = (req, res, next) => {
 const updateRestaurant = (req, res, next) => {
     // Get the variabels
     const { id } = req.params;
-    const updates = req.body;
+    const updates = req.body || {};
 
     // Call the model's func
     const updatedRestaurant = RestaurantModel.updateRestaurant(id, updates);
