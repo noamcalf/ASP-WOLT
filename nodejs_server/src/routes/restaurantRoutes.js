@@ -26,7 +26,7 @@ router.route('/:id/products')
 
 // Bind GET, PATCH, and DELETE requests for a specific nested product by its unique ID
 router.route('/:id/products/:pId') 
-    .get(productController.getProduct)
+    .get(productController.getProduct) // Activates RECOMMEND in CPP server : GET <userId> <productId>
     .patch(identityMiddleware, productController.updateProduct)
     .delete(identityMiddleware, productController.deleteProduct);
 
