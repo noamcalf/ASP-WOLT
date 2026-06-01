@@ -31,13 +31,13 @@ const connectToCppServer = () => {
         isReconnecting = false;
     });
 
-    // Error Boundary: Catch network errors silently to prevent the Express server from crashing (WOLT-157)
+    // Error Boundary: Catch network errors silently to prevent the Express server from crashing
     clientSocket.on('error', (err) => {
         console.error(`[TCP Client] Network Error: ${err.message}`);
         // Note: The 'close' event will automatically fire after an error, triggering the retry loop
     });
 
-    // Reconnection Loop: Spin up retry mechanisms immediately when links disconnect (WOLT-157)
+    // Reconnection Loop: Spin up retry mechanisms immediately when links disconnect
     clientSocket.on('close', () => {
         console.log('[TCP Client] Connection dropped. Attempting to reconnect in 5 seconds...');
         
