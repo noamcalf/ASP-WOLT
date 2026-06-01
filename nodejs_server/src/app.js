@@ -41,11 +41,11 @@ app.use(notFoundMiddleware);      // Catches 404s (Only fires if no route matche
 app.use(globalErrorMiddleware);   // Our emergency Middleware
 
 // 4. External Integrations
-// Establish the TCP socket connection to Server 2 automatically on boot
-connectToCppServer();
-
-// Start listening for incoming HTTP requests (Protected from Jest environment).
 if (process.env.NODE_ENV !== 'test') {
+    // Establish the TCP socket connection to Server 2 automatically on boot
+    connectToCppServer();
+
+    // Start listening for incoming HTTP requests (Protected from Jest environment).
     app.listen(PORT, () => {
         console.log(`Web Server is listening on port ${PORT}`);
     });

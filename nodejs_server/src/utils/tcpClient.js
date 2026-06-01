@@ -41,8 +41,11 @@ const connectToCppServer = () => {
     clientSocket.on('close', () => {
         console.log('[TCP Client] Connection dropped. Attempting to reconnect in 5 seconds...');
         
-        clientSocket.destroy();
-        clientSocket = null;
+        // Ensure socket isn't already null before destroying
+        if (clientSocket) {
+            clientSocket.destroy();
+            clientSocket = null;
+        }
 
         if (!isReconnecting) {
             isReconnecting = true;
@@ -70,7 +73,20 @@ const sendTelemetry = (command) => {
     }
 };
 
+/**
+ * Cleanly terminates the socket and locks the retry loop.
+ * Crucial for preventing memory leaks in testing environments.
+ */
+const closeConnection = () => {
+    isReconnecting = true; // Lock the retry loop
+    if (clientSocket && !clientSocket.destroyed) {
+        clientSocket.destroy();
+        clientSocket = null;
+    }
+};
+
 module.exports = {
     connectToCppServer,
-    sendTelemetry
+    sendTelemetry,
+    closeConnection
 };
