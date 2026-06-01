@@ -5,8 +5,6 @@
 const OrderModel = require('../models/orderModel');
 const RestaurantModel = require('../models/restaurantModel');
 const ProductModel = require('../models/productModel');
-const { OrderStatus } = OrderModel;
-
 
 const getOrdersHistory = (req, res) => {
     // Get the data from the request (make sure its authenticate)
