@@ -3,6 +3,7 @@
  * Handles all HTTP requests related to user registration and profile management.
  */
 const UserModel = require('../models/userModel');
+const TcpService = require('../services/tcpService');
 
 // Registers a new user after validating the payload schema
 const registerUser = (req, res) => {
@@ -39,6 +40,9 @@ const registerUser = (req, res) => {
 
     // Strip the password from the response payload for security
     const { password: _, ...userWithoutPassword } = newUser;
+
+    // Create an empty history profile for the new user in the C++ server
+    TcpService.sendPostCommand(newUser.id, []);
 
     // Return the successful 201 Created status along with the safe user object
     return res.status(201).json({

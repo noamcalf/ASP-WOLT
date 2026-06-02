@@ -96,7 +96,7 @@ const createOrder = (req, res) => {
     });
 
     // Send the parameters to update the CPP server
-    TcpService.sendPostCommand(userId, productIds);
+    TcpService.sendPatchCommand(userId, productIds);
 
     // Set the location header properly on the response object
     res.setHeader('Location', order.path || `/api/orders/${order.id}`);
@@ -173,11 +173,13 @@ const updateOrderDetails = (req, res) => {
 
     // If the change is including products
     if (JSON.stringify(oldProductIds) !== JSON.stringify(newProductIds)) {
+        // Delete old products from history
+        TcpService.sendDeleteCommand(currentUserId, oldProductIds);
         // Send the parameters to update the CPP server 
         TcpService.sendPatchCommand(currentUserId, newProductIds);
     }
 
-    return res.status(200).json(updatedOrder);
+    return res.status(204).end();
 };
 
 const deleteOrder = (req, res) => {
