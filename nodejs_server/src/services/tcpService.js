@@ -8,12 +8,12 @@ const sendGetCommand = (userId, productId) => {
 };
 
 const sendPostCommand = (userId, orderId, productsIdArray) => {
-    const command = `POST ${userId} ${orderId} ${productsArray.join(' ')}`;
+    const command = `POST ${userId} ${orderId} ${productsIdArray.join(' ')}`;
     tcpClient.sendTelemetry(command);
 };
 
 const sendPatchCommand = (userId, orderId, productsIdArray) => {
-    const command = `PATCH ${userId} ${orderId} ${productsArray.join(' ')}`;
+    const command = `PATCH ${userId} ${orderId} ${productsIdArray.join(' ')}`;
     tcpClient.sendTelemetry(command);
 };
 
