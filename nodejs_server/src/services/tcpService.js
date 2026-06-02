@@ -36,13 +36,21 @@ const sendDeleteCommand = (userId, productsIdArray) => {
 const fetchRecommendations = (userId, productId) => {
     return new Promise((resolve, reject) => {
         const client = new net.Socket();
-        // Assuming the standard port configured in your environment
-        const PORT = process.argv[2] ? parseInt(process.argv[2], 10) : 6060;
+        // Extract host and port from environment variable if in Docker, else use defaults
+        let host = '127.0.0.1';
+        let port = process.argv[2] ? parseInt(process.argv[2], 10) : 6060;
+
+        if (process.env.CPP_BACKEND_URL) {
+            // Parses "http://cpp_backend:8080" into host and port
+            const urlParts = process.env.CPP_BACKEND_URL.replace('http://', '').split(':');
+            host = urlParts[0];
+            port = parseInt(urlParts[1], 10);
+        }
 
         // Prevent hanging promises in testing mode
         client.setTimeout(2000);
         
-        client.connect(PORT, '127.0.0.1', () => {
+        client.connect(port, host, () => {
             const command = `GET ${getSafeUserId(userId)} ${productId}\n`;
             client.write(command);
         });
