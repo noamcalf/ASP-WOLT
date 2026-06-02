@@ -5,6 +5,7 @@
 const OrderModel = require('../models/orderModel');
 const RestaurantModel = require('../models/restaurantModel');
 const ProductModel = require('../models/productModel');
+const TcpService = require('../services/tcpService');
 
 const getOrdersHistory = (req, res) => {
     // Get the data from the request (make sure its authenticate)
@@ -85,6 +86,12 @@ const createOrder = (req, res) => {
         totalPrice: totalPrice            
     });
 
+    // Get only product's id's
+    const productIds = validatedItems.map(item => item.productId);
+
+    // Send the parameters to update the CPP server
+    TcpService.sendPostCommand(userId ,order.id ,productIds);
+
     // Return the wanted response setting the location header properly
     return res.status(201)
         .setHeader('Location', order.path || `/api/orders/${order.id}`)
@@ -114,7 +121,7 @@ const getOrderDetails = (req, res) => {
 };
 
 const updateOrderDetails = (req, res) => {
-    // Get the variabels
+    // Get the variables
     const { id } = req.params;
     const updates = req.body || {};
 
@@ -133,14 +140,26 @@ const updateOrderDetails = (req, res) => {
     }
 
     if (order.status === "ON_ITS_WAY" || order.status === "DELIVERED") {
-    return res.status(400).json({ error: "Cannot update an order that is already on its way or delivered" });
-}
+        return res.status(400).json({ error: "Cannot update an order that is already on its way or delivered" });
+    }
+
+    // Get the old products id's
+    const oldProductIds = (order.items || []).map(item => item.productId || item);
 
     // Call the model's func
     const updatedOrder = OrderModel.updateOrderById(id, updates);
 
+    // Get the new products id's
+    const newProductIds = (updatedOrder.items || []).map(item => item.productId || item);
+
+    // If the change is including products
+    if (JSON.stringify(oldProductIds) !== JSON.stringify(newProductIds)) {
+        // Send the parameters to update the CPP server 
+        TcpService.sendPatchCommand(currentUserId, id, newProductIds);
+    }
+
     return res.status(200).json(updatedOrder);
-}; 
+};
 
 const deleteOrder = (req, res) => {
     // Get orderId from URL
@@ -166,6 +185,9 @@ const deleteOrder = (req, res) => {
 
     // Call the model's func
     OrderModel.deleteOrderById(id);
+
+    // Send the parameters to update the CPP server 
+    TcpService.sendDeleteCommand(currentUserId ,id);
 
     // Return wanted response
     return res.status(204).end();

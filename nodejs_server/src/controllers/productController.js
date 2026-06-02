@@ -4,6 +4,7 @@
  */
 const RestaurantModel = require('../models/restaurantModel');
 const ProductModel = require('../models/productModel');
+const TcpService = require('../services/tcpService');
 
 // Retrieves all products for a specific restaurant
 const getProducts = (req, res) => {
@@ -66,6 +67,12 @@ const getProduct = (req, res, next) => {
         return res.status(404).json({ error: "Product not found" });
     }
 
+    // Get the user's authenticated id
+    const userId = req.authenticatedUser?.id
+
+    // Swnd the command for CPP server's update
+    TcpService.sendGetCommand(userId, pId);
+    
     // Return wanted output
     return res.status(200).json(product);
 };
