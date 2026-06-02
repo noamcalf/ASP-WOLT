@@ -7,11 +7,17 @@ const net = require('net');
 // State variables for the connection
 let clientSocket = null;
 let isReconnecting = false;
+let reconnectTimer = null;
 
 // Configuration: Read the target port from the command line arguments as required by tests
 // If no argument is provided, fallback to standard 6060
-const HOST = '127.0.0.1'; 
-const PORT = process.argv[2] ? parseInt(process.argv[2], 10) : 6060;
+const HOST = '127.0.0.1';
+
+// Make sure argument is a number
+const parsedArgPort = process.argv[2] ? parseInt(process.argv[2], 10) : null;
+
+// If there is no argument of the argument is NaN
+const PORT = (parsedArgPort && !isNaN(parsedArgPort)) ? parsedArgPort : 6060;
 
 /**
  * Initializes the TCP socket connection to the C++ server.
@@ -39,7 +45,7 @@ const connectToCppServer = () => {
 
     // Reconnection Loop: Spin up retry mechanisms immediately when links disconnect
     clientSocket.on('close', () => {
-        console.log('[TCP Client] Connection dropped. Attempting to reconnect in 5 seconds...');
+        console.log('[TCP Client] Connection dropped.');
         
         // Ensure socket isn't already null before destroying
         if (clientSocket) {
@@ -47,12 +53,13 @@ const connectToCppServer = () => {
             clientSocket = null;
         }
 
-        if (!isReconnecting) {
+        // In test environment: no automatic reconnect — tests manage the connection manually
+        if (!isReconnecting && process.env.NODE_ENV !== 'test') {
             isReconnecting = true;
-            setTimeout(() => {
+            reconnectTimer = setTimeout(() => {
                 isReconnecting = false;
                 connectToCppServer();
-            }, 5000); // Wait 5 seconds before retrying
+            }, 5000);
         }
     });
 };
@@ -63,7 +70,7 @@ const connectToCppServer = () => {
  */
 const sendTelemetry = (command) => {
     // Only attempt to write if the socket is actively connected
-    if (clientSocket && !clientSocket.destroyed) {
+    if (clientSocket && clientSocket.writable) {
         // Ensure the command ends with a newline character (\n) as expected by the C++ parser
         const formattedCommand = command.endsWith('\n') ? command : `${command}\n`;
         clientSocket.write(formattedCommand);
@@ -79,14 +86,24 @@ const sendTelemetry = (command) => {
  */
 const closeConnection = () => {
     isReconnecting = true; // Lock the retry loop
+    if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+    }
     if (clientSocket && !clientSocket.destroyed) {
+        clientSocket.removeAllListeners();
         clientSocket.destroy();
         clientSocket = null;
     }
 };
 
+const resetReconnectFlag = () => {
+    isReconnecting = false;
+};
+
 module.exports = {
     connectToCppServer,
     sendTelemetry,
-    closeConnection
+    closeConnection,
+    resetReconnectFlag
 };
