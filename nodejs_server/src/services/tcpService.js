@@ -7,18 +7,18 @@ const sendGetCommand = (userId, productId) => {
     tcpClient.sendTelemetry(command);
 };
 
-const sendPostCommand = (userId, orderId, productsIdArray) => {
-    const command = `POST ${userId} ${orderId} ${productsIdArray.join(' ')}`;
+const sendPostCommand = (userId, productsIdArray) => {
+    const command = `POST ${userId} ${productsIdArray.join(' ')}`;
     tcpClient.sendTelemetry(command);
 };
 
-const sendPatchCommand = (userId, orderId, productsIdArray) => {
-    const command = `PATCH ${userId} ${orderId} ${productsIdArray.join(' ')}`;
+const sendPatchCommand = (userId, productsIdArray) => {
+    const command = `PATCH ${userId} ${productsIdArray.join(' ')}`;
     tcpClient.sendTelemetry(command);
 };
 
-const sendDeleteCommand = (userId, orderId) => {
-    const command = `DELETE ${userId} ${orderId}`;
+const sendDeleteCommand = (userId, productsIdArray) => {
+    const command = `DELETE ${userId} ${productsIdArray.join(' ')}`;
     tcpClient.sendTelemetry(command);
 };
 

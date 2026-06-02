@@ -4,6 +4,7 @@
  */
 const RestaurantModel = require('../models/restaurantModel');
 const ProductModel = require('../models/productModel');
+const TcpService = require('../services/tcpService');
 
 // Helper function to neutralize regex special characters from user input
 const escapeRegex = (string) => {
@@ -33,6 +34,19 @@ const searchGlobal = (req, res) => {
     // The `r.name &&` ensures we don't crash if a record is corrupted and missing a name
     const matchedRestaurants = allRestaurants.filter(r => r.name && searchRegex.test(r.name));
     const matchedProducts = allProducts.filter(p => p.name && searchRegex.test(p.name));
+
+    // Check the id if the user coneccted
+    const id = req.authenticatedUser.id
+
+    if (req.authenticatedUser.id) {
+        // Check if the user searched products
+        if (matchedProducts.length > 0) {
+            for (const product in matchedProducts) {
+                // Send get command to CPP server
+                TcpService.sendGetCommand(id, product.id)
+            }
+        }
+    }
 
     // 5. Structure and return the unified aggregation JSON (WOLT-151)
     return res.status(200).json({

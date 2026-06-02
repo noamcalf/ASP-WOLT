@@ -96,7 +96,7 @@ const createOrder = (req, res) => {
     });
 
     // Send the parameters to update the CPP server
-    TcpService.sendPostCommand(userId, order.id, productIds);
+    TcpService.sendPostCommand(userId, productIds);
 
     // Set the location header properly on the response object
     res.setHeader('Location', order.path || `/api/orders/${order.id}`);
@@ -174,7 +174,7 @@ const updateOrderDetails = (req, res) => {
     // If the change is including products
     if (JSON.stringify(oldProductIds) !== JSON.stringify(newProductIds)) {
         // Send the parameters to update the CPP server 
-        TcpService.sendPatchCommand(currentUserId, id, newProductIds);
+        TcpService.sendPatchCommand(currentUserId, newProductIds);
     }
 
     return res.status(200).json(updatedOrder);
@@ -202,11 +202,15 @@ const deleteOrder = (req, res) => {
     return res.status(400).json({ error: "Cannot update an order that is already on preparation, on its way or delivered" });
     }
 
+    // Get all the product id's fro, the order we want to delete
+    const items = order.items;
+    const productsToDelete = items.map(item => item.id);
+
     // Call the model's func
     OrderModel.deleteOrderById(id);
 
     // Send the parameters to update the CPP server 
-    TcpService.sendDeleteCommand(currentUserId ,id);
+    TcpService.sendDeleteCommand(currentUserId ,productsToDelete);
 
     // Return wanted response
     return res.status(204).end();
