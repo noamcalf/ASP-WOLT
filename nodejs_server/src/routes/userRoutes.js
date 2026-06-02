@@ -15,4 +15,8 @@ router.route('/')
 router.route('/:id')
     .get(identityMiddleware, userController.getUserProfile);
 
+// Bind GET request for product recommendations
+router.route('/:id/recommendations/:productId')
+    .get(identityMiddleware, userController.getRecommendations);
+
 module.exports = router;

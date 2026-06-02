@@ -206,7 +206,7 @@ const deleteOrder = (req, res) => {
 
     // Get all the product id's fro, the order we want to delete
     const items = order.items;
-    const productsToDelete = items.map(item => item.id);
+    const productsToDelete = items.map(item => item.productId);
 
     // Call the model's func
     OrderModel.deleteOrderById(id);
