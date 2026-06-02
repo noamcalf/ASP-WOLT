@@ -16,7 +16,6 @@ The architecture implements cross-server fault tolerance, allowing the Node.js s
 Before you begin, ensure you have the following installed on your machine:
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 * [Git](https://git-scm.com/)
-* [Node.js](https://nodejs.org/)
 
 > **Note:** The architecture relies on multi-port binding. By default, the C++ telemetry service operates on port `6060` via TCP, while the client-facing REST API is exposed on port `3000` via HTTP. The Node.js application is designed to fall back to these defaults automatically, though users can optionally override the target port by passing it as a runtime argument.
 
@@ -38,8 +37,8 @@ cd ASP-WOLT
 ```bash
 docker-compose up --build
 ```
-![Docker Build Image (1)](./images/Docker_build_1)
-![Docker Build Image (2)](./images/Docker_build_2)
+![Docker Build Image (1)](./images/Docker_build_1.png)
+![Docker Build Image (2)](./images/Docker_build_2.png)
 
 ### Terminal 2: API Gateway & Web Server Setup (Node.js)
 
@@ -59,8 +58,10 @@ npm start
 ```
 *(The API Gateway will initialize locally and begin listening for client HTTP requests on port 3000, while dynamically bridging persistent TCP telemetry signals to the containerized C++ engine).*
 
-![Nodejs Downloand and Server Running Image]!(./images/Download_nodejs_and_start)
+![Nodejs Downloand and Server Running Image]!()
 
+### Terminal 3: Run the commands in the format below
+Use all command written in "Usage & Execution Examples" section in this terminal.
 ---
 
 ## 🚀 Usage & Execution Examples
@@ -79,7 +80,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `GET http://localhost:3000/api/restaurants`
   * **Example Request:**
     ```bash
-    curl -X GET http://localhost:3000/api/restaurants
+    curl -i -X GET http://localhost:3000/api/restaurants
     ```
   * **Expected Response:** `200 OK` with a JSON array containing all active restaurants in the system in JSON format.
 
@@ -87,7 +88,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `POST http://localhost:3000/api/restaurants`
   * **Example Request:**
     ```bash
-    curl -X POST http://localhost:3000/api/restaurants \
+    curl -i -X POST http://localhost:3000/api/restaurants \
       -H "Content-Type: application/json" \
       -d '{"name": "Pizza Palace", "cuisine": "Italian", "address": {"city": "Tel Aviv", "street": "Rothschild" "houseNumber": "10"}}'
     ```
@@ -97,7 +98,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `GET http://localhost:3000/api/restaurants/:id`
   * **Example Request:**
     ```bash
-    curl -X GET http://localhost:3000/api/restaurants/res123
+    curl -i -X GET http://localhost:3000/api/restaurants/res123
     ```
   * **Expected Response:** `200 Ok` containing the specific restaurant object in JSON format.
 
@@ -105,7 +106,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `PATCH http://localhost:3000/api/restaurants/:id`
   * **Example Request:**
     ```bash
-    curl -X PATCH http://localhost:3000/api/restaurants/res123 \
+    curl -i -X PATCH http://localhost:3000/api/restaurants/res123 \
       -H "Content-Type: application/json" \
       -d '{"name": "Updated Pizza Palace"}'
     ```
@@ -115,7 +116,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `DELETE http://localhost:3000/api/restaurants/:id`
   * **Example Request:**
     ```bash
-    curl -X DELETE http://localhost:3000/api/restaurants/res123
+    curl -i -X DELETE http://localhost:3000/api/restaurants/res123
     ```
   * **Expected Response:** `204 No Content`.
 
@@ -127,7 +128,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `GET http://localhost:3000/api/restaurants/:id/products`
   * **Example Request:**
     ```bash
-    curl -X GET http://localhost:3000/api/restaurants/res123/products
+    curl -i -X GET http://localhost:3000/api/restaurants/res123/products
     ```
   * **Expected Response:** `200 OK` with the complete list of products (menu) for the specified restaurant.
 
@@ -135,7 +136,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `POST http://localhost:3000/api/restaurants/:id/products`
   * **Example Request:**
     ```bash
-    curl -X POST http://localhost:3000/api/restaurants/res123/products \
+    curl -i -X POST http://localhost:3000/api/restaurants/res123/products \
       -H "Content-Type: application/json" \
       -d '{"name": "Margherita Pizza", "price": 45, "description": "Classic cheese pizza"}'
     ```
@@ -145,7 +146,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `GET http://localhost:3000/api/restaurants/:id/products/:pId`
   * **Example Request:**
     ```bash
-    curl -X GET http://localhost:3000/api/restaurants/res123/products/pld99
+    curl -i -X GET http://localhost:3000/api/restaurants/res123/products/pld99
     ```
   * **Expected Response:** `200 OK` with the specific product data in JSON format.
 
@@ -153,7 +154,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `PATCH http://localhost:3000/api/restaurants/:id/products/:pId`
   * **Example Request:**
     ```bash
-    curl -X PATCH http://localhost:3000/api/restaurants/res123/products/pld99 \
+    curl -i -X PATCH http://localhost:3000/api/restaurants/res123/products/pld99 \
       -H "Content-Type: application/json" \
       -d '{"price": 49}'
     ```
@@ -163,7 +164,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `DELETE http://localhost:3000/api/restaurants/:id/products/:pId`
   * **Example Request:**
     ```bash
-    curl -X DELETE http://localhost:3000/api/restaurants/res123/products/pld99
+    curl -i -X DELETE http://localhost:3000/api/restaurants/res123/products/pld99
     ```
   * **Expected Response:** `204 No Content`.
 
@@ -175,7 +176,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `POST http://localhost:3000/api/orders`
   * **Example Request:**
     ```bash
-    curl -X POST http://localhost:3000/api/orders \
+    curl -i -X POST http://localhost:3000/api/orders \
       -H "Content-Type: application/json" \
       -d '{"restaurantId": "res123", "items": [{"productId": "pld99", "quantity": 2}]}'
     ```
@@ -185,7 +186,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `GET http://localhost:3000/api/orders`
   * **Example Request:**
     ```bash
-    curl -X GET http://localhost:3000/api/orders
+    curl -i -X GET http://localhost:3000/api/orders
     ```
   * **Expected Response:** `200 OK` returning the authenticated/current user's order history in JSON format.
 
@@ -193,7 +194,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `GET http://localhost:3000/api/orders/:id`
   * **Example Request:**
     ```bash
-    curl -X GET http://localhost:3000/api/orders/ord555
+    curl -i -X GET http://localhost:3000/api/orders/ord555
     ```
   * **Expected Response:** `200 OK` returning the order's details in JSON format.
 
@@ -201,7 +202,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `PATCH http://localhost:3000/api/orders/:id`
   * **Example Request:**
     ```bash
-    curl -X PATCH http://localhost:3000/api/orders/ord555 \
+    curl -i -X PATCH http://localhost:3000/api/orders/ord555 \
       -H "Content-Type: application/json" \
       -d '{"status": "delivered"}'
     ```
@@ -211,7 +212,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `DELETE http://localhost:3000/api/orders/:id`
   * **Example Request:**
     ```bash
-    curl -X DELETE http://localhost:3000/api/orders/ord555
+    curl -i -X DELETE http://localhost:3000/api/orders/ord555
     ```
   * **Expected Response:** `204 No Content`.
 
@@ -219,7 +220,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `GET http://localhost:3000/api/orders/:id/recommendations/:productId`
   * **Example Request:**
     ```bash
-    curl -X GET http://localhost:3000/api/orders/ord555/recommendations/pld99
+    curl -i -X GET http://localhost:3000/api/orders/ord555/recommendations/pld99
     ```
   * **Expected Response:** `200 OK` containing a JSON array of recommended product IDs generated by the collaborative filtering engine.
 ---
@@ -231,7 +232,7 @@ Below is the complete API specification based on the system requirements using '
   * **Endpoint:** `GET http://localhost:3000/api/search/:query`
   * **Example Request:**
     ```bash
-    curl -X GET http://localhost:3000/api/search/pizza
+    curl -i -X GET http://localhost:3000/api/search/pizza
     ```
   * **Expected Response:** `200 OK` with an array of filtered restaurant and product entities matching the query term.
 
