@@ -64,7 +64,13 @@ const fetchRecommendations = (userId, productId) => {
 
         client.on('error', (err) => {
             console.error(`[TCP Service] Recommendation fetch failed: ${err.message}`);
+            client.destroy();
             reject(err);
+        });
+
+        client.on('timeout', () => {
+            client.destroy();
+            reject(new Error('TCP connection timed out'));
         });
     });
 };
