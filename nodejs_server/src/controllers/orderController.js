@@ -146,7 +146,7 @@ const updateOrderDetails = (req, res) => {
         return res.status(403).json({ error: "Access denied: You are not authorized to edit this order" });
     }
 
-    if (order.status === "ON_ITS_WAY" || order.status === "DELIVERED") {
+    if (order.status === "ON_ITS_WAY" || order.status === "DELIVERED" || order.status === "PREPARING") {
         return res.status(400).json({ error: "Cannot update an order that is already on its way or delivered" });
     }
 

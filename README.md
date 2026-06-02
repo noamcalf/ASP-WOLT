@@ -98,10 +98,6 @@ Find products a user might like based on the purchase history of other users wit
 * **Syntax:** `GET <userId> <productId>`
 * **Expected output:** `200 Ok` followed by two newlines and the recommended product IDs.
 
-### 5. HELP
-Print an alphabetically sorted list of all available commands.
-* **Syntax:** `help`
-
 ### Full Execution Flow Example:
 The following screenshot demonstrates a complete user session, including adding multiple users, updating records, fetching recommendations based on the collaborative filtering algorithm, handling errors, and using the help menu.
 
