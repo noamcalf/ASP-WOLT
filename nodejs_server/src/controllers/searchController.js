@@ -35,7 +35,7 @@ const searchGlobal = (req, res) => {
     const matchedRestaurants = allRestaurants.filter(r => r.name && searchRegex.test(r.name));
     const matchedProducts = allProducts.filter(p => p.name && searchRegex.test(p.name));
 
-    // Check the id if the user conected
+    // Check the id if the user coneccted
     const id = req.authenticatedUser.id
 
     if (req.authenticatedUser.id) {

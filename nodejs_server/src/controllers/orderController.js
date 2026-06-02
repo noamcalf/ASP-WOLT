@@ -202,11 +202,15 @@ const deleteOrder = (req, res) => {
     return res.status(400).json({ error: "Cannot update an order that is already on preparation, on its way or delivered" });
     }
 
+    // Get all the product id's fro, the order we want to delete
+    const items = order.items;
+    const productsToDelete = items.map(item => item.id);
+
     // Call the model's func
     OrderModel.deleteOrderById(id);
 
     // Send the parameters to update the CPP server 
-    TcpService.sendDeleteCommand(currentUserId ,id);
+    TcpService.sendDeleteCommand(currentUserId ,productsToDelete);
 
     // Return wanted response
     return res.status(204).end();
