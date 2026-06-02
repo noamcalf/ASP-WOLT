@@ -71,7 +71,9 @@ const getProduct = (req, res, next) => {
     const userId = req.authenticatedUser?.id
 
     // Swnd the command for CPP server's update
-    TcpService.sendGetCommand(userId, pId);
+    if (userId) {
+        TcpService.sendPatchCommand(userId, [pId]);
+    }
     
     // Return wanted output
     return res.status(200).json(product);

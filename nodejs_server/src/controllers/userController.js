@@ -3,6 +3,8 @@
  * Handles all HTTP requests related to user registration and profile management.
  */
 const UserModel = require('../models/userModel');
+const TcpService = require('../services/tcpService');
+const ProductModel = require('../models/productModel');
 
 // Registers a new user after validating the payload schema
 const registerUser = (req, res) => {
@@ -40,6 +42,9 @@ const registerUser = (req, res) => {
     // Strip the password from the response payload for security
     const { password: _, ...userWithoutPassword } = newUser;
 
+    // Create an empty history profile for the new user in the C++ server
+    TcpService.sendPostCommand(newUser.id, []);
+
     // Return the successful 201 Created status along with the safe user object
     return res.status(201).json({
         message: 'User registered successfully',
@@ -66,7 +71,36 @@ const getUserProfile = (req, res) => {
     return res.status(200).json(safeUserProfile);
 };
 
+// Retrieves product recommendations from the C++ recommandion system
+const getRecommendations = async (req, res, next) => {
+    const { id, productId } = req.params;
+
+    // Security measure: Ensure the user is requesting their own recommendations
+    if (String(req.authenticatedUser.id) !== String(id)) {
+        return res.status(403).json({ error: "Access denied" });
+    }
+
+    try {
+        // Fetch raw recommended product IDs from C++ server
+        const recommendedIds = await TcpService.fetchRecommendations(id, productId);
+        
+        // Map the IDs to actual product objects from our database
+        const allProducts = ProductModel.getAllProducts() || [];
+        const recommendedProducts = recommendedIds.map(recId => {
+            return allProducts.find(p => String(p.id) === String(recId));
+        }).filter(p => p !== undefined); // Remove any nulls if a product was deleted
+
+        return res.status(200).json(recommendedProducts);
+        
+    } catch (error) {
+        error.statusCode = 500;
+        error.message = "Recommendation engine is currently unavailable";
+        next(error);
+    }
+};
+
 module.exports = {
     registerUser,
-    getUserProfile
+    getUserProfile,
+    getRecommendations
 };

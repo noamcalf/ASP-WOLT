@@ -48,7 +48,7 @@ const connectToCppServer = () => {
     // Reconnection Loop: Spin up retry mechanisms immediately when links disconnect
     clientSocket.on('close', () => {
         if (process.env.NODE_ENV === 'test') {
-        console.log('[TCP Client] Connection dropped.');
+            console.log('[TCP Client] Connection dropped.');
         }
         
         // Ensure socket isn't already null before destroying

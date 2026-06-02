@@ -96,7 +96,7 @@ const createOrder = (req, res) => {
     });
 
     // Send the parameters to update the CPP server
-    TcpService.sendPostCommand(userId, productIds);
+    TcpService.sendPatchCommand(userId, productIds);
 
     // Set the location header properly on the response object
     res.setHeader('Location', order.path || `/api/orders/${order.id}`);
@@ -146,7 +146,7 @@ const updateOrderDetails = (req, res) => {
         return res.status(403).json({ error: "Access denied: You are not authorized to edit this order" });
     }
 
-    if (order.status === "ON_ITS_WAY" || order.status === "DELIVERED") {
+    if (order.status === "ON_ITS_WAY" || order.status === "DELIVERED" || order.status === "PREPARING") {
         return res.status(400).json({ error: "Cannot update an order that is already on its way or delivered" });
     }
 
@@ -173,11 +173,13 @@ const updateOrderDetails = (req, res) => {
 
     // If the change is including products
     if (JSON.stringify(oldProductIds) !== JSON.stringify(newProductIds)) {
+        // Delete old products from history
+        TcpService.sendDeleteCommand(currentUserId, oldProductIds);
         // Send the parameters to update the CPP server 
         TcpService.sendPatchCommand(currentUserId, newProductIds);
     }
 
-    return res.status(200).json(updatedOrder);
+    return res.status(204).end();
 };
 
 const deleteOrder = (req, res) => {
@@ -204,7 +206,7 @@ const deleteOrder = (req, res) => {
 
     // Get all the product id's fro, the order we want to delete
     const items = order.items;
-    const productsToDelete = items.map(item => item.id);
+    const productsToDelete = items.map(item => item.productId);
 
     // Call the model's func
     OrderModel.deleteOrderById(id);

@@ -35,19 +35,6 @@ const searchGlobal = (req, res) => {
     const matchedRestaurants = allRestaurants.filter(r => r.name && searchRegex.test(r.name));
     const matchedProducts = allProducts.filter(p => p.name && searchRegex.test(p.name));
 
-    // Check the id if the user coneccted
-    const id = req.authenticatedUser.id
-
-    if (req.authenticatedUser.id) {
-        // Check if the user searched products
-        if (matchedProducts.length > 0) {
-            for (const product in matchedProducts) {
-                // Send get command to CPP server
-                TcpService.sendGetCommand(id, product.id)
-            }
-        }
-    }
-
     // 5. Structure and return the unified aggregation JSON (WOLT-151)
     return res.status(200).json({
         restaurants: matchedRestaurants,
