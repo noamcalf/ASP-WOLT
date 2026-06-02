@@ -1,7 +1,12 @@
-# 🍕 ASP-WOLT: Product Recommendation System (Client-Server Architecture)
+# 🍕 ASP-WOLT: Full-Stack Web & Recommendation System
 
 ## 📖 Overview
-**ASP-WOLT** is a C++ based Client-Server application designed to provide personalized product recommendations for users based on their purchase history. The system calculates user similarity using advanced collaborative filtering algorithms. In this version, the architecture has been upgraded to a robust Client-Server model using TCP Sockets, supporting a standard HTTP-like communication protocol.
+**ASP-WOLT** is a multi-tier Client-Server application designed for restaurant data management and collaborative filtering product recommendations. The system is divided into two decoupled components to optimize fault tolerance and separate computing concerns:
+
+1. **Web Server (Node.js & Express):** Functions as the primary API Gateway. It exposes a RESTful HTTP interface utilizing JSON formatting for the CRUD operations of users, restaurants, products, and orders.
+2. **Telemetry & Recommendation Engine (C++):** A high-performance background server connected via persistent **TCP Sockets** (Port 6060). It records system telemetry and executes the collaborative filtering algorithms.
+
+The architecture implements cross-server fault tolerance, allowing the Node.js server to handle C++ connection drops without crashing or disrupting the client-facing HTTP service.
 
 *The project was developed as part of the academic curriculum at Bar-Ilan University.*
 
@@ -11,16 +16,17 @@
 Before you begin, ensure you have the following installed on your machine:
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 * [Git](https://git-scm.com/)
+* [Node.js](https://nodejs.org/)
 
-> **Note:** The application environment is standardized via Docker. All execution paths and scripts are designed for a Bash-compliant environment to ensure consistency across different host systems.
+> **Note:** The architecture relies on multi-port binding. By default, the C++ telemetry service operates on port `6060` via TCP, while the client-facing REST API is exposed on port `3000` via HTTP. The Node.js application is designed to fall back to these defaults automatically, though users can optionally override the target port by passing it as a runtime argument.
 
 ---
 
 ## 🛠️ Installation & Build
 
-Follow these steps to get your development environment running. You will need to open **two separate terminal windows** (one for the Server, one for the Client).
+The application requires orchestrating both backend services simultaneously. Follow these steps to initialize, build, and execute the environment using **two separate terminal windows**.
 
-### Terminal 1: Server Setup
+### Terminal 1: Core Infrastructure (C++ Telemetry Engine)
 
 **1. Clone and enter the repository:**
 ```bash
@@ -28,100 +34,221 @@ git clone https://github.com/noamcalf/ASP-WOLT.git
 cd ASP-WOLT
 ```
 
-**2. Build the Docker image:**
+**2. Build the infrastructure using Docker Compose:**
 ```bash
-docker build -t wolt-app-image .
+docker-compose up --build
 ```
-![Docker Build Image](./images/build_docker.png)
+![Docker Build Image (1)](./images/Docker_build_1)
+![Docker Build Image (2)](./images/Docker_build_2)
 
-**3. Run the container :**
+### Terminal 2: API Gateway & Web Server Setup (Node.js)
+
+**1. Enter the Node.js server directory:**
 ```bash
-docker run -it --name wolt-container -v "$(pwd):/app" wolt-app-image
-```
-
-**4. Compile the C++ Server:**
-```bash
-mkdir -p build && cd build
-cmake ..
-make
-```
-![Make Compilation Image](./images/make.png)
-
-**5. Start the Server:**
-```bash
-cd /app
-./build/wolt_app 5555
-```
-*(The server is now listening on port 5555. Keep this terminal open).*
-
-![Server Running Image](./images/server.png)
-
----
-
-### Terminal 2: Client Setup
-Open a new terminal window on your host machine.
-
-**1. Connect to the running container:**
-```bash
-docker exec -it wolt-container bash
-cd /app
+cd ASP-WOLT/nodejs_server
 ```
 
-**2. Run the Python Client:**
+**2. Install project dependencies:**
 ```bash
-python3 src/TcpClient.py 127.0.0.1 5555
+npm install
 ```
+
+**3. Start the Node.js Web Server:**
+```bash
+npm start
+```
+*(The API Gateway will initialize locally and begin listening for client HTTP requests on port 3000, while dynamically bridging persistent TCP telemetry signals to the containerized C++ engine).*
+
+![Nodejs Downloand and Server Running Image]!(./images/Download_nodejs_and_start)
 
 ---
 
 ## 🚀 Usage & Execution Examples
 
-Once the client is connected, you can interact with the server using our standard protocol. The server responds with standard HTTP-like status codes.
+Once the application infrastructure is initialized, the system exposes its client-facing API gateway on port `3000`. You can interact with the system using standard HTTP clients (such as Postman or `curl` via the terminal). 
 
-### 1. POST (Create)
-Register a new user and their initial product list.
-* **Syntax:** `POST <userId> <productId1> <productId2> ...`
-* **Expected output:** `201 Created` (or `404 Not Found` if user already exists).
+*(To verify curl availability, execute ```bash curl --version ``` in a terminal. If curl is not detected, install it using the platform package manager—for example, ```bash brew install curl ``` on macOS, ```bash sudo apt install curl ``` on Ubuntu/Debian, or ```bash winget install cURL.cURL ``` on Windows.)
 
-### 2. PATCH (Update)
-Add new products to an existing user's history.
-* **Syntax:** `PATCH <userId> <productId1> <productId2> ...`
-* **Expected output:** `204 No Content`
-
-### 3. DELETE (Remove)
-Remove specific products from a user's history.
-* **Syntax:** `DELETE <userId> <productId1> <productId2> ...`
-* **Expected output:** `204 No Content`
-
-### 4. GET (Recommend)
-Find products a user might like based on the purchase history of other users with similar tastes.
-* **Syntax:** `GET <userId> <productId>`
-* **Expected output:** `200 Ok` followed by two newlines and the recommended product IDs.
-
-### 5. HELP
-Print an alphabetically sorted list of all available commands.
-* **Syntax:** `help`
-
-### Full Execution Flow Example:
-The following screenshot demonstrates a complete user session, including adding multiple users, updating records, fetching recommendations based on the collaborative filtering algorithm, handling errors, and using the help menu.
-
-![Full Execution Flow Image](./images/exemple.png)
+Below is the complete API specification based on the system requirements using 'curl':
 
 ---
 
-## 📐 Architecture & OCP Analysis (Open-Closed Principle)
+### 1. Restaurants Management (`/api/restaurants`)
 
-### Command Renaming and OCP Implementation
-When command names were updated to follow HTTP style syntax (such as changing add to POST), the core business logic of the commands remained completely unchanged. The command classes themselves remained closed to modification because their internal execution logic still relies on the same core HistoryManager methods. The only necessary adjustments were made to the display signatures and the central dispatcher, which maps incoming request strings to their corresponding command objects. Since a dispatcher is inherently designed to be open for extension when routing rules change, this approach successfully preserved OCP for the underlying command algorithms.
+* **Get All Restaurants (GET):**
+  * **Endpoint:** `GET http://localhost:3000/api/restaurants`
+  * **Example Request:**
+    ```bash
+    curl -X GET http://localhost:3000/api/restaurants
+    ```
+  * **Expected Response:** `200 OK` with a JSON array containing all active restaurants in the system in JSON format.
 
-### Extending the System with New HTTP Commands
-Introducing new operations like PATCH and DELETE did not require any modifications to the existing, closed code base. Thanks to the Command Pattern implemented early in the project, adding these features was achieved purely by extending the system. We simply created new classes (PatchCommand and DeleteCommand) that implement the ICommand interface. By leveraging inheritance, specifically having PatchCommand inherit from AddCommand to reuse the underlying addition logic, we eliminated code duplication while keeping the existing command classes completely untouched and closed to changes.
+* **Create a Restaurant (POST):**
+  * **Endpoint:** `POST http://localhost:3000/api/restaurants`
+  * **Example Request:**
+    ```bash
+    curl -X POST http://localhost:3000/api/restaurants \
+      -H "Content-Type: application/json" \
+      -d '{"name": "Pizza Palace", "cuisine": "Italian", "address": {"city": "Tel Aviv", "street": "Rothschild" "houseNumber": "10"}}'
+    ```
+  * **Expected Response:** `201 Created` with an **empty response body**. The dynamic URL of the newly created resource is returned within the `Location` response header (e.g., `Location: /api/restaurants/1`).
 
-### Decoupling Output Generation from Presentation
-In our initial design, commands printed their output directly to the standard console output using std::cout. We recognized right at the beginning of this exercise that this tight coupling would prevent us from adapting to the new protocol requirements without modifying every single command class. To resolve this architectural flaw, our very first task was to refactor the ICommand interface so that the execute() method returns a std::string instead of printing directly. This critical refactoring decoupled the core logic from the output channel, allowing us to easily prepend status codes like 201 Created or 204 No Content to the returned strings without breaking OCP.
+* **Get Specific Restaurant Details (GET):**
+  * **Endpoint:** `GET http://localhost:3000/api/restaurants/:id`
+  * **Example Request:**
+    ```bash
+    curl -X GET http://localhost:3000/api/restaurants/res123
+    ```
+  * **Expected Response:** `200 Ok` containing the specific restaurant object in JSON format.
 
-### Network Layer Abstraction and Loose Coupling
-Transitioning the input and output source from a local console to TCP sockets required absolutely zero changes to the core command logic or the HistoryManager. Because the parsing layer and command classes operate entirely on abstract strings, they remain completely agnostic of the underlying I/O channel. The TCP server simply reads raw strings from the network sockets, passes them to the dispatcher, and writes the resulting output string back to the client socket. This loose coupling ensures that the network stack can be completely replaced or modified without impacting the core application logic.
+* **Update Restaurant Details (PATCH):**
+  * **Endpoint:** `PATCH http://localhost:3000/api/restaurants/:id`
+  * **Example Request:**
+    ```bash
+    curl -X PATCH http://localhost:3000/api/restaurants/res123 \
+      -H "Content-Type: application/json" \
+      -d '{"name": "Updated Pizza Palace"}'
+    ```
+  * **Expected Response:** `204 No Content`.
 
-### Architectural Readiness for Concurrency
-While the current implementation processes requests sequentially, the architecture is structurally prepared to support concurrent clients. Supporting concurrent clients would primarily involve introducing a thread pool within the server layer and implementing thread safety mechanisms, such as std::mutex locks, within the HistoryManager and data storage providers. Because the command objects are decoupled from data persistence and thread management, these concurrency extensions can be integrated smoothly without altering the existing command classes or breaking the Open/Closed Principle.
+* **Delete a Restaurant (DELETE):**
+  * **Endpoint:** `DELETE http://localhost:3000/api/restaurants/:id`
+  * **Example Request:**
+    ```bash
+    curl -X DELETE http://localhost:3000/api/restaurants/res123
+    ```
+  * **Expected Response:** `204 No Content`.
+
+---
+
+### 2. Menu & Products Management (`/api/restaurants/:id/products`)
+
+* **Get Restaurant Menu (GET):**
+  * **Endpoint:** `GET http://localhost:3000/api/restaurants/:id/products`
+  * **Example Request:**
+    ```bash
+    curl -X GET http://localhost:3000/api/restaurants/res123/products
+    ```
+  * **Expected Response:** `200 OK` with the complete list of products (menu) for the specified restaurant.
+
+* **Add Product to Menu (POST):**
+  * **Endpoint:** `POST http://localhost:3000/api/restaurants/:id/products`
+  * **Example Request:**
+    ```bash
+    curl -X POST http://localhost:3000/api/restaurants/res123/products \
+      -H "Content-Type: application/json" \
+      -d '{"name": "Margherita Pizza", "price": 45, "description": "Classic cheese pizza"}'
+    ```
+  * **Expected Response:** `201 Created` with an **empty response body**. The dynamic URL of the newly created resource is returned within the `Location` response header (e.g., `Location: /api/restaurants/1/products/11`).
+
+* **Get Product Details (GET):**
+  * **Endpoint:** `GET http://localhost:3000/api/restaurants/:id/products/:pId`
+  * **Example Request:**
+    ```bash
+    curl -X GET http://localhost:3000/api/restaurants/res123/products/pld99
+    ```
+  * **Expected Response:** `200 OK` with the specific product data in JSON format.
+
+* **Update Product Details (PATCH):**
+  * **Endpoint:** `PATCH http://localhost:3000/api/restaurants/:id/products/:pId`
+  * **Example Request:**
+    ```bash
+    curl -X PATCH http://localhost:3000/api/restaurants/res123/products/pld99 \
+      -H "Content-Type: application/json" \
+      -d '{"price": 49}'
+    ```
+  * **Expected Response:** `204 No Content`.
+
+* **Delete Product from Menu (DELETE):**
+  * **Endpoint:** `DELETE http://localhost:3000/api/restaurants/:id/products/:pId`
+  * **Example Request:**
+    ```bash
+    curl -X DELETE http://localhost:3000/api/restaurants/res123/products/pld99
+    ```
+  * **Expected Response:** `204 No Content`.
+
+---
+
+### 3. Orders Management (`/api/orders`)
+
+* **Create a New Order (POST):**
+  * **Endpoint:** `POST http://localhost:3000/api/orders`
+  * **Example Request:**
+    ```bash
+    curl -X POST http://localhost:3000/api/orders \
+      -H "Content-Type: application/json" \
+      -d '{"restaurantId": "res123", "items": [{"productId": "pld99", "quantity": 2}]}'
+    ```
+  * **Expected Response:** `201 Created`.
+
+* **Get Active User Orders History (GET):**
+  * **Endpoint:** `GET http://localhost:3000/api/orders`
+  * **Example Request:**
+    ```bash
+    curl -X GET http://localhost:3000/api/orders
+    ```
+  * **Expected Response:** `200 OK` returning the authenticated/current user's order history in JSON format.
+
+* **Get Specific Order Details (GET):**
+  * **Endpoint:** `GET http://localhost:3000/api/orders/:id`
+  * **Example Request:**
+    ```bash
+    curl -X GET http://localhost:3000/api/orders/ord555
+    ```
+  * **Expected Response:** `200 OK` returning the order's details in JSON format.
+
+* **Update Order Details (PATCH):**
+  * **Endpoint:** `PATCH http://localhost:3000/api/orders/:id`
+  * **Example Request:**
+    ```bash
+    curl -X PATCH http://localhost:3000/api/orders/ord555 \
+      -H "Content-Type: application/json" \
+      -d '{"status": "delivered"}'
+    ```
+  * **Expected Response:** `204 No Content`.
+
+* **Cancel/Delete an Order (DELETE):**
+  * **Endpoint:** `DELETE http://localhost:3000/api/orders/:id`
+  * **Example Request:**
+    ```bash
+    curl -X DELETE http://localhost:3000/api/orders/ord555
+    ```
+  * **Expected Response:** `204 No Content`.
+
+* **Get recommendations by product (GET):**
+  * **Endpoint:** `GET http://localhost:3000/api/orders/:id/recommendations/:productId`
+  * **Example Request:**
+    ```bash
+    curl -X GET http://localhost:3000/api/orders/ord555/recommendations/pld99
+    ```
+  * **Expected Response:** `200 OK` containing a JSON array of recommended product IDs generated by the collaborative filtering engine.
+---
+
+### 4. Global System Search (`/api/search`)
+
+* **Query Search (GET):**
+  * **Description:** Searches across restaurants or products matching the search phrase within their title, name, or description strings.
+  * **Endpoint:** `GET http://localhost:3000/api/search/:query`
+  * **Example Request:**
+    ```bash
+    curl -X GET http://localhost:3000/api/search/pizza
+    ```
+  * **Expected Response:** `200 OK` with an array of filtered restaurant and product entities matching the query term.
+
+---
+
+### Full Execution Flow Example:
+The following screenshot demonstrates a complete real-world user interaction lifecycle executed against the API Gateway, showing structured data manipulation, successful cross-layer telemetry dispatches, and robust validation handling.
+
+![Full Execution Flow Image](./images/example.png)
+
+---
+
+## 📌 Version Control & Branch Management
+
+Code isolation and submission tracking for this project are strictly managed using dedicated Git branches for each milestone:
+
+* **Assignment 2 Codebase:** Securely maintained and stored within the `ex2-submition` branch.
+* **Assignment 3 Codebase:** Securely maintained and stored within the `ex3-submition` branch.
+
+> **Branch Protection Policy:** Both branches are governed by strict **Lock** rules on GitHub. This safety mechanism enforces read-only immutability, preventing accidental overwrites, retroactive deletions, or forced pushes after final submission to guarantee codebase integrity.
