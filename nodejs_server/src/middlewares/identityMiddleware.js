@@ -56,7 +56,10 @@ const identityMiddleware = (req, res, next) => {
         // Fallback: In case the someone sends a request without a header or an unknown number.
         // We provide a partial object so the controller (expecting req.authenticatedUser.id) doesn't crash.
         req.authenticatedUser = { 
-            id: userPhone || 'unknown_user_id' 
+            id: userPhone || 'unknown_user_id',
+            username: 'Unknown Customer',
+            phoneNumber: userPhone || '0000000000',
+            address: 'No Address' 
         };
     }
 

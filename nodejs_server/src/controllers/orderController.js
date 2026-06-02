@@ -86,16 +86,23 @@ const createOrder = (req, res) => {
         totalPrice: totalPrice            
     });
 
-    // Get only product's id's
-    const productIds = validatedItems.map(item => item.productId);
+    // Get only product's id's, and add each one by quantity to update cpp server
+    const productIds = [];
+    validatedItems.forEach(item => {
+        const quantity = item.quantity || 1;
+        for (let i = 0; i < quantity; i++) {
+            productIds.push(item.productId);
+        }
+    });
 
     // Send the parameters to update the CPP server
-    TcpService.sendPostCommand(userId ,order.id ,productIds);
+    TcpService.sendPostCommand(userId, order.id, productIds);
 
-    // Return the wanted response setting the location header properly
-    return res.status(201)
-        .setHeader('Location', order.path || `/api/orders/${order.id}`)
-        .end();
+    // Set the location header properly on the response object
+    res.setHeader('Location', order.path || `/api/orders/${order.id}`);
+    
+    // Return 201 with an entirely empty payload
+    return res.status(201).end();
 };
 
 const getOrderDetails = (req, res) => {
@@ -143,14 +150,26 @@ const updateOrderDetails = (req, res) => {
         return res.status(400).json({ error: "Cannot update an order that is already on its way or delivered" });
     }
 
-    // Get the old products id's
-    const oldProductIds = (order.items || []).map(item => item.productId || item);
+    // Get the old products id's ,and calculate each one's quantity to makr sure update the cpp server in the wanted way
+    const oldProductIds = [];
+    (order.items || []).forEach(item => {
+        const quantity = item.quantity || 1;
+        for (let i = 0; i < quantity; i++) {
+            oldProductIds.push(item.productId || item);
+        }
+    });
 
     // Call the model's func
     const updatedOrder = OrderModel.updateOrderById(id, updates);
 
-    // Get the new products id's
-    const newProductIds = (updatedOrder.items || []).map(item => item.productId || item);
+    // Get the new products id's ,and calculate each one's quantity to makr sure update the cpp server in the wanted way
+    const newProductIds = [];
+    (updatedOrder.items || []).forEach(item => {
+        const quantity = item.quantity || 1;
+        for (let i = 0; i < quantity; i++) {
+            newProductIds.push(item.productId || item);
+        }
+    });
 
     // If the change is including products
     if (JSON.stringify(oldProductIds) !== JSON.stringify(newProductIds)) {
