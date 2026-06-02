@@ -4,6 +4,8 @@
  */
 const express = require('express');
 const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddlewares');
+const { connectToCppServer } = require('./utils/tcpClient'); // Inject TCP Client utility
+
 const app = express();
 
 // Set the port from environment variables, fallback to 3000
@@ -38,9 +40,12 @@ app.use('/api/search', searchRoutes);
 app.use(notFoundMiddleware);      // Catches 404s (Only fires if no route matched above)
 app.use(globalErrorMiddleware);   // Our emergency Middleware
 
-
-// Start listening for incoming HTTP requests (Protected from Jest environment).
+// 4. External Integrations
 if (process.env.NODE_ENV !== 'test') {
+    // Establish the TCP socket connection to Server 2 automatically on boot
+    connectToCppServer();
+
+    // Start listening for incoming HTTP requests (Protected from Jest environment).
     app.listen(PORT, () => {
         console.log(`Web Server is listening on port ${PORT}`);
     });
