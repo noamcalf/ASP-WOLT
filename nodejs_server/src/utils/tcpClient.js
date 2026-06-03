@@ -1,108 +1,73 @@
 /**
- * TCP Client Utility
- * Manages the persistent socket connection to the C++ Server 2.
+ * TCP Client Utility (Fire & Forget Architecture)
+ * Manages short-lived socket connections to the C++ Server.
+ * This prevents blocking the single-threaded C++ server, allowing it to handle
+ * both telemetry (PATCH/DELETE) and recommendation requests (GET) seamlessly.
  */
 const net = require('net');
 
-// State variables for the connection
-let clientSocket = null;
-let isReconnecting = false;
-let reconnectTimer = null;
+// Configuration Defaults
+let HOST = '127.0.0.1';
+let PORT = process.argv[2] ? parseInt(process.argv[2], 10) : 6060;
 
-// Configuration: Read the target port from the command line arguments as required by tests
-// If no argument is provided, fallback to standard 6060
-const HOST = '127.0.0.1';
-
-// Make sure argument is a number
-const parsedArgPort = process.argv[2] ? parseInt(process.argv[2], 10) : null;
-
-// If there is no argument of the argument is NaN
-const PORT = (parsedArgPort && !isNaN(parsedArgPort)) ? parsedArgPort : 6060;
+// Dynamic Configuration from Docker environment variables
+if (process.env.CPP_BACKEND_URL) {
+    const urlParts = process.env.CPP_BACKEND_URL.replace('http://', '').split(':');
+    HOST = urlParts[0];
+    PORT = parseInt(urlParts[1], 10);
+}
 
 /**
- * Initializes the TCP socket connection to the C++ server.
- * Implements error boundaries and automatic reconnection loops.
+ * Initializes the TCP client configuration.
+ * In this Fire & Forget architecture, we don't hold a persistent connection,
+ * so this simply logs the target C++ server address upon startup.
  */
 const connectToCppServer = () => {
-    // Prevent multiple simultaneous connection attempts
-    if (clientSocket && !clientSocket.destroyed) {
-        return; 
-    }
-
-    clientSocket = new net.Socket();
-
-    // Attempt to establish the connection
-    clientSocket.connect(PORT, HOST, () => {
-        console.log(`[TCP Client] Connected successfully to C++ Server at ${HOST}:${PORT}`);
-        isReconnecting = false;
-    });
-
-    // Error Boundary: Catch network errors silently to prevent the Express server from crashing
-    clientSocket.on('error', (err) => {
-       if (process.env.NODE_ENV === 'test') {
-            console.error(`[TCP Client] Network Error: ${err.message}`);
-        }
-        // Note: The 'close' event will automatically fire after an error, triggering the retry loop
-    });
-
-    // Reconnection Loop: Spin up retry mechanisms immediately when links disconnect
-    clientSocket.on('close', () => {
-        if (process.env.NODE_ENV === 'test') {
-            console.log('[TCP Client] Connection dropped.');
-        }
-        
-        // Ensure socket isn't already null before destroying
-        if (clientSocket) {
-            clientSocket.destroy();
-            clientSocket = null;
-        }
-
-        // In test environment: no automatic reconnect — tests manage the connection manually
-        if (!isReconnecting && process.env.NODE_ENV !== 'test') {
-            isReconnecting = true;
-            reconnectTimer = setTimeout(() => {
-                isReconnecting = false;
-                connectToCppServer();
-            }, 5000);
-        }
-    });
+    console.log(`[TCP Client] Configured to communicate with C++ Server at ${HOST}:${PORT} (Fire & Forget Mode)`);
 };
 
 /**
  * Encapsulated utility handler to dispatch cross-server event notifications.
- * @param {string} command - The raw telemetry string (e.g., 'GET user123 prod456')
+ * Opens a brief connection, sends the data, and closes it gracefully ONLY AFTER
+ * the data has been fully flushed to the network to prevent race conditions.
+ * @param {string} command - The raw telemetry string (e.g., 'PATCH user123 prod456')
  */
 const sendTelemetry = (command) => {
-    // Only attempt to write if the socket is actively connected
-    if (clientSocket && clientSocket.writable) {
+    const client = new net.Socket();
+
+    client.connect(PORT, HOST, () => {
         // Ensure the command ends with a newline character (\n) as expected by the C++ parser
         const formattedCommand = command.endsWith('\n') ? command : `${command}\n`;
-        clientSocket.write(formattedCommand);
-    } else {
-        // Silently drop the telemetry if the C++ server is offline, ensuring the Node server keeps running
-        console.warn(`[TCP Client] Cannot dispatch telemetry, server offline. Dropped: ${command}`);
-    }
+        
+        // Write the data and use the callback to ensure it's completely sent before closing
+        client.write(formattedCommand, () => {
+            console.log(`[TCP Client] Successfully dispatched: ${command.trim()}`);
+            // Safely end the connection after the payload is delivered
+            client.end(); 
+        });
+    });
+
+    // Error Boundary: Silently drop the telemetry if the C++ server is offline or busy
+    client.on('error', (err) => {
+        console.warn(`[TCP Client] Cannot dispatch telemetry, server offline or busy. Dropped: ${command.trim()}`);
+        client.destroy();
+    });
 };
 
 /**
- * Cleanly terminates the socket and locks the retry loop.
- * Crucial for preventing memory leaks in testing environments.
+ * Cleanly terminates any mock states.
+ * Kept strictly for backward compatibility with app.js and testing suites.
  */
 const closeConnection = () => {
-    isReconnecting = true; // Lock the retry loop
-    if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
-        reconnectTimer = null;
-    }
-    if (clientSocket && !clientSocket.destroyed) {
-        clientSocket.removeAllListeners();
-        clientSocket.destroy();
-        clientSocket = null;
-    }
+    // No persistent connection to close in Fire & Forget mode
 };
 
+/**
+ * Resets the reconnect flag.
+ * Kept strictly for backward compatibility.
+ */
 const resetReconnectFlag = () => {
-    isReconnecting = false;
+    // Not applicable in Fire & Forget mode
 };
 
 module.exports = {
