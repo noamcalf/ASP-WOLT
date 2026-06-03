@@ -108,8 +108,7 @@ const sendDeleteCommand = (userId, productsIdArray) => {
 const fetchRecommendations = (userId, productId) => {
     return new Promise((resolve, reject) => {
         const client = new net.Socket();
-        
-        // Extract host and port from environment variables or fallback to defaults
+        // Extract host and port from environment variable if in Docker, else use defaults
         let host = '127.0.0.1';
         let port = process.argv[2] ? parseInt(process.argv[2], 10) : 6060;
 
