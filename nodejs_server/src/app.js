@@ -3,6 +3,7 @@
  * Configures the Express server and global middleware.
  */
 const express = require('express');
+const cors = require('cors');
 const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddlewares');
 const { connectToCppServer } = require('./utils/tcpClient'); // Inject TCP Client utility
 
@@ -10,6 +11,13 @@ const app = express();
 
 // Set the port from environment variables, fallback to 3000
 const PORT = process.env.PORT || 3000;
+
+// Set premission to the origin URL (frontend react server port) to communicate with this server using cors
+app.use(cors({ 
+    origin: 'http://localhost:5173', 
+    credentials: true 
+}));
+
 
 // 1. Initial Middlewares (Global parsing)
 app.use(express.json());
