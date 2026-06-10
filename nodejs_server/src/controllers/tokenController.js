@@ -2,8 +2,9 @@
  * Token Controller
  * Handles authentication and the generation of access tokens.
  */
+require('dotenv').config();
 const UserModel = require('../models/userModel');
-const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
 // Authenticates user credentials and generates an access token upon success
 const generateToken = (req, res) => {
@@ -23,8 +24,23 @@ const generateToken = (req, res) => {
         return res.status(401).json({ error: 'Invalid phone number or password' });
     }
 
-    // Authorization: Generate a random string to serve as the access token
-    const token = crypto.randomUUID();
+    // Define payload for jwt.sign()
+    const tokenPayload = {
+        userId: user.id,
+        phoneNumber: user.phoneNumber,
+    };
+
+    // Get the key from .env
+    const secretKey = process.env.JWT_SECRET;
+
+    // In case the secretKey was not found
+    if (!secretKey) {
+        console.error('Error: token was nor created');
+        return res.status(500).json({ error: 'Internal server configuration error' });
+    }
+
+    // Create the token by using JWT
+    const token = jwt.sign(tokenPayload, secretKey, { expiresIn: '7d' });
     
     // Assign default structural identity roles as required by the system design
     const roles = ['user']; 
