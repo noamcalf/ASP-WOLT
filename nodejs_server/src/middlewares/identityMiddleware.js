@@ -53,7 +53,8 @@ const identityMiddleware = (req, res, next) => {
         };
 
         // The middleware job is finished
-        next(); 
+        next();
+        
     } catch (error) {
         // If verify() did not work
         return res.status(401).json({ 
