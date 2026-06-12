@@ -10,12 +10,44 @@ const ProductModel = require('../models/productModel');
 const registerUser = (req, res) => {
     // Defensive parsing: default to an empty object to prevent destructuring crashes
     const { username, phoneNumber, password, address } = req.body || {};
+    let { name } = req.body || {};
+    const image  = req.file ? req.file.path : null;
 
     // Validate mandatory top-level properties
     if (!username || username.trim() === '') {
         return res.status(400).json({ error: "Validation failed: 'username' is required" });
     }
-    
+
+    // Validate password existence
+    if (!password) {
+        return res.status(400).json({ error: "Validation failed: 'password' is required" });
+    }
+
+    // Validate password type: string
+    if (typeof password !== 'string') {
+        return res.status(400).json({ error: "Validation failed: 'password' must be a string" });
+    }
+
+    // Validate password length
+    if (password.length < 8) {
+        return res.status(400).json({ error: "Validation failed: 'password' must be at least 8 characters" });
+    }
+
+    // Validate that the password contains both nubmers and letters
+    if (!/^(?=.*[a-zA-Z])(?=.*[0-9])/.test(password)) {
+        return res.status(400).json({ error: "Validation failed: 'password' must contain both letters and numbers" });
+    }
+
+    // Validate phoneNumber existence and type
+    if (!phoneNumber || typeof phoneNumber !== 'string') {
+        return res.status(400).json({ error: "Validation failed: 'phoneNumber' must be a string" });
+    }
+
+    // Validate phoneNumber contains only digits
+    if (!/^\d+$/.test(phoneNumber)) {
+        return res.status(400).json({ error: "Validation failed: 'phoneNumber' must contain only digits" });
+    }
+
     // Validate nested address fields explicitly (The Consistent Way)
     if (!address || typeof address !== 'object') {
         return res.status(400).json({ error: "Validation failed: 'address' object is required" });
@@ -25,10 +57,15 @@ const registerUser = (req, res) => {
         return res.status(400).json({ error: "Validation failed: 'city' is required" });
     }
 
-    // Verify phone number uniqueness using the correct payload property to ensure schema consistency
-    const isUserExist = phoneNumber ? UserModel.getUserByPhoneNumber(phoneNumber.trim()) : null;
+    // If the user did not type his name for the display, we will use his username
+    if (!name) {
+        name = username;
+    }
+
+    // Verify username uniqueness using the correct payload property to ensure schema consistency
+    const isUserExist = username ? UserModel.getUserByUsername(username.trim()) : null;
     if (isUserExist) {
-         return res.status(409).json({ error: "Username with the same phone number already exists" });
+         return res.status(409).json({ error: "User with the same username already exists" });
     }
 
     // Delegate creation to the model
@@ -36,7 +73,9 @@ const registerUser = (req, res) => {
         username: username.trim(),
         phoneNumber,
         password,
-        address
+        address,
+        image,
+        name
     });
 
     // Strip the password from the response payload for security

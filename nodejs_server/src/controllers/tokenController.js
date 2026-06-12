@@ -9,25 +9,24 @@ const jwt = require('jsonwebtoken');
 // Authenticates user credentials and generates an access token upon success
 const generateToken = (req, res) => {
     // Defensive parsing for incoming login credentials
-    const { phoneNumber, password } = req.body || {};
+    const { username, password } = req.body || {};
 
     // Validate payload presence strictly enforcing the primary phone number identifier
-    if (!phoneNumber || !password) {
-        return res.status(400).json({ error: 'Phone number and password are required' });
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
     }
 
     // Attempt to locate the user in the data store using the provided phone number
-    const user = UserModel.getUserByPhoneNumber(phoneNumber);
+    const user = UserModel.getUserByUsername(username);
 
     // Verify identity: Check if user exists and if the provided password matches
     if (!user || user.password !== password) {
-        return res.status(401).json({ error: 'Invalid phone number or password' });
+        return res.status(401).json({ error: 'Invalid username or password' });
     }
 
     // Define payload for jwt.sign()
     const tokenPayload = {
-        userId: user.id,
-        phoneNumber: user.phoneNumber,
+        userId: user.id
     };
 
     // Get the key from .env
