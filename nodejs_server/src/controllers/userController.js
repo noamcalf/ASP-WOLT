@@ -17,7 +17,37 @@ const registerUser = (req, res) => {
     if (!username || username.trim() === '') {
         return res.status(400).json({ error: "Validation failed: 'username' is required" });
     }
-    
+
+    // Validate password existence
+    if (!password) {
+        return res.status(400).json({ error: "Validation failed: 'password' is required" });
+    }
+
+    // Validate password type: string
+    if (typeof password !== 'string') {
+        return res.status(400).json({ error: "Validation failed: 'password' must be a string" });
+    }
+
+    // Validate password length
+    if (password.length < 8) {
+        return res.status(400).json({ error: "Validation failed: 'password' must be at least 8 characters" });
+    }
+
+    // Validate that the password contains both nubmers and letters
+    if (!/^(?=.*[a-zA-Z])(?=.*[0-9])/.test(password)) {
+        return res.status(400).json({ error: "Validation failed: 'password' must contain both letters and numbers" });
+    }
+
+    // Validate phoneNumber existence and type
+    if (!phoneNumber || typeof phoneNumber !== 'string') {
+        return res.status(400).json({ error: "Validation failed: 'phoneNumber' must be a string" });
+    }
+
+    // Validate phoneNumber contains only digits
+    if (!/^\d+$/.test(phoneNumber)) {
+        return res.status(400).json({ error: "Validation failed: 'phoneNumber' must contain only digits" });
+    }
+
     // Validate nested address fields explicitly (The Consistent Way)
     if (!address || typeof address !== 'object') {
         return res.status(400).json({ error: "Validation failed: 'address' object is required" });
