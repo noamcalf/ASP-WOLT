@@ -10,6 +10,8 @@ const ProductModel = require('../models/productModel');
 const registerUser = (req, res) => {
     // Defensive parsing: default to an empty object to prevent destructuring crashes
     const { username, phoneNumber, password, address } = req.body || {};
+    let { name } = req.body || {};
+    const image  = req.file ? req.file.path : null;
 
     // Validate mandatory top-level properties
     if (!username || username.trim() === '') {
@@ -25,6 +27,11 @@ const registerUser = (req, res) => {
         return res.status(400).json({ error: "Validation failed: 'city' is required" });
     }
 
+    // If the user did not type his name for the display, we will use his username
+    if (!name) {
+        name = username;
+    }
+
     // Verify username uniqueness using the correct payload property to ensure schema consistency
     const isUserExist = username ? UserModel.getUserByUsername(username.trim()) : null;
     if (isUserExist) {
@@ -36,7 +43,9 @@ const registerUser = (req, res) => {
         username: username.trim(),
         phoneNumber,
         password,
-        address
+        address,
+        image,
+        name
     });
 
     // Strip the password from the response payload for security

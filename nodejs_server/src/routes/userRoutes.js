@@ -6,10 +6,11 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const identityMiddleware = require('../middlewares/identityMiddleware');
+const photoUploadMiddleware = require('../middlewares/photoUploadMiddleware');
 
 // Bind POST requests for user registration
 router.route('/')
-    .post(userController.registerUser);
+    .post(photoUploadMiddleware, userController.registerUser);
 
 // Bind GET requests for profile retrieval by ID
 router.route('/:id')
