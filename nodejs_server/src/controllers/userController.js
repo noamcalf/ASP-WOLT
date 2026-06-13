@@ -9,7 +9,7 @@ const ProductModel = require('../models/productModel');
 // Registers a new user after validating the payload schema
 const registerUser = (req, res) => {
     // Defensive parsing: default to an empty object to prevent destructuring crashes
-    const { username, phoneNumber, password, address } = req.body || {};
+    const { username, phoneNumber, password, address, geolocation } = req.body || {};
     let { name } = req.body || {};
     const image  = req.file ? req.file.path : null;
 
@@ -62,6 +62,15 @@ const registerUser = (req, res) => {
         name = username;
     }
 
+    // Validate geolocation existence and structure
+    if (!geolocation || typeof geolocation !== 'object') {
+    return res.status(400).json({ error: "Validation failed: 'geolocation' object is required" });
+    }
+
+    if (typeof geolocation.latitude !== 'number' || typeof geolocation.longitude !== 'number') {
+    return res.status(400).json({ error: "Validation failed: 'latitude' and 'longitude' must be numbers" });
+    }
+
     // Verify username uniqueness using the correct payload property to ensure schema consistency
     const isUserExist = username ? UserModel.getUserByUsername(username.trim()) : null;
     if (isUserExist) {
@@ -75,7 +84,8 @@ const registerUser = (req, res) => {
         password,
         address,
         image,
-        name
+        name,
+        geolocation
     });
 
     // Strip the password from the response payload for security
