@@ -12,7 +12,7 @@ const getRestaurants = (req, res, next) => {
 
 // Validates incoming payload and creates a new restaurant entity
 const createRestaurant = (req, res, next) => {
-    const { name, cuisine, address } = req.body || {};
+    const { name, cuisine, address, geolocation } = req.body || {};
 
     // Validate top-level fields
     if (!name || name.trim() === '') {
@@ -37,11 +37,20 @@ const createRestaurant = (req, res, next) => {
         return res.status(400).json({ error: "Validation failed: 'houseNumber' is required" });
     }
 
+    // Validate geolocation existence and structure
+    if (!geolocation || typeof geolocation !== 'object') {
+        return res.status(400).json({ error: "Validation failed: 'geolocation' object is required" });
+    }
+    if (typeof geolocation.latitude !== 'number' || typeof geolocation.longitude !== 'number') {
+        return res.status(400).json({ error: "Validation failed: 'latitude' and 'longitude' must be numbers" });
+    }
+
     // Construct validated payload
     const restaurantData = {
         name: name.trim(),
         cuisine: cuisine.trim(),
-        address: { city: city.trim(), street: street.trim(), houseNumber }
+        address: { city: city.trim(), street: street.trim(), houseNumber },
+        geolocation
     };
 
     // Delegate to model
