@@ -41,8 +41,8 @@ const generateToken = (req, res) => {
     // Create the token by using JWT
     const token = jwt.sign(tokenPayload, secretKey, { expiresIn: '7d' });
     
-    // Assign default structural identity roles as required by the system design
-    const roles = ['user']; 
+    // Assign dynamic structural identity role from user profile (fallback to 'customer' if undefined)
+    const roles = [user.role || 'customer']; 
 
     // Output the generated token and roles with a 200 OK status
     return res.status(200).json({
