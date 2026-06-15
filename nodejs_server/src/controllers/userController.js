@@ -9,13 +9,18 @@ const ProductModel = require('../models/productModel');
 // Registers a new user after validating the payload schema
 const registerUser = (req, res) => {
     // Defensive parsing: default to an empty object to prevent destructuring crashes
-    const { username, phoneNumber, password, address, geolocation } = req.body || {};
+    const { username, phoneNumber, password, address, geolocation, role = 'customer' } = req.body || {};
     let { name } = req.body || {};
     const image  = req.file ? req.file.path : null;
 
     // Validate mandatory top-level properties
     if (!username || username.trim() === '') {
         return res.status(400).json({ error: "Validation failed: 'username' is required" });
+    }
+
+    // Validate role
+    if (role !== 'customer' && role !== 'owner') {
+        return res.status(400).json({ error: "Validation failed: 'role' must be either 'customer' or 'owner'" });
     }
 
     // Validate password existence
@@ -48,13 +53,15 @@ const registerUser = (req, res) => {
         return res.status(400).json({ error: "Validation failed: 'phoneNumber' must contain only digits" });
     }
 
-    // Validate nested address fields explicitly (The Consistent Way)
-    if (!address || typeof address !== 'object') {
-        return res.status(400).json({ error: "Validation failed: 'address' object is required" });
-    }
-    const { city, street, houseNumber } = address;
-    if (!city || city.trim() === '') {
-        return res.status(400).json({ error: "Validation failed: 'city' is required" });
+    // Validate nested address fields explicitly (Only required for customers)
+    if (role === 'customer') {
+        if (!address || typeof address !== 'object') {
+            return res.status(400).json({ error: "Validation failed: 'address' object is required for customers" });
+        }
+        const { city, street, houseNumber } = address;
+        if (!city || city.trim() === '') {
+            return res.status(400).json({ error: "Validation failed: 'city' is required" });
+        }
     }
 
     // If the user did not type his name for the display, we will use his username
@@ -63,12 +70,13 @@ const registerUser = (req, res) => {
     }
 
     // Validate geolocation existence and structure
-    if (!geolocation || typeof geolocation !== 'object') {
-    return res.status(400).json({ error: "Validation failed: 'geolocation' object is required" });
-    }
-
-    if (typeof geolocation.latitude !== 'number' || typeof geolocation.longitude !== 'number') {
-    return res.status(400).json({ error: "Validation failed: 'latitude' and 'longitude' must be numbers" });
+    if (role === 'customer') {
+        if (!geolocation || typeof geolocation !== 'object') {
+            return res.status(400).json({ error: "Validation failed: 'geolocation' object is required for customers" });
+        }
+        if (typeof geolocation.latitude !== 'number' || typeof geolocation.longitude !== 'number') {
+            return res.status(400).json({ error: "Validation failed: 'latitude' and 'longitude' must be numbers" });
+        }
     }
 
     // Verify username uniqueness using the correct payload property to ensure schema consistency
@@ -82,7 +90,8 @@ const registerUser = (req, res) => {
         username: username.trim(),
         phoneNumber,
         password,
-        address,
+        role,
+        address: role === 'customer' ? address : null,
         image,
         name,
         geolocation

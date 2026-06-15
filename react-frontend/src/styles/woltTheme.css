@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+.wolt-custom-bg {
+    font-family: 'Inter', sans-serif;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.wolt-centered-card {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2) !important;
+}
+
+.wolt-centered-card::-webkit-scrollbar {
+    width: 6px;
+}
+.wolt-centered-card::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
+
+.wolt-input {
+    box-sizing: border-box !important;
+    border-radius: 14px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    background-color: #ffffff !important;
+    color: #202125 !important; 
+    font-size: 1rem !important;
+    transition: all 0.25s ease-in-out !important;
+}
+
+.wolt-input:focus {
+    border-color: #009de0 !important;
+    box-shadow: 0 0 0 4px rgba(0, 157, 224, 0.12) !important;
+}
+
+/* Validation Classes */
+.wolt-input-valid {
+    border-color: #10b981 !important; /* Green */
+    background-color: #f0fdf4 !important;
+}
+.wolt-input-valid:focus {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12) !important;
+}
+
+.wolt-input-invalid {
+    border-color: #ef4444 !important; /* Red */
+    background-color: #fef2f2 !important;
+}
+.wolt-input-invalid:focus {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
+}
+
+/* Shake Animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.wolt-btn {
+    background-color: #009de0 !important;
+    border-radius: 14px !important;
+    font-size: 1rem !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.wolt-btn:hover:not(:disabled) {
+    background-color: #007cb2 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 157, 224, 0.2) !important;
+}
+
+.wolt-btn:disabled {
+    background-color: #a0dbf5 !important;
+    cursor: not-allowed;
+}
+
+.wolt-radio:checked {
+    background-color: #009de0;
+    border-color: #009de0;
+}
+
+.wolt-error-alert {
+    background-color: #fef2f2 !important;
+    color: #b91c1c !important;
+    border: 1px solid #fecaca !important;
+    animation: alertSlideIn 0.3s ease-out forwards;
+}
+
+@keyframes alertSlideIn {
+    from { opacity: 0; transform: translate3d(0, -10px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
