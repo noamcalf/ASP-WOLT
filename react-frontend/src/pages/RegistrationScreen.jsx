@@ -53,7 +53,8 @@ const RegistrationScreen = () => {
     const validateField = (name, value, allData = formData) => {
         switch (name) {
             case 'username':
-                return /^[a-zA-Z0-9]{3,}$/.test(value);
+                // Must contain at least one letter, and be at least 3 characters long
+                return /^(?=.*[a-zA-Z])[a-zA-Z0-9]{3,}$/.test(value);
             case 'phone':
                 return /^0\d{9}$/.test(value);
             case 'password':
@@ -62,9 +63,11 @@ const RegistrationScreen = () => {
                 return value === allData.password && value.length >= 8;
             case 'city':
             case 'street':
-                return allData.role === 'owner' ? true : value.trim().length >= 2;
+                // Allow Hebrew and English letters, spaces, and hyphens
+                return allData.role === 'owner' ? true : /^[\u0590-\u05FFa-zA-Z\s\-]{2,}$/.test(value.trim());
             case 'streetNumber':
-                return allData.role === 'owner' ? true : value.trim().length >= 1;
+                // Digits only
+                return allData.role === 'owner' ? true : /^\d+$/.test(value.trim());
             case 'latitude':
                 if (allData.role === 'owner') return true;
                 const lat = parseFloat(value);
@@ -157,7 +160,7 @@ const RegistrationScreen = () => {
             Object.keys(formData).forEach(key => {
                 dataToSubmit.append(key, formData[key]);
             });
-            dataToSubmit.append('profileImage', profileImage);
+            dataToSubmit.append('image', profileImage);
 
             const response = await fetch(`${apiUrl}/api/users/`, {
                 method: 'POST',
@@ -196,10 +199,10 @@ const RegistrationScreen = () => {
                      overflowY: 'auto'
                  }}>
                 
-                <h2 className="text-center mb-1 fw-bold" style={{ color: '#202125', fontSize: '2.2rem', letterSpacing: '-0.8px' }}>
+                <h2 className="text-center mb-1 fw-bold wolt-text-heading" style={{ fontSize: '2.2rem', letterSpacing: '-0.8px' }}>
                     Join WOLT! 🍔
                 </h2>
-                <p className="text-center mb-4 text-muted">Create an account to start ordering</p>
+                <p className="text-center mb-4 wolt-text-muted">Create an account to start ordering</p>
 
                 {error && (
                     <div className="alert alert-danger border-0 p-3 mb-4 wolt-error-alert" role="alert" style={{ borderRadius: '14px', fontSize: '0.9rem' }}>
@@ -210,8 +213,8 @@ const RegistrationScreen = () => {
                 <form onSubmit={handleSubmit} className="w-100">
                     
                     {/* Role Selection */}
-                    <div className="mb-4 text-start w-100 p-3" style={{ backgroundColor: '#f8fafc', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                        <label className="form-label fw-bold mb-3 small text-uppercase tracking-wider d-block px-1" style={{ color: '#3a3c42', fontSize: '0.8rem' }}>
+                    <div className="mb-4 text-start w-100 p-3 wolt-role-box" style={{ borderRadius: '14px', border: '1px solid var(--bs-border-color)' }}>
+                        <label className="form-label fw-bold mb-3 small text-uppercase tracking-wider d-block px-1 wolt-text-label" style={{ fontSize: '0.8rem' }}>
                             I am a...
                         </label>
                         <div className="d-flex gap-4">
@@ -262,7 +265,7 @@ const RegistrationScreen = () => {
 
                     {/* Image Selection */}
                     <div className="mb-4 text-start w-100" ref={refs.image}>
-                        <label className="form-label fw-bold mb-2 small text-uppercase tracking-wider d-block px-1" style={{ color: '#3a3c42', fontSize: '0.8rem' }}>
+                        <label className="form-label fw-bold mb-2 small text-uppercase tracking-wider d-block px-1 wolt-text-label" style={{ fontSize: '0.8rem' }}>
                             Profile Picture 📸
                         </label>
                         <input 

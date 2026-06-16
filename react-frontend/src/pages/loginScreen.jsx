@@ -112,7 +112,7 @@ const LoginScreen = () => {
                      zIndex: 1
                  }}>
                 
-                <h2 className="text-center mb-4 fw-bold" style={{ color: '#202125', fontSize: '2.2rem', letterSpacing: '-0.8px' }}>
+                <h2 className="text-center mb-4 fw-bold wolt-text-heading" style={{ fontSize: '2.2rem', letterSpacing: '-0.8px' }}>
                     Let's Login to WOLT!
                 </h2>
 
