@@ -11,6 +11,13 @@ const RestaurantHeaderCard = ({ restaurant }) => {
 
     return (
         <div className="wolt-restaurant-header shadow-sm bg-body overflow-hidden rounded-bottom-4">
+            
+            {/* 
+              1. The Cover Image Area
+              Using 'background-image' with 'background-size: cover' instead of an <img> tag 
+              is a CSS trick that guarantees the image perfectly fills the 280px height rectangle 
+              without stretching or distorting, automatically cropping the edges!
+            */}
             <div 
                 className="w-100 position-relative" 
                 style={{ 
@@ -20,7 +27,14 @@ const RestaurantHeaderCard = ({ restaurant }) => {
                     backgroundPosition: 'center' 
                 }}
             >
-                {/* Floating Back Button */}
+                {/* 
+                  2. Floating Back Button
+                  'position-absolute' combined with 'top: 20px, left: 20px' rips this button 
+                  out of the normal HTML flow and pins it exactly to the top-left corner of the image.
+                  
+                  'navigate(-1)' is the React Router magic that tells the browser history 
+                  to go back to the exact previous page (e.g. Search results or Dashboard).
+                */}
                 <div className="position-absolute" style={{ top: '20px', left: '20px' }}>
                     <button 
                         onClick={() => navigate(-1)} 
