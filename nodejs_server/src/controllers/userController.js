@@ -8,14 +8,35 @@ const ProductModel = require('../models/productModel');
 
 // Registers a new user after validating the payload schema
 const registerUser = (req, res) => {
-    // Defensive parsing: default to an empty object to prevent destructuring crashes
-    const { username, phoneNumber, password, address, geolocation, role = 'customer' } = req.body || {};
+    // Extract flat fields sent via multipart/form-data (FormData) from the frontend
+    const { 
+        username, 
+        phone: phoneNumber, 
+        password, 
+        city, 
+        street, 
+        streetNumber: houseNumber, 
+        latitude, 
+        longitude, 
+        role = 'customer' 
+    } = req.body || {};
+    
     let { name } = req.body || {};
     const image  = req.file ? req.file.path : null;
+
+    // Reconstruct nested objects that the backend and database expect
+    const address = { city, street, houseNumber };
+    const geolocation = (latitude && longitude) ? { 
+        latitude: parseFloat(latitude), 
+        longitude: parseFloat(longitude) 
+    } : null;
 
     // Validate mandatory top-level properties
     if (!username || username.trim() === '') {
         return res.status(400).json({ error: "Validation failed: 'username' is required" });
+    }
+    if (!/^(?=.*[a-zA-Z])[a-zA-Z0-9]{3,}$/.test(username.trim())) {
+        return res.status(400).json({ error: "Validation failed: 'username' must contain at least one letter and be 3+ chars" });
     }
 
     // Validate role
@@ -49,8 +70,8 @@ const registerUser = (req, res) => {
     }
 
     // Validate phoneNumber contains only digits
-    if (!/^\d+$/.test(phoneNumber)) {
-        return res.status(400).json({ error: "Validation failed: 'phoneNumber' must contain only digits" });
+    if (!/^0\d{9}$/.test(phoneNumber)) {
+        return res.status(400).json({ error: "Validation failed: 'phoneNumber' must be a valid Israeli format" });
     }
 
     // Validate nested address fields explicitly (Only required for customers)
@@ -61,6 +82,9 @@ const registerUser = (req, res) => {
         const { city, street, houseNumber } = address;
         if (!city || city.trim() === '') {
             return res.status(400).json({ error: "Validation failed: 'city' is required" });
+        }
+        if (!/^\d+$/.test(houseNumber)) {
+            return res.status(400).json({ error: "Validation failed: 'houseNumber' must be digits only" });
         }
     }
 
@@ -74,8 +98,8 @@ const registerUser = (req, res) => {
         if (!geolocation || typeof geolocation !== 'object') {
             return res.status(400).json({ error: "Validation failed: 'geolocation' object is required for customers" });
         }
-        if (typeof geolocation.latitude !== 'number' || typeof geolocation.longitude !== 'number') {
-            return res.status(400).json({ error: "Validation failed: 'latitude' and 'longitude' must be numbers" });
+        if (typeof geolocation.latitude !== 'number' || typeof geolocation.longitude !== 'number' || isNaN(geolocation.latitude) || isNaN(geolocation.longitude)) {
+            return res.status(400).json({ error: "Validation failed: 'latitude' and 'longitude' must be valid numbers" });
         }
     }
 
