@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginScreen from './pages/LoginScreen'; 
 import RegistrationScreen from './pages/RegistrationScreen'; 
 import DashboardScreen from './pages/DashboardScreen';
-import RestaurantScreen from './pages/RestaurantScreen';
+import RestaurantMenuScreen from './pages/RestaurantMenuScreen';
 import ProfileScreen from './pages/ProfileScreen';
 
 // Context and Guards
@@ -35,7 +35,7 @@ function App() {
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegistrationScreen />} />
             <Route path="/" element={<DashboardScreen />} />
-            <Route path="/restaurant/:id" element={<RestaurantScreen />} />
+            <Route path="/restaurant/:id" element={<RestaurantMenuScreen />} />
             <Route path="/search/:query" element={<SearchResultsView />} />
 
             {/* --- Protected Routes --- */}

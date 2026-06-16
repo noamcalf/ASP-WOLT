@@ -20,8 +20,11 @@ const createProductInRestaurant = (restaurantId, productData) => {
     const newProduct = {
         id: crypto.randomUUID(),
         restaurantId: restaurantId,
+        category: productData.category || 'Other',
         name: productData.name,
-        price: productData.price
+        price: productData.price,
+        description: productData.description || '',
+        image: productData.image || null
     };
 
     dataStore.products.push(newProduct);

@@ -7,7 +7,7 @@ const CardSkeletonLoader = () => {
             <div className="wolt-shimmer w-100" style={{ height: '160px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}></div>
             
             {/* Content Placeholder */}
-            <div className="p-3 d-flex flex-column flex-grow-1 bg-white" data-bs-theme="light">
+            <div className="p-3 d-flex flex-column flex-grow-1">
                 {/* Title Line */}
                 <div className="wolt-shimmer rounded mb-2" style={{ height: '24px', width: '70%' }}></div>
                 

@@ -44,13 +44,18 @@
     scrollbar-width: none;  /* Firefox */
 }
 
+/* Ensure items inside the carousel track stay a fixed width */
+.wolt-carousel-track > * {
+    min-width: 280px;
+    max-width: 280px;
+    flex-shrink: 0;
+}
+
 /* =========================================================================
    RESTAURANT CARD WITH PREMIUM HOVER EFFECT
    This section defines how the cards look and behave when interacted with.
    ========================================================================= */
 .wolt-restaurant-card {
-    min-width: 280px;
-    max-width: 280px;
     border-radius: 12px;
     overflow: hidden; /* Ensures the image doesn't break out of the rounded corners */
     /* 
@@ -84,7 +89,7 @@
 
 /* Dark mode adjustments for card */
 [data-bs-theme="dark"] .wolt-restaurant-card {
-    background-color: #212529;
+    background-color: #2b3035 !important;
 }
 [data-bs-theme="dark"] .wolt-restaurant-card:hover {
     box-shadow: 0 10px 20px rgba(0,0,0,0.4) !important;
@@ -139,6 +144,33 @@
       - forwards: If it were to stop, it would stay at its final state.
     */
     animation: woltShimmer 1.5s infinite linear forwards;
+}
+
+/* =========================================================================
+   MENU ITEM ROW
+   ========================================================================= */
+.wolt-menu-item {
+    background-color: #ffffff;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 12px;
+}
+
+.wolt-menu-item:hover {
+    background-color: #f8f9fa;
+}
+
+.wolt-menu-item:active {
+    transform: scale(0.98);
+}
+
+[data-bs-theme="dark"] .wolt-menu-item {
+    background-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .wolt-menu-item:hover {
+    background-color: #343a40 !important;
 }
 
 /* Dark mode Shimmer */

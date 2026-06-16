@@ -9,7 +9,7 @@ const RestaurantCard = ({ restaurant }) => {
         : 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'; // generic food placeholder
 
     return (
-        <Link to={`/restaurant/${restaurant.id}`} className="text-decoration-none">
+        <Link to={`/restaurant/${restaurant.id}`} className="text-decoration-none d-block h-100">
             <div className="wolt-restaurant-card border-0 shadow-sm d-flex flex-column h-100">
                 {/* Image Section */}
                 <div className="position-relative" style={{ height: '160px' }}>
@@ -21,7 +21,7 @@ const RestaurantCard = ({ restaurant }) => {
                 </div>
                 
                 {/* Content Section */}
-                <div className="p-3 d-flex flex-column flex-grow-1" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
+                <div className="p-3 d-flex flex-column flex-grow-1">
                     <h5 className="fw-bold mb-1 wolt-text-heading text-truncate">{restaurant.name}</h5>
                     <p className="text-muted small mb-3 text-truncate">{restaurant.cuisine}</p>
                     

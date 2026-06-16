@@ -45,6 +45,7 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
                                     key={`rest-${restaurant.id}`} 
                                     to={`/restaurant/${restaurant.id}`}
                                     className="d-flex align-items-center px-3 py-2 text-decoration-none text-dark hover-bg-light"
+                                    onClick={onClose}
                                 >
                                     <div className="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-3" style={{ width: '40px', height: '40px', fontSize: '1.2rem' }}>
                                         🍽️
@@ -69,6 +70,7 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
                                     key={`prod-${product.id}`} 
                                     to={`/restaurant/${product.restaurantId}`} // Link to the restaurant that has this product
                                     className="d-flex align-items-center px-3 py-2 text-decoration-none text-dark hover-bg-light"
+                                    onClick={onClose}
                                 >
                                     <div className="bg-success text-white rounded-circle d-flex justify-content-center align-items-center me-3" style={{ width: '40px', height: '40px', fontSize: '1.2rem' }}>
                                         🍔

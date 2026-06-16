@@ -12,7 +12,7 @@ const DashboardScreen = () => {
         const fetchRestaurants = async () => {
             try {
                 // Add a small artificial delay so the user can see our beautiful Skeleton Loader in action
-                await new Promise(resolve => setTimeout(resolve, 800));
+                await new Promise(resolve => setTimeout(resolve, 450));
 
                 const { response, data } = await apiClient('/api/restaurants');
                 
