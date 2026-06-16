@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SearchDropdownTray from './SearchDropdownTray';
 
+// SearchBar handles user input for the live search feature.
+// It implements a debounce mechanism to optimize API calls to the backend.
 const SearchBar = () => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState({ restaurants: [], products: [] });
@@ -25,6 +27,7 @@ const SearchBar = () => {
     }, []);
 
     const fetchResults = async (searchQuery) => {
+        // If the search query is empty, clear results and stop loading
         if (!searchQuery.trim()) {
             setResults({ restaurants: [], products: [] });
             setIsLoading(false);

@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import { ThemeContext } from '../context/ThemeContext';
 
+// ThemeToggle is an interactive button that allows users to switch between light and dark modes.
+// It connects directly to the global ThemeContext.
 const ThemeToggle = () => {
     const { theme, toggleTheme } = useContext(ThemeContext);
     

@@ -4,10 +4,13 @@ import SearchBar from './SearchBar';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/authContext';
 
+// Navbar is the main global navigation header of the application.
+// It persists across all screens and manages navigation, live search, and theme toggling.
 const Navbar = () => {
     const { isAuthenticated, logout } = useAuth();
     const navigate = useNavigate();
 
+    // Handle user logout and redirect to the login screen
     const handleLogout = () => {
         logout();
         navigate('/login');

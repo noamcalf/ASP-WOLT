@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+// SearchDropdownTray is an absolute-positioned overlay that displays live search results.
+// It renders lists of matching restaurants and menu items below the SearchBar.
 const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery }) => {
     if (!isOpen || !searchQuery.trim()) return null;
 

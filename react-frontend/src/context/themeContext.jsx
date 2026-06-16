@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 
+// Create the context for managing light/dark themes globally
 export const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
@@ -19,6 +20,7 @@ export const ThemeProvider = ({ children }) => {
         localStorage.setItem('wolt_theme', theme);
     }, [theme]);
 
+    // Toggle function to switch between light and dark modes
     const toggleTheme = () => {
         setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
     };
