@@ -50,7 +50,8 @@ const createRestaurant = (req, res, next) => {
         name: name.trim(),
         cuisine: cuisine.trim(),
         address: { city: city.trim(), street: street.trim(), houseNumber },
-        geolocation
+        geolocation,
+        rating: 0 // Automatically set rating to 0 (new) for new restaurants
     };
 
     // Delegate to model

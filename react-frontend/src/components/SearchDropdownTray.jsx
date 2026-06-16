@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 // SearchDropdownTray is an absolute-positioned overlay that displays live search results.
 // It renders lists of matching restaurants and menu items below the SearchBar.
-const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery }) => {
+const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }) => {
     if (!isOpen || !searchQuery.trim()) return null;
 
     const hasRestaurants = results?.restaurants?.length > 0;
@@ -37,7 +37,7 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery }) => {
                     {/* Restaurants Section */}
                     {hasRestaurants && (
                         <div className="mb-2">
-                            <h6 className="px-3 py-2 m-0 text-muted small fw-bold text-uppercase tracking-wider bg-light">
+                            <h6 className="px-3 py-2 m-0 small fw-bold text-uppercase tracking-wider wolt-tray-header">
                                 Restaurants
                             </h6>
                             {results.restaurants.map(restaurant => (
@@ -61,7 +61,7 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery }) => {
                     {/* Products Section */}
                     {hasProducts && (
                         <div>
-                            <h6 className="px-3 py-2 m-0 text-muted small fw-bold text-uppercase tracking-wider bg-light">
+                            <h6 className="px-3 py-2 m-0 small fw-bold text-uppercase tracking-wider wolt-tray-header">
                                 Menu Items
                             </h6>
                             {results.products.map(product => (
@@ -81,6 +81,18 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery }) => {
                             ))}
                         </div>
                     )}
+
+                    {/* View All Results Link */}
+                    <div className="border-top mt-2 pt-2 px-3 pb-1">
+                        <Link 
+                            to={`/search/${encodeURIComponent(searchQuery)}`}
+                            className="text-primary text-decoration-none fw-bold small d-flex justify-content-between align-items-center wolt-text-heading"
+                            onClick={onClose}
+                        >
+                            <span>See all results for "{searchQuery}"</span>
+                            <span>→</span>
+                        </Link>
+                    </div>
                 </div>
             )}
         </div>

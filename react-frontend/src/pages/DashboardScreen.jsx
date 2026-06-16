@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/authContext';
 import { Link } from 'react-router-dom';
-import woltBg from '../assets/wolt-bg.jpg';
+import woltBg from '../assets/wolt-bg.png';
 import MainButton from '../components/MainButton';
 
 const DashboardScreen = () => {

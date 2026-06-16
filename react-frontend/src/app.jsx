@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Pages
-import LoginScreen from './pages/loginScreen'; 
+import LoginScreen from './pages/LoginScreen'; 
 import RegistrationScreen from './pages/RegistrationScreen'; 
 import DashboardScreen from './pages/DashboardScreen';
 import RestaurantScreen from './pages/RestaurantScreen';
@@ -15,6 +15,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Components
 import Navbar from './components/Navbar';
+import SearchResultsView from './pages/SearchResultsView';
 
 // Styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -40,6 +41,7 @@ function App() {
             {/* Main screens are now public so guests can browse */}
             <Route path="/" element={<DashboardScreen />} />
             <Route path="/restaurant/:id" element={<RestaurantScreen />} />
+            <Route path="/search/:query" element={<SearchResultsView />} />
 
             {/* --- Protected Routes (Require Authentication) --- */}
             {/* Example for future use when we build checkout/profile: */}
