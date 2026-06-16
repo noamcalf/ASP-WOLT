@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext'; 
 import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
 
 const LoginScreen = () => {
+    const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -88,7 +89,7 @@ const LoginScreen = () => {
             }
 
             login(data.token); 
-            // navigate('/dashboard'); 
+            navigate('/'); 
 
         } catch (err) {
             setError(err.message || 'Connection error. Please try again.');
