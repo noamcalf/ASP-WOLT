@@ -42,7 +42,18 @@ const dataStore = {
         { id: crypto.randomUUID(), restaurantId: rest2Id, name: "Margherita Slice", price: 18, description: "Classic cheese and tomato slice" },
         { id: crypto.randomUUID(), restaurantId: rest3Id, name: "Family Pizza", price: 80, description: "Large 100% mozzarella pizza with two toppings" }
     ],
-    users: [],
+    users: [
+        {
+            id: 'mock-user-1234',
+            username: 'bk26',
+            password: 'p12345678',
+            name: 'Ben Kolman',
+            phoneNumber: '0501234567',
+            role: 'customer',
+            image: null,
+            address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 1 }
+        }
+    ],
     orders: []
 };
 

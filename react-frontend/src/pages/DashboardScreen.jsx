@@ -1,59 +1,85 @@
-import React from 'react';
-import { useAuth } from '../context/authContext';
-import { Link } from 'react-router-dom';
-import woltBg from '../assets/wolt-bg.png';
-import MainButton from '../components/MainButton';
+import React, { useState, useEffect } from 'react';
+import { apiClient } from '../utils/apiClient';
+import CategoryCarousel from '../components/CategoryCarousel';
 
 const DashboardScreen = () => {
-    const { logout, isAuthenticated } = useAuth();
-    
-    return (
-        <div 
-            className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center wolt-custom-bg position-relative"
-        >
-            {/* The background is handled by the wolt-custom-bg class combined with inline background Image via standard practice, 
-                or we can set background-image directly in the CSS. Since the image path requires webpack/vite resolution, we use standard style tag for the imported image */}
-            <div className="position-absolute top-0 start-0 w-100 h-100 wolt-custom-bg" style={{ backgroundImage: `url(${woltBg})` }}></div>
-            
-            {/* Overlay to make the text more readable against the busy background */}
-            <div className="position-absolute top-0 start-0 w-100 h-100 wolt-overlay-light"></div>
-            
-            <div className="d-flex flex-column align-items-center w-100 wolt-content-layer">
-                <h1 className="fw-bold mb-3 wolt-heading-xl">Wolt Dashboard</h1>
-                <p className="lead text-dark mb-5 text-center fw-semibold">
-                    Welcome to the main dashboard!<br/>
-                    Browse our amazing restaurants below.
-                </p>
+    const [restaurants, setRestaurants] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch restaurants on mount
+    useEffect(() => {
+        const fetchRestaurants = async () => {
+            try {
+                // Add a small artificial delay so the user can see our beautiful Skeleton Loader in action
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                const { response, data } = await apiClient('/api/restaurants');
                 
-                <div className="d-flex gap-4 mb-5">
-                    <Link to="/restaurant/1" className="wolt-btn text-white px-5 py-3 text-decoration-none fw-bold shadow-sm fs-5">
-                        🍔 View Restaurant #1
-                    </Link>
-                    <Link to="/restaurant/2" className="wolt-btn text-white px-5 py-3 text-decoration-none fw-bold shadow-sm fs-5">
-                        🍕 View Restaurant #2
-                    </Link>
+                if (!response.ok) {
+                    throw new Error(data?.message || 'Failed to load restaurants');
+                }
+                
+                setRestaurants(data);
+            } catch (err) {
+                setError(err.message || 'Network error while fetching restaurants');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchRestaurants();
+    }, []);
+
+    // Group restaurants by cuisine to create dynamic carousels
+    // Output: { "Fast Food": [rest1, rest3], "Italian": [rest2] }
+    const groupedRestaurants = restaurants.reduce((acc, restaurant) => {
+        // If a restaurant doesn't have a cuisine, we group it under "Other"
+        const cuisine = restaurant.cuisine || 'Other';
+        
+        if (!acc[cuisine]) {
+            acc[cuisine] = [];
+        }
+        acc[cuisine].push(restaurant);
+        
+        return acc;
+    }, {});
+
+    return (
+        <div className="container-fluid min-vh-100 py-5" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
+            <div className="container">
+                {/* Header Section */}
+                <div className="mb-5">
+                    <h1 className="display-4 fw-bold wolt-text-heading" style={{ letterSpacing: '-1px' }}>
+                        Discovery
+                    </h1>
+                    <p className="fs-5 text-muted">Find the best food in town, delivered fast.</p>
                 </div>
 
-                <div className="mt-4 p-4 bg-white rounded-4 shadow-sm text-center min-vw-25">
-                    {isAuthenticated ? (
-                        <>
-                            <p className="text-dark fw-bold mb-3">You are logged in!</p>
-                            <MainButton 
-                                text="Logout" 
-                                onClick={logout} 
-                                // We can pass a wrapper class if needed, or MainButton handles it. 
-                                // We'll just wrap the button inside MainButton with our logout specific class via standard means
-                            />
-                        </>
-                    ) : (
-                        <div className="text-muted">
-                            <p className="mb-3">You are browsing as a guest.</p>
-                            <Link to="/login" className="wolt-btn text-white px-4 py-2 text-decoration-none d-block w-100">
-                                Login / Register
-                            </Link>
-                        </div>
-                    )}
-                </div>
+                {/* Error State */}
+                {error && (
+                    <div className="alert alert-danger shadow-sm border-0 rounded-4">
+                        <span className="fw-bold">⚠️ Error: </span> {error}
+                    </div>
+                )}
+
+                {/* Content Rendering: Loading Skeletons OR Dynamic Carousels */}
+                {isLoading ? (
+                    <>
+                        <CategoryCarousel title="Loading Best Matches 🌟" isLoading={true} restaurants={[]} />
+                        <CategoryCarousel title="Trending Near You 🔥" isLoading={true} restaurants={[]} />
+                    </>
+                ) : (
+                    // Convert the grouped object into an array and map over it to render a carousel per cuisine
+                    Object.entries(groupedRestaurants).map(([cuisine, rests]) => (
+                        <CategoryCarousel 
+                            key={cuisine} 
+                            title={cuisine} 
+                            restaurants={rests} 
+                            isLoading={false} 
+                        />
+                    ))
+                )}
             </div>
         </div>
     );

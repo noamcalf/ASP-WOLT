@@ -8,6 +8,7 @@ const WoltInput = forwardRef(({
     onChange, 
     placeholder, 
     isValid, 
+    errorMessage, 
     disabled, 
     colClass = "mb-3 text-start w-100" 
 }, ref) => {
@@ -55,6 +56,11 @@ const WoltInput = forwardRef(({
                     </button>
                 )}
             </div>
+            {isValid === false && errorMessage && (
+                <div className="text-danger mt-1 ms-1" style={{ fontSize: '0.78rem', fontWeight: '600' }}>
+                    {errorMessage}
+                </div>
+            )}
         </div>
     );
 });

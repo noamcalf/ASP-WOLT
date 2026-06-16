@@ -6,12 +6,12 @@
 
 // We load the base URL of our backend server from the .env file.
 // In Vite, environment variables must start with VITE_ and are accessed via import.meta.env
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'; 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'; 
 
 export const apiClient = async (endpoint, options = {}) => {
     // 1. Get the token from local memory (localStorage)
     // Here we retrieve the token that we saved when the user logged in.
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('token');
 
     // 2. Setup the headers
     // By default, we tell the server we are sending JSON data.
