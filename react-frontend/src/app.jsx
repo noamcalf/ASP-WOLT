@@ -7,10 +7,11 @@ import LoginScreen from './pages/loginScreen';
 import RegistrationScreen from './pages/RegistrationScreen'; 
 import DashboardScreen from './pages/DashboardScreen';
 import RestaurantScreen from './pages/RestaurantScreen';
+import ProfileScreen from './pages/ProfileScreen';
 
 // Context and Guards
 import { AuthProvider } from './context/authContext'; 
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider } from './context/themeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Components
@@ -25,29 +26,29 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        {/* BrowserRouter is the main wrapper that enables client-side routing */}
         <BrowserRouter>
-          
-          {/* Global Navbar appears on every page */}
           <Navbar />
 
           <Routes>
-            
-            {/* --- Public Routes (Anyone can access these) --- */}
+            {/* --- Public Routes --- */}
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegistrationScreen />} />
-            
-            {/* Main screens are now public so guests can browse */}
             <Route path="/" element={<DashboardScreen />} />
             <Route path="/restaurant/:id" element={<RestaurantScreen />} />
 
-            {/* --- Protected Routes (Require Authentication) --- */}
-            {/* Example for future use when we build checkout/profile: */}
-            {/* <Route path="/checkout" element={<ProtectedRoute><CheckoutScreen /></ProtectedRoute>} /> */}
+            {/* --- Protected Routes --- */}
+            {/* The new Profile Screen is fully protected by the Route Guard */}
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <ProfileScreen />
+                </ProtectedRoute>
+              } 
+            />
             
-            {/* Catch-all route: If user types a random URL, bounce them to login */}
+            {/* Catch-all route */}
             <Route path="*" element={<Navigate to="/login" replace />} />
-            
           </Routes>
         </BrowserRouter>
       </AuthProvider>

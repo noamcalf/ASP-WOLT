@@ -185,3 +185,14 @@
 [data-bs-theme="dark"] .wolt-input::placeholder {
     color: #6c757d !important;
 }
+
+/* WOLT-221: Profile & Order History Utilities */
+.wolt-profile-avatar {
+    width: 85px;
+    height: 85px;
+    font-size: 2.5rem;
+}
+
+.wolt-text-primary {
+    color: #009de0 !important;
+}
