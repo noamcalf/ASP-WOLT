@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SearchDropdownTray from './SearchDropdownTray';
 
 // SearchBar handles user input for the live search feature.
@@ -10,6 +11,7 @@ const SearchBar = () => {
     const [isOpen, setIsOpen] = useState(false);
     
     const wrapperRef = useRef(null);
+    const navigate = useNavigate();
 
     // Debounce timer reference
     const debounceRef = useRef(null);
@@ -71,10 +73,17 @@ const SearchBar = () => {
         }
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && query.trim()) {
+            setIsOpen(false); // Close dropdown
+            navigate(`/search/${encodeURIComponent(query.trim())}`); // Go to results view
+        }
+    };
+
     return (
         <div ref={wrapperRef} className="position-relative w-100" style={{ maxWidth: '500px' }}>
-            <div className="input-group shadow-sm" style={{ borderRadius: '12px', overflow: 'hidden' }}>
-                <span className="input-group-text bg-white border-0 text-muted ps-3 pe-2">
+            <div className="input-group shadow-sm wolt-search-wrapper" style={{ borderRadius: '12px', overflow: 'hidden' }}>
+                <span className="input-group-text border-0 text-muted ps-3 pe-2 wolt-search-icon">
                     🔍
                 </span>
                 <input 
@@ -84,7 +93,7 @@ const SearchBar = () => {
                     value={query}
                     onChange={handleInputChange}
                     onFocus={handleFocus}
-                    style={{ backgroundColor: '#f3f4f6' }}
+                    onKeyDown={handleKeyDown}
                 />
             </div>
             
@@ -92,7 +101,8 @@ const SearchBar = () => {
                 results={results} 
                 isLoading={isLoading} 
                 isOpen={isOpen} 
-                searchQuery={query} 
+                searchQuery={query}
+                onClose={() => setIsOpen(false)}
             />
         </div>
     );
