@@ -7,8 +7,9 @@ import { useAuth } from '../context/authContext';
 // Navbar is the main global navigation header of the application.
 // It persists across all screens and manages navigation, live search, and theme toggling.
 const Navbar = () => {
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, user, logout } = useAuth();
     const navigate = useNavigate();
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
     // Handle user logout and redirect to the login screen
     const handleLogout = () => {
@@ -35,12 +36,21 @@ const Navbar = () => {
                     <ThemeToggle />
                     
                     {isAuthenticated ? (
-                        <div className="dropdown">
-                            <button className="btn btn-light rounded-circle p-2 shadow-sm border" type="button" data-bs-toggle="dropdown" aria-expanded="false" style={{ width: '40px', height: '40px' }}>
-                                👤
+                        <div className="d-flex align-items-center gap-2 dropdown">
+                            {user && (
+                                <span className="d-none d-md-inline fw-semibold wolt-text-heading me-1" style={{ fontSize: '0.95rem' }}>
+                                    Hello, {user.name || user.username}!
+                                </span>
+                            )}
+                            <button className="btn btn-light rounded-circle p-0 shadow-sm border overflow-hidden d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style={{ width: '40px', height: '40px' }}>
+                                {user?.image ? (
+                                    <img src={`${apiUrl}/${user.image.replace(/\\/g, '/')}`} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <span style={{ fontSize: '1.2rem' }}>👤</span>
+                                )}
                             </button>
                             <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3">
-                                <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
+                                <li><Link className="dropdown-item fw-medium" to="/profile">Profile</Link></li>
                                 <li><hr className="dropdown-divider" /></li>
                                 <li><button className="dropdown-item text-danger fw-bold" onClick={handleLogout}>Log Out</button></li>
                             </ul>
