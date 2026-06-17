@@ -1,13 +1,11 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import DeleteButton from './DeleteButton';
+import { getImageUrl } from '../utils/imageUtils';
 
 const RestaurantCard = ({ restaurant, ownerMode = false, onDelete }) => {
     // If the restaurant doesn't have an image, we use a placeholder that fits the Wolt theme.
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    const imageSrc = restaurant.image 
-        ? `${apiUrl}/${restaurant.image.replace(/\\/g, '/')}` 
-        : 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'; // generic food placeholder
+    const imageSrc = getImageUrl(restaurant.image, 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80');
 
     const linkTarget = ownerMode ? `/owner/restaurant/${restaurant.id}` : `/restaurant/${restaurant.id}`;
     const navigate = useNavigate();

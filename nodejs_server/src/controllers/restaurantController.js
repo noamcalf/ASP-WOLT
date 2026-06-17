@@ -90,7 +90,20 @@ const getRestaurantById = (req, res, next) => {
 const updateRestaurant = (req, res, next) => {
     // Get the variabels
     const { id } = req.params;
-    const updates = req.body || {};
+    let updates = req.body || {};
+
+    // If an image was uploaded via multipart/form-data, grab its path
+    if (req.file) {
+        updates.image = req.file.path;
+    }
+
+    // Because multipart/form-data sends everything as strings, we must parse the JSON stringified objects
+    if (typeof updates.address === 'string') {
+        try { updates.address = JSON.parse(updates.address); } catch(e) {}
+    }
+    if (typeof updates.geolocation === 'string') {
+        try { updates.geolocation = JSON.parse(updates.geolocation); } catch(e) {}
+    }
 
     // Call the model's func
     const updatedRestaurant = RestaurantModel.updateRestaurant(id, updates);

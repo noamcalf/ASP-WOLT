@@ -1,10 +1,11 @@
 import React from 'react';
 import DeleteButton from './DeleteButton';
+import { getImageUrl } from '../utils/imageUtils';
 
-const MenuItemRow = ({ product, onClick, ownerMode = false, deleteEndpoint, onDeleteSuccess }) => {
+const MenuItemRow = ({ product, onClick, ownerMode = false, deleteEndpoint, onDeleteSuccess, onEdit }) => {
     // If no image is provided from the backend, use a generic tasty food fallback
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
-    const imageSrc = product.image || fallbackImage;
+    const imageSrc = getImageUrl(product.image, fallbackImage);
 
     return (
         <div 
@@ -21,20 +22,35 @@ const MenuItemRow = ({ product, onClick, ownerMode = false, deleteEndpoint, onDe
                     <div className="fw-bold text-dark" style={{ color: '#009de0' }}>
                         ${parseFloat(product.price).toFixed(2)}
                     </div>
-                    {ownerMode && deleteEndpoint && (
-                        <DeleteButton 
-                            endpoint={deleteEndpoint}
-                            confirmationMessage="Are you sure you want to delete this menu item?"
-                            onSuccess={onDeleteSuccess}
-                            className="btn-sm rounded-pill"
-                        />
+                    {ownerMode && (
+                        <div className="d-flex gap-2">
+                            {onEdit && (
+                                <button 
+                                    className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onEdit(product);
+                                    }}
+                                >
+                                    Edit
+                                </button>
+                            )}
+                            {deleteEndpoint && (
+                                <DeleteButton 
+                                    endpoint={deleteEndpoint}
+                                    confirmationMessage="Are you sure you want to delete this menu item?"
+                                    onSuccess={onDeleteSuccess}
+                                    className="btn-sm rounded-pill"
+                                />
+                            )}
+                        </div>
                     )}
                 </div>
             </div>
             
             <div className="flex-shrink-0" style={{ width: '110px', height: '110px' }}>
                 <img 
-                    src={imageSrc.startsWith('http') ? imageSrc : `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/${imageSrc.replace(/\\/g, '/')}`} 
+                    src={imageSrc} 
                     alt={product.name} 
                     className="w-100 h-100 rounded-3 object-fit-cover shadow-sm"
                 />

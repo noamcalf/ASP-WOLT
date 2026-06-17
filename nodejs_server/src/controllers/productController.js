@@ -94,7 +94,15 @@ const getProduct = (req, res, next) => {
 // Updates specific fields of a designated product within a restaurant's menu
 const updateProduct = (req, res, next) => {
     const { id, pId } = req.params;
-    const updates = req.body || {};
+    let updates = req.body || {};
+
+    if (req.file) {
+        updates.image = req.file.path;
+    }
+    
+    if (typeof updates.price === 'string') {
+        updates.price = parseFloat(updates.price);
+    }
 
     // Make sure the restaurant is available
     const restaurant = RestaurantModel.getRestaurant(id);

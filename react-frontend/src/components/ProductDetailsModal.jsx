@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/authContext';
+import { getImageUrl } from '../utils/imageUtils';
 
 const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
     const { user } = useAuth();
@@ -8,7 +9,7 @@ const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
 
     // Use a high-res image
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80';
-    const imageSrc = product.image || fallbackImage;
+    const imageSrc = getImageUrl(product.image, fallbackImage);
 
     return (
         /* 

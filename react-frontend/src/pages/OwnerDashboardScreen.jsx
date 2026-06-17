@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiClient } from '../utils/apiClient';
 import { useAuth } from '../context/authContext';
-import CreateRestaurantForm from '../components/CreateRestaurantForm';
+import RestaurantForm from '../components/RestaurantForm';
 import RestaurantCard from '../components/RestaurantCard';
 
 const OwnerDashboardScreen = () => {
@@ -67,7 +67,7 @@ const OwnerDashboardScreen = () => {
                 {showCreateForm && (
                     <div className="card border-0 shadow-sm rounded-4 mb-5 p-4 bg-body">
                         <h4 className="fw-bold mb-4">Create New Restaurant</h4>
-                        <CreateRestaurantForm onSuccess={handleRestaurantCreated} />
+                        <RestaurantForm onSuccess={handleRestaurantCreated} />
                     </div>
                 )}
 
