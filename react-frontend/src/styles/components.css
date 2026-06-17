@@ -122,3 +122,18 @@
     color: #f8f9fa !important;
     border-color: #495057 !important;
 }
+
+/* Icon Buttons */
+.wolt-icon-btn {
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease !important;
+}
+.wolt-icon-btn:hover {
+    background-color: #e2e8f0;
+}

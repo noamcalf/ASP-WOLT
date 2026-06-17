@@ -21,11 +21,8 @@ const CartDrawer = () => {
             {/* Dark Overlay (Backdrop) */}
             {/* It fades in/out based on isCartOpen. Pointer events disabled when closed. */}
             <div 
-                className="position-fixed top-0 start-0 w-100 h-100 bg-dark"
+                className={`position-fixed top-0 start-0 w-100 h-100 wolt-overlay-dark ${!isCartOpen ? 'opacity-0' : ''}`}
                 style={{ 
-                    opacity: isCartOpen ? 0.5 : 0, 
-                    transition: 'opacity 0.3s ease-in-out',
-                    zIndex: 1040,
                     pointerEvents: isCartOpen ? 'auto' : 'none'
                 }}
                 onClick={toggleCart} // Clicking outside closes the drawer
@@ -33,21 +30,13 @@ const CartDrawer = () => {
 
             {/* The Drawer Panel */}
             <div 
-                className="position-fixed top-0 end-0 h-100 bg-body shadow-lg d-flex flex-column"
-                style={{ 
-                    width: '100%', 
-                    maxWidth: '400px', 
-                    transform: isCartOpen ? 'translateX(0)' : 'translateX(100%)',
-                    transition: 'transform 0.3s ease-in-out',
-                    zIndex: 1050 
-                }}
+                className={`position-fixed top-0 end-0 h-100 bg-body shadow-lg d-flex flex-column wolt-side-drawer ${isCartOpen ? 'wolt-side-drawer-open' : ''}`}
             >
                 {/* Drawer Header */}
                 <div className="p-4 border-bottom d-flex justify-content-between align-items-center bg-body">
                     <h4 className="m-0 fw-bold wolt-text-heading">Your Order</h4>
                     <button 
-                        className="btn btn-light rounded-circle d-flex justify-content-center align-items-center"
-                        style={{ width: '36px', height: '36px' }}
+                        className="btn btn-light wolt-icon-btn"
                         onClick={toggleCart}
                     >
                         ✕

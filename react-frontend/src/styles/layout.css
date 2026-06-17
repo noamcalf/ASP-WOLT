@@ -76,3 +76,21 @@
     background-color: #1a1d20 !important;
     color: #adb5bd !important;
 }
+
+.wolt-overlay-dark {
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.wolt-side-drawer {
+    width: 100%;
+    max-width: 400px;
+    z-index: 1050;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(100%);
+}
+
+.wolt-side-drawer-open {
+    transform: translateX(0);
+}
