@@ -39,7 +39,7 @@ const Navbar = () => {
                         <div className="d-flex align-items-center gap-2 dropdown">
                             {user && (
                                 <span className="d-none d-md-inline fw-semibold wolt-text-heading me-1" style={{ fontSize: '0.95rem' }}>
-                                    Hello, {user.name || user.username}!
+                                    Hello, {(user.name || user.username).split(' ')[0]}!
                                 </span>
                             )}
                             <button className="btn btn-light rounded-circle p-0 shadow-sm border overflow-hidden d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style={{ width: '40px', height: '40px' }}>

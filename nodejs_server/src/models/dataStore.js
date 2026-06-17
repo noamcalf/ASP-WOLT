@@ -36,13 +36,24 @@ const dataStore = {
         }
     ],
     products: [
-        { id: crypto.randomUUID(), restaurantId: rest1Id, name: "Whopper Meal", price: 45, description: "Classic burger with fries and a drink" },
-        { id: crypto.randomUUID(), restaurantId: rest1Id, name: "Chicken Nuggets", price: 30, description: "9 pieces of crispy chicken with dips" },
-        { id: crypto.randomUUID(), restaurantId: rest2Id, name: "Pepperoni Slice", price: 20, description: "Spicy pepperoni slice, baked to perfection" },
-        { id: crypto.randomUUID(), restaurantId: rest2Id, name: "Margherita Slice", price: 18, description: "Classic cheese and tomato slice" },
-        { id: crypto.randomUUID(), restaurantId: rest3Id, name: "Family Pizza", price: 80, description: "Large 100% mozzarella pizza with two toppings" }
+        { id: crypto.randomUUID(), restaurantId: rest1Id, category: "Mains", name: "Whopper Meal", price: 45, description: "Classic burger with fries and a drink", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80" },
+        { id: crypto.randomUUID(), restaurantId: rest1Id, category: "Sides", name: "Chicken Nuggets", price: 30, description: "9 pieces of crispy chicken with dips", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=600&q=80" },
+        { id: crypto.randomUUID(), restaurantId: rest2Id, category: "Slices", name: "Pepperoni Slice", price: 20, description: "Spicy pepperoni slice, baked to perfection", image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600&q=80" },
+        { id: crypto.randomUUID(), restaurantId: rest2Id, category: "Slices", name: "Margherita Slice", price: 18, description: "Classic cheese and tomato slice", image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600&q=80" },
+        { id: crypto.randomUUID(), restaurantId: rest3Id, category: "Pizzas", name: "Family Pizza", price: 80, description: "Large 100% mozzarella pizza with two toppings", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&q=80" }
     ],
-    users: [],
+    users: [
+        {
+            id: 'mock-user-1234',
+            username: 'bk26',
+            password: 'p12345678',
+            name: 'Ben Kolman',
+            phoneNumber: '0501234567',
+            role: 'customer',
+            image: null,
+            address: { city: 'Tel Aviv', street: 'Dizengoff', houseNumber: 1 }
+        }
+    ],
     orders: []
 };
 

@@ -1,0 +1,186 @@
+/* Search Results View */
+.wolt-result-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    background-color: #ffffff;
+}
+
+.wolt-result-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.wolt-line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+[data-bs-theme="dark"] .wolt-result-card {
+    background-color: #2b3035 !important;
+    border-color: #495057 !important;
+}
+
+[data-bs-theme="dark"] .wolt-result-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+}
+
+/* Carousel Track */
+.wolt-carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+    padding-bottom: 1rem; /* Space for the shadow */
+    gap: 1.5rem; /* Space between cards */
+}
+
+/* Hide scrollbar for the carousel track to look clean like the real Wolt app */
+.wolt-carousel-track::-webkit-scrollbar {
+    display: none;
+}
+.wolt-carousel-track {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Ensure items inside the carousel track stay a fixed width */
+.wolt-carousel-track > * {
+    min-width: 280px;
+    max-width: 280px;
+    flex-shrink: 0;
+}
+
+/* =========================================================================
+   RESTAURANT CARD WITH PREMIUM HOVER EFFECT
+   This section defines how the cards look and behave when interacted with.
+   ========================================================================= */
+.wolt-restaurant-card {
+    border-radius: 12px;
+    overflow: hidden; /* Ensures the image doesn't break out of the rounded corners */
+    /* 
+      The 'transition' property is the secret to smooth animations! 
+      It tells the browser: "If 'transform' or 'box-shadow' change, don't jump instantly. 
+      Instead, animate the change smoothly over 0.2 seconds using an 'ease' timing function."
+    */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    background-color: var(--bs-body-bg);
+}
+
+/* 
+  The ':hover' pseudo-class activates only when the user's mouse is over the card. 
+  Because we set a 'transition' on the parent class, these changes will animate smoothly!
+*/
+.wolt-restaurant-card:hover {
+    /* 
+      'translateY(-4px)' physically moves the card UP by 4 pixels on the Y-axis. 
+      Negative Y means UP in CSS. This creates the "lifting off the page" effect.
+    */
+    transform: translateY(-4px); 
+    
+    /* 
+      'box-shadow' adds a shadow under the card. 
+      Params: X-offset (0), Y-offset (10px), Blur-radius (20px), Color (black at 10% opacity).
+      By increasing the shadow when we lift the card, it creates a realistic 3D elevation!
+    */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; 
+}
+
+/* Dark mode adjustments for card */
+[data-bs-theme="dark"] .wolt-restaurant-card {
+    background-color: #2b3035 !important;
+}
+[data-bs-theme="dark"] .wolt-restaurant-card:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4) !important;
+}
+
+/* =========================================================================
+   SHIMMER ANIMATION FOR SKELETON LOADER
+   This creates the "loading" visual effect (sweeping light) used by Facebook, Wolt, etc.
+   ========================================================================= */
+
+/* 
+  '@keyframes' defines the actual animation cycle. 
+  We name our animation 'woltShimmer'. It dictates what happens from 0% (start) to 100% (end).
+  Here, we simply move the background image from left (-468px) to right (468px).
+*/
+@keyframes woltShimmer {
+    0% {
+        background-position: -468px 0;
+    }
+    100% {
+        background-position: 468px 0;
+    }
+}
+
+.wolt-shimmer {
+    /* Base background color (light grey) */
+    background: #f6f7f8;
+    
+    /* 
+      The core trick! We draw a gradient over the background.
+      It goes from light-grey, to slightly lighter-grey (at 20%), and back to light-grey.
+      This creates a vertical "bar of light" that we will animate.
+    */
+    background-image: linear-gradient(
+        to right,
+        #f6f7f8 0%,
+        #edeef1 20%,
+        #f6f7f8 40%,
+        #f6f7f8 100%
+    );
+    
+    background-repeat: no-repeat;
+    
+    /* We make the background very wide (800px) so the "light bar" has room to move across */
+    background-size: 800px 100%; 
+    
+    /* 
+      Finally, we attach the 'woltShimmer' keyframes we defined above.
+      - 1.5s: The animation takes 1.5 seconds to complete.
+      - infinite: It loops forever until the real data loads and removes this element.
+      - linear: It moves at a constant speed (no acceleration/slowing down).
+      - forwards: If it were to stop, it would stay at its final state.
+    */
+    animation: woltShimmer 1.5s infinite linear forwards;
+}
+
+/* =========================================================================
+   MENU ITEM ROW
+   ========================================================================= */
+.wolt-menu-item {
+    background-color: #ffffff;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 12px;
+}
+
+.wolt-menu-item:hover {
+    background-color: #f8f9fa;
+}
+
+.wolt-menu-item:active {
+    transform: scale(0.98);
+}
+
+[data-bs-theme="dark"] .wolt-menu-item {
+    background-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .wolt-menu-item:hover {
+    background-color: #343a40 !important;
+}
+
+/* Dark mode Shimmer */
+[data-bs-theme="dark"] .wolt-shimmer {
+    background: #2a2d31;
+    background-image: linear-gradient(
+        to right,
+        #2a2d31 0%,
+        #343a40 20%,
+        #2a2d31 40%,
+        #2a2d31 100%
+    );
+}

@@ -1,0 +1,68 @@
+/* Import the standard Wolt font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* =========================================================================
+   GLOBAL BACKGROUNDS
+   ========================================================================= */
+.wolt-custom-bg {
+    font-family: 'Inter', sans-serif;
+    background-size: cover; /* Stretches the image to completely cover the screen without distorting aspect ratio */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Parallax effect: the background stays still while the page scrolls! */
+}
+
+/* 
+  DARK MODE SELECTORS
+  By prefixing classes with [data-bs-theme="dark"], these rules ONLY apply 
+  when the user switches the app to dark mode.
+*/
+[data-bs-theme="dark"] .wolt-custom-bg {
+    filter: brightness(0.7); /* Darkens the background image by 30% */
+}
+
+[data-bs-theme="dark"] .bg-white {
+    background-color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .text-dark {
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .hover-bg-light:hover {
+    background-color: #343a40 !important;
+}
+
+.hover-bg-light:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Custom Text Classes for Dark Mode Support */
+.wolt-text-heading {
+    color: #202125;
+}
+.wolt-text-muted {
+    color: #6c757d;
+}
+.wolt-text-label {
+    color: #3a3c42;
+}
+.wolt-role-box {
+    background-color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .wolt-text-heading,
+[data-bs-theme="dark"] .wolt-text-label {
+    color: #f8f9fa !important;
+}
+[data-bs-theme="dark"] .wolt-text-muted {
+    color: #adb5bd !important;
+}
+[data-bs-theme="dark"] .wolt-role-box {
+    background-color: #2b3035 !important;
+    border-color: #495057 !important;
+}
+
+.wolt-text-primary {
+    color: #009de0 !important;
+}

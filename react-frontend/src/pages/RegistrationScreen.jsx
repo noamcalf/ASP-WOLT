@@ -8,6 +8,7 @@ const RegistrationScreen = () => {
     const navigate = useNavigate();
     
     const [formData, setFormData] = useState({
+        name: '',
         username: '',
         phone: '',
         password: '',
@@ -22,6 +23,7 @@ const RegistrationScreen = () => {
     const [profileImage, setProfileImage] = useState(null);
 
     const [validations, setValidations] = useState({
+        name: null,
         username: null,
         phone: null,
         password: null,
@@ -35,9 +37,11 @@ const RegistrationScreen = () => {
     });
 
     const [isLoading, setIsLoading] = useState(false);
+    const [hasSubmitted, setHasSubmitted] = useState(false);
     const [error, setError] = useState('');
 
     const refs = {
+        name: useRef(null),
         username: useRef(null),
         phone: useRef(null),
         password: useRef(null),
@@ -52,6 +56,8 @@ const RegistrationScreen = () => {
 
     const validateField = (name, value, allData = formData) => {
         switch (name) {
+            case 'name':
+                return value.trim().length >= 2;
             case 'username':
                 // Must contain at least one letter, and be at least 3 characters long
                 return /^(?=.*[a-zA-Z])[a-zA-Z0-9]{3,}$/.test(value);
@@ -124,6 +130,7 @@ const RegistrationScreen = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setHasSubmitted(true);
 
         let hasInvalidFields = false;
         let updatedValidations = { ...validations };
@@ -234,13 +241,17 @@ const RegistrationScreen = () => {
                     </div>
 
                     <div className="row">
-                        <WoltInput ref={refs.username} label="Username 👤" name="username" placeholder="Min 3 chars" value={formData.username} onChange={handleChange} isValid={validations.username} disabled={isLoading} colClass="col-md-6 mb-3" />
-                        <WoltInput ref={refs.phone} label="Phone Number 📱" name="phone" type="tel" placeholder="0501234567" value={formData.phone} onChange={handleChange} isValid={validations.phone} disabled={isLoading} colClass="col-md-6 mb-3" />
+                        <WoltInput ref={refs.name} label="Full Name 🏷️" name="name" value={formData.name} onChange={handleChange} isValid={hasSubmitted ? validations.name : null} errorMessage="Must be at least 2 characters long" disabled={isLoading} colClass="col-md-12 mb-3" />
                     </div>
 
                     <div className="row">
-                        <WoltInput ref={refs.password} label="Password 🔒" name="password" type="password" placeholder="Min 8 chars, 1 letter, 1 number" value={formData.password} onChange={handleChange} isValid={validations.password} disabled={isLoading} colClass="col-md-6 mb-3" />
-                        <WoltInput ref={refs.confirmPassword} label="Confirm Password 🔑" name="confirmPassword" type="password" placeholder="Repeat password" value={formData.confirmPassword} onChange={handleChange} isValid={validations.confirmPassword} disabled={isLoading} colClass="col-md-6 mb-3" />
+                        <WoltInput ref={refs.username} label="Username 👤" name="username" placeholder="Min 3 chars" value={formData.username} onChange={handleChange} isValid={hasSubmitted ? validations.username : null} errorMessage="Min 3 chars, must contain a letter" disabled={isLoading} colClass="col-md-6 mb-3" />
+                        <WoltInput ref={refs.phone} label="Phone Number 📱" name="phone" type="tel" placeholder="050..." value={formData.phone} onChange={handleChange} isValid={hasSubmitted ? validations.phone : null} errorMessage="Valid 10-digit Israeli number required" disabled={isLoading} colClass="col-md-6 mb-3" />
+                    </div>
+
+                    <div className="row">
+                        <WoltInput ref={refs.password} label="Password 🔒" name="password" type="password" placeholder="Min 8 chars, 1 letter, 1 number" value={formData.password} onChange={handleChange} isValid={hasSubmitted ? validations.password : null} errorMessage="Min 8 chars, 1 letter, 1 number" disabled={isLoading} colClass="col-md-6 mb-3" />
+                        <WoltInput ref={refs.confirmPassword} label="Confirm Password 🔑" name="confirmPassword" type="password" placeholder="Repeat password" value={formData.confirmPassword} onChange={handleChange} isValid={hasSubmitted ? validations.confirmPassword : null} errorMessage="Passwords do not match" disabled={isLoading} colClass="col-md-6 mb-3" />
                     </div>
 
                     {formData.role === 'customer' && (
@@ -248,15 +259,15 @@ const RegistrationScreen = () => {
                             <hr className="my-4 text-muted" />
                             <h6 className="fw-bold mb-3 text-muted text-uppercase tracking-wider">Address Details 📍</h6>
                             <div className="row">
-                                <WoltInput ref={refs.city} name="city" placeholder="City" value={formData.city} onChange={handleChange} isValid={validations.city} disabled={isLoading} colClass="col-md-5 mb-3" />
-                                <WoltInput ref={refs.street} name="street" placeholder="Street" value={formData.street} onChange={handleChange} isValid={validations.street} disabled={isLoading} colClass="col-md-5 mb-3" />
-                                <WoltInput ref={refs.streetNumber} name="streetNumber" placeholder="No." value={formData.streetNumber} onChange={handleChange} isValid={validations.streetNumber} disabled={isLoading} colClass="col-md-2 mb-3" />
+                                <WoltInput ref={refs.city} name="city" placeholder="City" value={formData.city} onChange={handleChange} isValid={hasSubmitted ? validations.city : null} errorMessage="Invalid city name" disabled={isLoading} colClass="col-md-5 mb-3" />
+                                <WoltInput ref={refs.street} name="street" placeholder="Street" value={formData.street} onChange={handleChange} isValid={hasSubmitted ? validations.street : null} errorMessage="Invalid street name" disabled={isLoading} colClass="col-md-5 mb-3" />
+                                <WoltInput ref={refs.streetNumber} name="streetNumber" placeholder="No." value={formData.streetNumber} onChange={handleChange} isValid={hasSubmitted ? validations.streetNumber : null} errorMessage="Digits only" disabled={isLoading} colClass="col-md-2 mb-3" />
                             </div>
 
                             <h6 className="fw-bold mb-3 mt-2 text-muted text-uppercase tracking-wider">Geolocation 🌍</h6>
                             <div className="row">
-                                <WoltInput ref={refs.latitude} name="latitude" placeholder="Lat (X)" value={formData.latitude} onChange={handleChange} isValid={validations.latitude} disabled={isLoading} colClass="col-md-6 mb-3" />
-                                <WoltInput ref={refs.longitude} name="longitude" placeholder="Lng (Y)" value={formData.longitude} onChange={handleChange} isValid={validations.longitude} disabled={isLoading} colClass="col-md-6 mb-3" />
+                                <WoltInput ref={refs.latitude} name="latitude" placeholder="Lat (X)" value={formData.latitude} onChange={handleChange} isValid={hasSubmitted ? validations.latitude : null} errorMessage="Invalid latitude" disabled={isLoading} colClass="col-md-6 mb-3" />
+                                <WoltInput ref={refs.longitude} name="longitude" placeholder="Lng (Y)" value={formData.longitude} onChange={handleChange} isValid={hasSubmitted ? validations.longitude : null} errorMessage="Invalid longitude" disabled={isLoading} colClass="col-md-6 mb-3" />
                             </div>
                         </>
                     )}

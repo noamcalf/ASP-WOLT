@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import RestaurantCard from '../components/RestaurantCard';
+import MenuItemRow from '../components/MenuItemRow';
 
 const SearchResultsView = () => {
     const { query } = useParams();
@@ -69,28 +71,7 @@ const SearchResultsView = () => {
                             <div className="row g-4">
                                 {results.restaurants.map((restaurant) => (
                                     <div key={`rest-${restaurant.id}`} className="col-12 col-md-6 col-lg-4">
-                                        <Link to={`/restaurant/${restaurant.id}`} className="text-decoration-none">
-                                            <div className="card h-100 wolt-result-card border-0 shadow-sm rounded-4 overflow-hidden">
-                                                {/* Placeholder for restaurant image */}
-                                                <div className="wolt-card-img-top bg-light d-flex justify-content-center align-items-center" style={{ height: '160px' }}>
-                                                    <span style={{ fontSize: '3rem' }}>🏪</span>
-                                                </div>
-                                                <div className="card-body bg-white d-flex flex-column">
-                                                    <h5 className="card-title fw-bold text-dark mb-1">{restaurant.name}</h5>
-                                                    <p className="card-text text-muted small">Restaurant</p>
-                                                    <div className="mt-auto d-flex justify-content-between align-items-center">
-                                                        <span className="badge bg-primary rounded-pill px-3 py-2">Open</span>
-                                                        
-                                                        {/* Display Rating or "New!" if rating is 0 */}
-                                                        {restaurant.rating === 0 ? (
-                                                            <span className="badge bg-success rounded-pill px-2 py-1">New! 🌟</span>
-                                                        ) : restaurant.rating > 0 ? (
-                                                            <span className="badge border px-2 py-1 wolt-rating-badge">⭐ {restaurant.rating}</span>
-                                                        ) : null}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Link>
+                                        <RestaurantCard restaurant={restaurant} />
                                     </div>
                                 ))}
                             </div>
@@ -103,25 +84,9 @@ const SearchResultsView = () => {
                             <h4 className="fw-bold mb-4 wolt-text-heading">Menu Items</h4>
                             <div className="row g-4">
                                 {results.products.map((product) => (
-                                    <div key={`prod-${product.id}`} className="col-12 col-md-6 col-lg-4">
-                                        <Link to={`/restaurant/${product.restaurantId}`} className="text-decoration-none">
-                                            <div className="card h-100 wolt-result-card border-0 shadow-sm rounded-4 overflow-hidden">
-                                                {/* Placeholder for product image */}
-                                                <div className="wolt-card-img-top bg-light d-flex justify-content-center align-items-center" style={{ height: '140px' }}>
-                                                    <span style={{ fontSize: '3rem' }}>🍔</span>
-                                                </div>
-                                                <div className="card-body bg-white d-flex flex-column">
-                                                    <div className="d-flex justify-content-between align-items-start mb-2">
-                                                        <h5 className="card-title fw-bold text-dark mb-0 pe-2">{product.name}</h5>
-                                                        <span className="fw-bold text-primary">₪{product.price}</span>
-                                                    </div>
-                                                    {product.description && (
-                                                        <p className="card-text text-muted small mb-0 wolt-line-clamp-2">
-                                                            {product.description}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
+                                    <div key={`prod-${product.id}`} className="col-12 col-md-6 col-lg-6">
+                                        <Link to={`/restaurant/${product.restaurantId}`} className="text-decoration-none d-block h-100">
+                                            <MenuItemRow product={product} onClick={() => {}} />
                                         </Link>
                                     </div>
                                 ))}
