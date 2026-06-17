@@ -6,11 +6,11 @@ const ProfileScreen = () => {
     const { user } = useAuth();
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
     return (
-        <div className="container-fluid min-vh-100 bg-light py-5">
+        <div className="container-fluid min-vh-100 py-5" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
             <div className="container">
                 
                 <div className="mb-5 d-flex align-items-center gap-4">
-                    <div className="bg-white rounded-circle shadow-sm d-flex justify-content-center align-items-center overflow-hidden border" style={{ width: '90px', height: '90px' }}>
+                    <div className="bg-body rounded-circle shadow-sm d-flex justify-content-center align-items-center overflow-hidden border" style={{ width: '90px', height: '90px' }}>
                         {user?.image ? (
                             <img src={`${apiUrl}/${user.image.replace(/\\/g, '/')}`} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
@@ -35,7 +35,7 @@ const ProfileScreen = () => {
                 {/* Main Content Area */}
                 <div className="row">
                     <div className="col-12">
-                        <div className="bg-white p-4 p-md-5 rounded-4 shadow-sm border-0">
+                        <div className="bg-body p-4 p-md-5 rounded-4 shadow-sm border" style={{ borderColor: 'var(--bs-border-color-translucent)' }}>
                             {/* Mount the Order History component */}
                             <OrderHistory />
                         </div>

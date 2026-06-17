@@ -12,7 +12,17 @@ const getRestaurants = (req, res, next) => {
 
 // Validates incoming payload and creates a new restaurant entity
 const createRestaurant = (req, res, next) => {
-    const { name, cuisine, address, geolocation } = req.body || {};
+    let { name, cuisine, address, geolocation } = req.body || {};
+    const image = req.file ? req.file.path : null;
+    const ownerId = req.authenticatedUser ? req.authenticatedUser.id : null;
+
+    // Parse JSON strings if data was sent via multipart/form-data
+    if (typeof address === 'string') {
+        try { address = JSON.parse(address); } catch(e) {}
+    }
+    if (typeof geolocation === 'string') {
+        try { geolocation = JSON.parse(geolocation); } catch(e) {}
+    }
 
     // Validate top-level fields
     if (!name || name.trim() === '') {
@@ -51,6 +61,8 @@ const createRestaurant = (req, res, next) => {
         cuisine: cuisine.trim(),
         address: { city: city.trim(), street: street.trim(), houseNumber },
         geolocation,
+        image,
+        ownerId,
         rating: 0 // Automatically set rating to 0 (new) for new restaurants
     };
 

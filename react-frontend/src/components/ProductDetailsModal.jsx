@@ -1,6 +1,9 @@
 import React from 'react';
+import { useAuth } from '../context/authContext';
 
 const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
+    const { user } = useAuth();
+    
     if (!product) return null;
 
     // Use a high-res image
@@ -19,12 +22,12 @@ const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
             style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050, padding: '20px' }}
             onClick={onClose} 
         >
-            /* 
+            {/* 
               2. The Modal Container
               'onClick={e => e.stopPropagation()}' is CRITICAL here!
               Without it, clicking inside the white box would "bubble up" to the dark overlay 
               and trigger the 'onClose' function, closing the modal by mistake!
-            */
+            */}
             <div 
                 className="bg-body rounded-4 overflow-hidden shadow-lg position-relative d-flex flex-column"
                 style={{ width: '100%', maxWidth: '500px', maxHeight: '90vh' }}
@@ -65,19 +68,21 @@ const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
                     </div>
                 </div>
 
-                {/* Footer Action (Sticky at the bottom) */}
-                <div className="p-3 border-top bg-body">
-                    <button 
-                        className="wolt-btn w-100 py-3 text-white fw-bold d-flex justify-content-between align-items-center fs-5"
-                        onClick={() => {
-                            onAddToOrder(product);
-                            onClose();
-                        }}
-                    >
-                        <span>Add to order</span>
-                        <span>₪{product.price.toFixed(2)}</span>
-                    </button>
-                </div>
+                {/* Footer Action (Sticky at the bottom) - Hidden for owners */}
+                {user?.role !== 'owner' && (
+                    <div className="p-3 border-top bg-body">
+                        <button 
+                            className="wolt-btn w-100 py-3 text-white fw-bold d-flex justify-content-between align-items-center fs-5"
+                            onClick={() => {
+                                onAddToOrder(product);
+                                onClose();
+                            }}
+                        >
+                            <span>Add to order</span>
+                            <span>₪{product.price.toFixed(2)}</span>
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

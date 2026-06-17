@@ -1,71 +1,40 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext'; 
+import { useFormValidation } from '../hooks/useFormValidation';
 import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
 
 const LoginScreen = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const { login } = useAuth(); 
+    
+    // We extracted all the complicated validation logic into useFormValidation!
+    // Now this component only cares about its specific rules and what to do on submit.
+    
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const [validations, setValidations] = useState({
-        username: null,
-        password: null
-    });
-
-    const refs = {
-        username: useRef(null),
-        password: useRef(null)
+    const validationRules = {
+        username: (val) => val.trim().length > 0,
+        password: (val) => val.trim().length > 0
     };
 
-    const { login } = useAuth(); 
-
-    const validateField = (name, value) => {
-        return value.trim().length > 0; // Basic validation for login (not empty)
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        if (name === 'username') setUsername(value);
-        if (name === 'password') setPassword(value);
-        
-        setValidations(prev => ({ ...prev, [name]: validateField(name, value) }));
-    };
-
-    const triggerShake = (fieldName) => {
-        const ref = refs[fieldName];
-        if (ref && ref.current) {
-            ref.current.style.animation = 'none';
-            void ref.current.offsetWidth;
-            ref.current.style.animation = 'shake 0.4s ease-in-out';
-        }
-    };
+    const {
+        formData,
+        validations,
+        hasSubmitted,
+        refs,
+        handleChange,
+        validateAll
+    } = useFormValidation({ username: '', password: '' }, validationRules);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
-        let hasInvalidFields = false;
-        let updatedValidations = { ...validations };
-
-        ['username', 'password'].forEach(key => {
-            const value = key === 'username' ? username : password;
-            const isValid = validateField(key, value);
-            updatedValidations[key] = isValid;
-
-            if (!isValid) {
-                hasInvalidFields = true;
-                triggerShake(key);
-            }
-        });
-
-        setValidations(updatedValidations);
-
-        if (hasInvalidFields) {
+        if (!validateAll()) {
             setError('Please fill in all fields correctly to continue.');
             return;
         }
@@ -79,13 +48,16 @@ const LoginScreen = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ 
+                    username: formData.username, 
+                    password: formData.password 
+                }),
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Login failed. Invalid credentials.');
+                throw new Error(data.error || data.message || 'Login failed. Invalid credentials.');
             }
 
             login(data.token); 
@@ -123,16 +95,16 @@ const LoginScreen = () => {
                     </div>
                 )}
                 
-                <form onSubmit={handleSubmit} className="w-100">
+                <form onSubmit={handleSubmit} className="w-100" noValidate>
                     
                     <WoltInput 
                         ref={refs.username} 
                         label="Username 👤" 
                         name="username" 
                         placeholder="Enter your username" 
-                        value={username} 
+                        value={formData.username} 
                         onChange={handleChange} 
-                        isValid={validations.username} 
+                        isValid={hasSubmitted ? validations.username : null} 
                         disabled={isLoading} 
                     />
 
@@ -142,9 +114,9 @@ const LoginScreen = () => {
                         name="password" 
                         type="password" 
                         placeholder="Enter your password" 
-                        value={password} 
+                        value={formData.password} 
                         onChange={handleChange} 
-                        isValid={validations.password} 
+                        isValid={hasSubmitted ? validations.password : null} 
                         disabled={isLoading} 
                     />
 

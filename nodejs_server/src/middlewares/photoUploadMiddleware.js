@@ -1,4 +1,12 @@
 const multer = require('multer');
+const fs = require('fs');
+
+// Ensure the uploads directory exists before configuring multer
+// This prevents crashes on new machines (like the checker's PC) where the folder isn't in git.
+const uploadDir = 'uploads/';
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Make sure the file is an image
 const fileFilter = (req, file, cb) => {

@@ -7,9 +7,9 @@ import { useAuth } from '../context/authContext';
  * Acts as a bouncer for our application. It checks if the user is authenticated 
  * before letting them access specific routes (like the Dashboard).
  */
-const ProtectedRoute = ({ children }) => {
-    // We pull the authentication status from our global AuthContext
-    const { isAuthenticated } = useAuth();
+const ProtectedRoute = ({ children, requireOwner = false }) => {
+    // We pull the authentication status and user object from our global AuthContext
+    const { isAuthenticated, user } = useAuth();
 
     // If the user is NOT logged in, bounce them to the login page immediately.
     // The "replace" attribute ensures they can't use the back button to return to the protected route.
@@ -17,7 +17,12 @@ const ProtectedRoute = ({ children }) => {
         return <Navigate to="/login" replace />;
     }
 
-    // If they ARE logged in, render the child component they requested (e.g., DashboardScreen)
+    // If the route requires an owner but the user is not an owner, bounce them to the dashboard
+    if (requireOwner && user && user.role !== 'owner') {
+        return <Navigate to="/" replace />;
+    }
+
+    // If they ARE logged in (and have the right role), render the child component
     return children;
 };
 

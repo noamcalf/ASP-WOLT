@@ -21,6 +21,13 @@ export const apiClient = async (endpoint, options = {}) => {
         ...options.headers,
     };
 
+    // If we are sending FormData (for file uploads), the browser MUST automatically set 
+    // the Content-Type to 'multipart/form-data' with the correct boundary.
+    // If we leave 'application/json' or set it manually, the upload will fail!
+    if (options.body instanceof FormData) {
+        delete headers['Content-Type'];
+    }
+
     // 3. The "Interceptor" Logic: Inject the token if it exists!
     // If there is no token (e.g. user is not logged in), this step is skipped.
     // This perfectly handles public requests that don't need a token.

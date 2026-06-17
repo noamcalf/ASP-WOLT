@@ -7,11 +7,12 @@ const router = express.Router();
 const restaurantController = require('../controllers/restaurantController');
 const productController = require('../controllers/productController');
 const identityMiddleware = require('../middlewares/identityMiddleware');
+const photoUploadMiddleware = require('../middlewares/photoUploadMiddleware');
 
 // Bind GET and POST requests on the root path to their respective controllers
 router.route('/')
     .get(restaurantController.getRestaurants)
-    .post(identityMiddleware, restaurantController.createRestaurant);
+    .post(identityMiddleware, photoUploadMiddleware, restaurantController.createRestaurant);
 
 // Bind GET, PATCH, and DELETE requests with id as parameter to their respective controllers
 router.route('/:id')
@@ -22,7 +23,7 @@ router.route('/:id')
 // Bind GET and POST requests for products catalog under a specific restaurant
 router.route('/:id/products')
     .get(productController.getProducts)
-    .post(identityMiddleware, productController.createProduct);
+    .post(identityMiddleware, photoUploadMiddleware, productController.createProduct);
 
 // Bind GET, PATCH, and DELETE requests for a specific nested product by its unique ID
 router.route('/:id/products/:pId') 

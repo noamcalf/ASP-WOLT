@@ -24,9 +24,14 @@ const Navbar = () => {
             <div className="container-fluid d-flex align-items-center justify-content-between">
                 
                 {/* Logo Section */}
-                <Link to="/" className="navbar-brand fw-bold m-0 p-0 text-primary" style={{ fontSize: '2rem', letterSpacing: '-1px' }}>
-                    WOLT
-                </Link>
+                <div className="d-flex align-items-center gap-3">
+                    <span className="navbar-brand fw-bold m-0 p-0 text-primary" style={{ fontSize: '2rem', letterSpacing: '-1px' }}>
+                        WOLT-ASP
+                    </span>
+                    <Link to="/" className="btn btn-light rounded-circle shadow-sm border d-flex justify-content-center align-items-center text-decoration-none" style={{ width: '38px', height: '38px', transition: 'all 0.2s ease' }} title="Home">
+                        <span style={{ fontSize: '1.1rem' }}>🏠</span>
+                    </Link>
+                </div>
 
                 {/* Center Search Bar */}
                 <div className="d-none d-md-flex justify-content-center flex-grow-1 mx-4">
@@ -71,6 +76,9 @@ const Navbar = () => {
                             </button>
                             <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3">
                                 <li><Link className="dropdown-item fw-medium" to="/profile">Profile</Link></li>
+                                {user?.role === 'owner' && (
+                                    <li><Link className="dropdown-item fw-bold text-primary" to="/owner/dashboard">My Restaurants</Link></li>
+                                )}
                                 <li><hr className="dropdown-divider" /></li>
                                 <li><button className="dropdown-item text-danger fw-bold" onClick={handleLogout}>Log Out</button></li>
                             </ul>
