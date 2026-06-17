@@ -51,6 +51,9 @@ const Navbar = () => {
                             </button>
                             <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3">
                                 <li><Link className="dropdown-item fw-medium" to="/profile">Profile</Link></li>
+                                {user?.role === 'owner' && (
+                                    <li><Link className="dropdown-item fw-bold text-primary" to="/owner/dashboard">My Restaurants</Link></li>
+                                )}
                                 <li><hr className="dropdown-divider" /></li>
                                 <li><button className="dropdown-item text-danger fw-bold" onClick={handleLogout}>Log Out</button></li>
                             </ul>

@@ -8,6 +8,8 @@ import RegistrationScreen from './pages/RegistrationScreen';
 import DashboardScreen from './pages/DashboardScreen';
 import RestaurantMenuScreen from './pages/RestaurantMenuScreen';
 import ProfileScreen from './pages/ProfileScreen';
+import OwnerDashboardScreen from './pages/OwnerDashboardScreen';
+import OwnerMenuManagerScreen from './pages/OwnerMenuManagerScreen';
 
 // Context and Guards
 import { AuthProvider } from './context/authContext'; 
@@ -45,6 +47,24 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ProfileScreen />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* --- Owner Protected Routes --- */}
+            <Route 
+              path="/owner/dashboard" 
+              element={
+                <ProtectedRoute requireOwner={true}>
+                  <OwnerDashboardScreen />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/owner/restaurant/:id" 
+              element={
+                <ProtectedRoute requireOwner={true}>
+                  <OwnerMenuManagerScreen />
                 </ProtectedRoute>
               } 
             />

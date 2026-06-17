@@ -1,6 +1,9 @@
 import React from 'react';
+import { useAuth } from '../context/authContext';
 
 const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
+    const { user } = useAuth();
+    
     if (!product) return null;
 
     // Use a high-res image
@@ -65,19 +68,21 @@ const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
                     </div>
                 </div>
 
-                {/* Footer Action (Sticky at the bottom) */}
-                <div className="p-3 border-top bg-body">
-                    <button 
-                        className="wolt-btn w-100 py-3 text-white fw-bold d-flex justify-content-between align-items-center fs-5"
-                        onClick={() => {
-                            onAddToOrder(product);
-                            onClose();
-                        }}
-                    >
-                        <span>Add to order</span>
-                        <span>₪{product.price.toFixed(2)}</span>
-                    </button>
-                </div>
+                {/* Footer Action (Sticky at the bottom) - Hidden for owners */}
+                {user?.role !== 'owner' && (
+                    <div className="p-3 border-top bg-body">
+                        <button 
+                            className="wolt-btn w-100 py-3 text-white fw-bold d-flex justify-content-between align-items-center fs-5"
+                            onClick={() => {
+                                onAddToOrder(product);
+                                onClose();
+                            }}
+                        >
+                            <span>Add to order</span>
+                            <span>₪{product.price.toFixed(2)}</span>
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

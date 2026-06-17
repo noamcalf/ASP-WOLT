@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useFormValidation } from '../hooks/useFormValidation';
 import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
@@ -7,7 +8,40 @@ import MainButton from '../components/MainButton';
 const RegistrationScreen = () => {
     const navigate = useNavigate();
     
-    const [formData, setFormData] = useState({
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const validationRules = {
+        name: (val) => val.trim().length >= 2,
+        username: (val) => /^(?=.*[a-zA-Z])[a-zA-Z0-9]{3,}$/.test(val),
+        phone: (val) => /^0\d{9}$/.test(val),
+        password: (val) => /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(val),
+        confirmPassword: (val, allData) => val === allData.password && val.length >= 8,
+        city: (val, allData) => allData.role === 'owner' ? true : /^[\u0590-\u05FFa-zA-Z\s\-]{2,}$/.test(val.trim()),
+        street: (val, allData) => allData.role === 'owner' ? true : /^[\u0590-\u05FFa-zA-Z\s\-]{2,}$/.test(val.trim()),
+        streetNumber: (val, allData) => allData.role === 'owner' ? true : /^\d+$/.test(val.trim()),
+        latitude: (val, allData) => {
+            if (allData.role === 'owner') return true;
+            const lat = parseFloat(val);
+            return !isNaN(lat) && lat >= -90 && lat <= 90;
+        },
+        longitude: (val, allData) => {
+            if (allData.role === 'owner') return true;
+            const lng = parseFloat(val);
+            return !isNaN(lng) && lng >= -180 && lng <= 180;
+        },
+        image: (val) => val !== null
+    };
+
+    const {
+        formData,
+        validations,
+        hasSubmitted,
+        refs,
+        handleChange,
+        handleFileChange,
+        validateAll
+    } = useFormValidation({
         name: '',
         username: '',
         phone: '',
@@ -18,142 +52,15 @@ const RegistrationScreen = () => {
         street: '',
         streetNumber: '',
         latitude: '',
-        longitude: ''
-    });
-    const [profileImage, setProfileImage] = useState(null);
-
-    const [validations, setValidations] = useState({
-        name: null,
-        username: null,
-        phone: null,
-        password: null,
-        confirmPassword: null,
-        city: null,
-        street: null,
-        streetNumber: null,
-        latitude: null,
-        longitude: null,
+        longitude: '',
         image: null
-    });
-
-    const [isLoading, setIsLoading] = useState(false);
-    const [hasSubmitted, setHasSubmitted] = useState(false);
-    const [error, setError] = useState('');
-
-    const refs = {
-        name: useRef(null),
-        username: useRef(null),
-        phone: useRef(null),
-        password: useRef(null),
-        confirmPassword: useRef(null),
-        city: useRef(null),
-        street: useRef(null),
-        streetNumber: useRef(null),
-        latitude: useRef(null),
-        longitude: useRef(null),
-        image: useRef(null)
-    };
-
-    const validateField = (name, value, allData = formData) => {
-        switch (name) {
-            case 'name':
-                return value.trim().length >= 2;
-            case 'username':
-                // Must contain at least one letter, and be at least 3 characters long
-                return /^(?=.*[a-zA-Z])[a-zA-Z0-9]{3,}$/.test(value);
-            case 'phone':
-                return /^0\d{9}$/.test(value);
-            case 'password':
-                return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value);
-            case 'confirmPassword':
-                return value === allData.password && value.length >= 8;
-            case 'city':
-            case 'street':
-                // Allow Hebrew and English letters, spaces, and hyphens
-                return allData.role === 'owner' ? true : /^[\u0590-\u05FFa-zA-Z\s\-]{2,}$/.test(value.trim());
-            case 'streetNumber':
-                // Digits only
-                return allData.role === 'owner' ? true : /^\d+$/.test(value.trim());
-            case 'latitude':
-                if (allData.role === 'owner') return true;
-                const lat = parseFloat(value);
-                return !isNaN(lat) && lat >= -90 && lat <= 90;
-            case 'longitude':
-                if (allData.role === 'owner') return true;
-                const lng = parseFloat(value);
-                return !isNaN(lng) && lng >= -180 && lng <= 180;
-            default:
-                return true;
-        }
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        
-        const newFormData = { ...formData, [name]: value };
-        setFormData(newFormData);
-        
-        const isValid = validateField(name, value, newFormData);
-        
-        if (name === 'password' && newFormData.confirmPassword) {
-            const isConfirmValid = validateField('confirmPassword', newFormData.confirmPassword, newFormData);
-            setValidations(prev => ({ 
-                ...prev, 
-                [name]: isValid,
-                confirmPassword: isConfirmValid
-            }));
-        } else {
-            setValidations(prev => ({ ...prev, [name]: isValid }));
-        }
-    };
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setProfileImage(file);
-            setValidations(prev => ({ ...prev, image: true }));
-        } else {
-            setProfileImage(null);
-            setValidations(prev => ({ ...prev, image: false }));
-        }
-    };
-
-    const triggerShake = (fieldName) => {
-        const ref = refs[fieldName];
-        if (ref && ref.current) {
-            ref.current.style.animation = 'none';
-            void ref.current.offsetWidth;
-            ref.current.style.animation = 'shake 0.4s ease-in-out';
-        }
-    };
+    }, validationRules);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        setHasSubmitted(true);
 
-        let hasInvalidFields = false;
-        let updatedValidations = { ...validations };
-
-        Object.keys(refs).forEach(key => {
-            let isValid = false;
-            if (key === 'image') {
-                isValid = profileImage !== null;
-            } else {
-                isValid = validateField(key, formData[key]);
-            }
-
-            updatedValidations[key] = isValid;
-
-            if (!isValid) {
-                hasInvalidFields = true;
-                triggerShake(key);
-            }
-        });
-
-        setValidations(updatedValidations);
-
-        if (hasInvalidFields) {
+        if (!validateAll()) {
             setError('Please fill in all fields correctly to continue.');
             return;
         }
@@ -167,7 +74,6 @@ const RegistrationScreen = () => {
             Object.keys(formData).forEach(key => {
                 dataToSubmit.append(key, formData[key]);
             });
-            dataToSubmit.append('image', profileImage);
 
             const response = await fetch(`${apiUrl}/api/users/`, {
                 method: 'POST',
@@ -177,7 +83,8 @@ const RegistrationScreen = () => {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Registration failed.');
+                // The backend returns errors under 'error', not 'message'
+                throw new Error(data.error || data.message || 'Registration failed.');
             }
 
             navigate('/login');
@@ -217,7 +124,7 @@ const RegistrationScreen = () => {
                     </div>
                 )}
                 
-                <form onSubmit={handleSubmit} className="w-100">
+                <form onSubmit={handleSubmit} className="w-100" noValidate>
                     
                     {/* Role Selection */}
                     <div className="mb-4 text-start w-100 p-3 wolt-role-box" style={{ borderRadius: '14px', border: '1px solid var(--bs-border-color)' }}>
@@ -245,7 +152,7 @@ const RegistrationScreen = () => {
                     </div>
 
                     <div className="row">
-                        <WoltInput ref={refs.username} label="Username 👤" name="username" placeholder="Min 3 chars" value={formData.username} onChange={handleChange} isValid={hasSubmitted ? validations.username : null} errorMessage="Min 3 chars, must contain a letter" disabled={isLoading} colClass="col-md-6 mb-3" />
+                        <WoltInput ref={refs.username} label="Username 👤" name="username" placeholder="Min 3 chars" value={formData.username} onChange={handleChange} isValid={hasSubmitted ? validations.username : null} errorMessage="Min 3 chars, letters and numbers only (no spaces)" disabled={isLoading} colClass="col-md-6 mb-3" />
                         <WoltInput ref={refs.phone} label="Phone Number 📱" name="phone" type="tel" placeholder="050..." value={formData.phone} onChange={handleChange} isValid={hasSubmitted ? validations.phone : null} errorMessage="Valid 10-digit Israeli number required" disabled={isLoading} colClass="col-md-6 mb-3" />
                     </div>
 
@@ -283,7 +190,7 @@ const RegistrationScreen = () => {
                             type="file" 
                             accept="image/*"
                             className={`form-control px-4 py-2 text-dark wolt-input w-100 ${validations.image === true ? 'wolt-input-valid' : validations.image === false ? 'wolt-input-invalid' : ''}`}
-                            onChange={handleImageChange} 
+                            onChange={(e) => handleFileChange(e, 'image')} 
                             disabled={isLoading}
                         />
                     </div>
