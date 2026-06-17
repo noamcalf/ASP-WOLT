@@ -10,14 +10,17 @@ import RestaurantMenuScreen from './pages/RestaurantMenuScreen';
 import ProfileScreen from './pages/ProfileScreen';
 import OwnerDashboardScreen from './pages/OwnerDashboardScreen';
 import OwnerMenuManagerScreen from './pages/OwnerMenuManagerScreen';
+import CheckoutScreen from './pages/CheckoutScreen';
 
 // Context and Guards
 import { AuthProvider } from './context/authContext'; 
 import { ThemeProvider } from './context/themeContext';
+import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Components
 import Navbar from './components/Navbar';
+import CartDrawer from './components/CartDrawer';
 import SearchResultsView from './pages/SearchResultsView';
 
 // Styles
@@ -29,8 +32,10 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <Navbar />
+        <CartProvider>
+          <BrowserRouter>
+            <Navbar />
+            <CartDrawer />
 
           <Routes>
             {/* --- Public Routes --- */}
@@ -69,10 +74,20 @@ function App() {
               } 
             />
             
+            <Route 
+              path="/checkout" 
+              element={
+                <ProtectedRoute>
+                  <CheckoutScreen />
+                </ProtectedRoute>
+              } 
+            />
+            
             {/* Catch-all route */}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </BrowserRouter>
+        </CartProvider>
       </AuthProvider>
     </ThemeProvider>
   );
