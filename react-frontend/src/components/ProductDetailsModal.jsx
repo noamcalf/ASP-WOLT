@@ -19,12 +19,12 @@ const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
             style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050, padding: '20px' }}
             onClick={onClose} 
         >
-            /* 
+            {/* 
               2. The Modal Container
               'onClick={e => e.stopPropagation()}' is CRITICAL here!
               Without it, clicking inside the white box would "bubble up" to the dark overlay 
               and trigger the 'onClose' function, closing the modal by mistake!
-            */
+            */}
             <div 
                 className="bg-body rounded-4 overflow-hidden shadow-lg position-relative d-flex flex-column"
                 style={{ width: '100%', maxWidth: '500px', maxHeight: '90vh' }}
