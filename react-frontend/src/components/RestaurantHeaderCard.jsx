@@ -56,8 +56,14 @@ const RestaurantHeaderCard = ({ restaurant }) => {
                             <span className="me-4 fs-6">
                                 📍 {restaurant.address.street} {restaurant.address.houseNumber}, {restaurant.address.city}
                             </span>
-                            <span className="fs-6">
-                                ⏱️ {restaurant.deliveryTime || '25-35 min'}
+                            <span className="fs-6 d-flex align-items-center">
+                                ⏱️ {restaurant.deliveryTimeMins || restaurant.baseDeliveryTime}
+                                {restaurant.distanceKm && (
+                                    <>
+                                        <span className="mx-2">•</span>
+                                        <span>{restaurant.distanceKm.toFixed(1)} km</span>
+                                    </>
+                                )}
                             </span>
                         </div>
                     </div>

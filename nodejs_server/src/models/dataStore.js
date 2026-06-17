@@ -17,6 +17,7 @@ const dataStore = {
             cuisine: "Fast Food",
             address: { city: "Tel Aviv", street: "Dizengoff", houseNumber: 50 },
             geolocation: { latitude: 32.0772, longitude: 34.7738 },
+            baseDeliveryTime: "30-40 min",
             rating: 4.5 
         },
         { 
@@ -25,6 +26,7 @@ const dataStore = {
             cuisine: "Italian",
             address: { city: "Tel Aviv", street: "Rothschild", houseNumber: 140 },
             geolocation: { latitude: 32.0621, longitude: 34.7760 },
+            baseDeliveryTime: "35-45 min",
             rating: 4.8 
         },
         { 
@@ -33,6 +35,7 @@ const dataStore = {
             cuisine: "Fast Food",
             address: { city: "Tel Aviv", street: "Ibn Gabirol", houseNumber: 10 },
             geolocation: { latitude: 32.0763, longitude: 34.7816 },
+            baseDeliveryTime: "25-35 min",
             rating: 4.2 
         },
         { 

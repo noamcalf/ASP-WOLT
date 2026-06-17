@@ -20,7 +20,7 @@ const MenuItemRow = ({ product, onClick, ownerMode = false, deleteEndpoint, onDe
                 </p>
                 <div className="d-flex justify-content-between align-items-center">
                     <div className="fw-bold text-dark" style={{ color: '#009de0' }}>
-                        ${parseFloat(product.price).toFixed(2)}
+                        ₪{parseFloat(product.price).toFixed(2)}
                     </div>
                     {ownerMode && (
                         <div className="d-flex gap-2">

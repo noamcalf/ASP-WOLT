@@ -59,8 +59,14 @@ const RestaurantCard = ({ restaurant, ownerMode = false, onDelete }) => {
                                     <span className="ms-1" style={{ fontSize: '0.8rem' }}>⭐</span>
                                 </div>
                                 
-                                <div className="text-muted fw-semibold" style={{ fontSize: '0.85rem' }}>
-                                    {Math.floor(Math.random() * 30 + 15)} min
+                                <div className="text-muted fw-semibold d-flex align-items-center" style={{ fontSize: '0.85rem' }}>
+                                    <span>{restaurant.deliveryTimeMins || restaurant.baseDeliveryTime}</span>
+                                    {restaurant.distanceKm && (
+                                        <>
+                                            <span className="mx-1">•</span>
+                                            <span>{restaurant.distanceKm.toFixed(1)} km</span>
+                                        </>
+                                    )}
                                 </div>
                             </>
                         )}
