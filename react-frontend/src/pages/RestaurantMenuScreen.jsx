@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../utils/apiClient';
+import { useAuth } from '../context/authContext';
+import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
 
 import RestaurantHeaderCard from '../components/RestaurantHeaderCard';
 import MenuSection from '../components/MenuSection';
@@ -11,6 +13,7 @@ const RestaurantMenuScreen = () => {
     // useParams() is a React Router hook that extracts the dynamic parts of the URL.
     // For example, if the URL is '/restaurant/123', 'id' will be '123'.
     const { id } = useParams();
+    const { user } = useAuth();
 
     // State management for our component:
     // 'restaurant' holds the restaurant metadata (name, image, etc.)
@@ -42,7 +45,25 @@ const RestaurantMenuScreen = () => {
                 if (!restaurantRes.response.ok) throw new Error(restaurantRes.data?.error || 'Failed to load restaurant');
                 if (!productsRes.response.ok) throw new Error(productsRes.data?.error || 'Failed to load menu');
 
-                setRestaurant(restaurantRes.data);
+                let fetchedRestaurant = restaurantRes.data;
+                let distanceKm = null;
+                let deliveryTimeMins = fetchedRestaurant.baseDeliveryTime;
+
+                if (user?.geolocation?.latitude && user?.geolocation?.longitude && fetchedRestaurant?.geolocation?.latitude && fetchedRestaurant?.geolocation?.longitude) {
+                    distanceKm = calculateDistance(
+                        user.geolocation.latitude, 
+                        user.geolocation.longitude,
+                        fetchedRestaurant.geolocation.latitude,
+                        fetchedRestaurant.geolocation.longitude
+                    );
+                    deliveryTimeMins = estimateDeliveryTime(distanceKm);
+                }
+
+                setRestaurant({
+                    ...fetchedRestaurant,
+                    distanceKm,
+                    deliveryTimeMins
+                });
                 setProducts(productsRes.data);
             } catch (err) {
                 setError(err.message || 'Network error');
