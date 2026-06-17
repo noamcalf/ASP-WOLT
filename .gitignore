@@ -41,4 +41,5 @@ yarn-error.log*
 *.swp
 
 # Image directory
-uploads/react-frontend/dist/
+uploads/
+react-frontend/dist/
