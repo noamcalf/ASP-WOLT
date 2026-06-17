@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/authContext';
+import RecommendationCarousel from './RecommendationCarousel';
 
 const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
     const { user } = useAuth();
@@ -66,6 +67,9 @@ const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
                             <li className="mb-1">🌱 Vegetarian Option Available</li>
                         </ul>
                     </div>
+                    
+                    {/* Collaborative Filtering Recommendation Carousel */}
+                    <RecommendationCarousel productId={product.id} onAddToOrder={onAddToOrder} />
                 </div>
 
                 {/* Footer Action (Sticky at the bottom) - Hidden for owners */}
