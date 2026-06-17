@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/authContext';
+import { useCart } from '../context/CartContext';
 
 // Navbar is the main global navigation header of the application.
 // It persists across all screens and manages navigation, live search, and theme toggling.
 const Navbar = () => {
     const { isAuthenticated, user, logout } = useAuth();
+    const { totalItems, toggleCart } = useCart();
     const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -33,6 +35,24 @@ const Navbar = () => {
 
                 {/* Right Side Actions */}
                 <div className="d-flex align-items-center gap-3">
+                    {/* Cart Toggle Button */}
+                    <button 
+                        className="btn btn-light rounded-circle p-2 shadow-sm border position-relative d-flex justify-content-center align-items-center" 
+                        onClick={toggleCart}
+                        style={{ width: '40px', height: '40px' }}
+                        title="View Cart"
+                    >
+                        <span style={{ fontSize: '1.2rem' }}>🛒</span>
+                        {totalItems > 0 && (
+                            <span 
+                                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style={{ fontSize: '0.7rem' }}
+                            >
+                                {totalItems}
+                            </span>
+                        )}
+                    </button>
+
                     <ThemeToggle />
                     
                     {isAuthenticated ? (

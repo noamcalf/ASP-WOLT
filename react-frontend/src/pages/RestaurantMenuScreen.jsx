@@ -5,6 +5,7 @@ import { apiClient } from '../utils/apiClient';
 import RestaurantHeaderCard from '../components/RestaurantHeaderCard';
 import MenuSection from '../components/MenuSection';
 import ProductDetailsModal from '../components/ProductDetailsModal';
+import { useCart } from '../context/CartContext';
 
 const RestaurantMenuScreen = () => {
     // useParams() is a React Router hook that extracts the dynamic parts of the URL.
@@ -21,6 +22,9 @@ const RestaurantMenuScreen = () => {
     
     // State to control the Product Details Modal
     const [selectedProduct, setSelectedProduct] = useState(null);
+    
+    // Connect to the global Cart Context
+    const { addToCart } = useCart();
 
     // useEffect runs when the component mounts, or when the 'id' variable changes.
     useEffect(() => {
@@ -50,10 +54,13 @@ const RestaurantMenuScreen = () => {
         fetchRestaurantData();
     }, [id]);
 
-    // Handle adding a product to the basket (for now, just a placeholder log)
+    // Handle adding a product to the basket
     const handleAddToOrder = (product) => {
-        console.log("Added to order:", product.name, product.price);
-        // Future implementation: Dispatch to Redux or Context API cart state
+        const result = addToCart(product);
+        if (!result.success) {
+            // Blocked by cross-restaurant logic
+            alert(result.error);
+        }
     };
 
     if (isLoading) {
