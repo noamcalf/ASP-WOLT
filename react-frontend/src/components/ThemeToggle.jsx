@@ -9,8 +9,7 @@ const ThemeToggle = () => {
     return (
         <button 
             onClick={toggleTheme} 
-            className="btn btn-light d-flex align-items-center justify-content-center p-2 shadow-sm rounded-circle"
-            style={{ width: '40px', height: '40px', transition: 'all 0.3s ease' }}
+            className="btn btn-light shadow-sm border wolt-nav-btn"
             title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
         >
             {theme === 'light' ? '🌙' : '☀️'}

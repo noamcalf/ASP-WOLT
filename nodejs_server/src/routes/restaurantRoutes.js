@@ -17,7 +17,7 @@ router.route('/')
 // Bind GET, PATCH, and DELETE requests with id as parameter to their respective controllers
 router.route('/:id')
     .get(restaurantController.getRestaurantById)
-    .patch(identityMiddleware, restaurantController.updateRestaurant)
+    .patch(identityMiddleware, photoUploadMiddleware, restaurantController.updateRestaurant)
     .delete(identityMiddleware, restaurantController.deleteRestaurant);
 
 // Bind GET and POST requests for products catalog under a specific restaurant
@@ -28,7 +28,7 @@ router.route('/:id/products')
 // Bind GET, PATCH, and DELETE requests for a specific nested product by its unique ID
 router.route('/:id/products/:pId') 
     .get(identityMiddleware, productController.getProduct)
-    .patch(identityMiddleware, productController.updateProduct)
+    .patch(identityMiddleware, photoUploadMiddleware, productController.updateProduct)
     .delete(identityMiddleware, productController.deleteProduct);
 
 module.exports = router;

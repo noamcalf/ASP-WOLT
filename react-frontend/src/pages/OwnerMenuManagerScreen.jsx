@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../utils/apiClient';
-import CreateMenuItemForm from '../components/CreateMenuItemForm';
+import MenuItemForm from '../components/MenuItemForm';
 import MenuItemRow from '../components/MenuItemRow';
 import DeleteButton from '../components/DeleteButton';
+import RestaurantForm from '../components/RestaurantForm';
 
 const OwnerMenuManagerScreen = () => {
     const { id: restaurantId } = useParams();
@@ -15,6 +16,8 @@ const OwnerMenuManagerScreen = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [showEditRestaurantForm, setShowEditRestaurantForm] = useState(false);
+    const [editingItem, setEditingItem] = useState(null);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -48,6 +51,16 @@ const OwnerMenuManagerScreen = () => {
         fetchData(); // Refresh the items list
     };
 
+    const handleItemEdited = () => {
+        setEditingItem(null);
+        fetchData(); // Refresh the items list
+    };
+
+    const handleRestaurantEdited = () => {
+        setShowEditRestaurantForm(false);
+        fetchData(); // Refresh the restaurant details
+    };
+
     if (isLoading && !restaurant) {
         return (
             <div className="container-fluid min-vh-100 d-flex justify-content-center align-items-center" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
@@ -74,10 +87,10 @@ const OwnerMenuManagerScreen = () => {
                 <div className="mb-4">
                     <button 
                         onClick={() => navigate('/owner/dashboard')} 
-                        className="rounded-circle shadow-sm d-flex justify-content-center align-items-center bg-body" 
-                        style={{ width: '45px', height: '45px', border: 'none', transition: 'all 0.2s ease' }}
+                        className="btn btn-light rounded-circle shadow-sm d-flex justify-content-center align-items-center border" 
+                        style={{ width: '45px', height: '45px', transition: 'all 0.2s ease' }}
                     >
-                        <span className="fs-4 wolt-text-heading">←</span>
+                        <span className="fs-4 fw-bold">←</span>
                     </button>
                 </div>
 
@@ -88,14 +101,22 @@ const OwnerMenuManagerScreen = () => {
                         <p className="text-muted fs-5">Manage your dishes and catalog items</p>
                     </div>
                     <div className="d-flex flex-column gap-2 align-items-end" style={{ minWidth: '180px' }}>
-                        <DeleteButton 
-                            endpoint={`/api/restaurants/${restaurantId}`}
-                            confirmationMessage="Are you absolutely sure you want to delete this ENTIRE restaurant? This action cannot be undone!"
-                            onSuccess={() => window.location.href = '/owner/dashboard'}
-                            className="btn-outline-danger w-100 px-4 py-2 rounded-pill"
-                        >
-                            Delete Restaurant
-                        </DeleteButton>
+                        <div className="d-flex w-100 gap-2">
+                            <button 
+                                className="btn btn-outline-secondary w-50 py-2 rounded-pill fw-bold"
+                                onClick={() => setShowEditRestaurantForm(!showEditRestaurantForm)}
+                            >
+                                {showEditRestaurantForm ? 'Cancel' : 'Edit'}
+                            </button>
+                            <DeleteButton 
+                                endpoint={`/api/restaurants/${restaurantId}`}
+                                confirmationMessage="Are you absolutely sure you want to delete this ENTIRE restaurant? This action cannot be undone!"
+                                onSuccess={() => window.location.href = '/owner/dashboard'}
+                                className="btn-outline-danger w-50 py-2 rounded-pill"
+                            >
+                                Delete
+                            </DeleteButton>
+                        </div>
                         <button 
                             className="wolt-btn text-white w-100 px-4 py-2"
                             onClick={() => setShowCreateForm(!showCreateForm)}
@@ -105,11 +126,32 @@ const OwnerMenuManagerScreen = () => {
                     </div>
                 </div>
 
+                {/* Edit Restaurant Form Section */}
+                {showEditRestaurantForm && (
+                    <div className="card border-0 shadow-sm rounded-4 mb-5 p-4 bg-body">
+                        <h4 className="fw-bold mb-4">Edit Restaurant Details</h4>
+                        <RestaurantForm initialData={restaurant} onSuccess={handleRestaurantEdited} />
+                    </div>
+                )}
+
                 {/* Create Form Section */}
                 {showCreateForm && (
                     <div className="card border-0 shadow-sm rounded-4 mb-5 p-4 bg-body">
                         <h4 className="fw-bold mb-4">Create New Item</h4>
-                        <CreateMenuItemForm restaurantId={restaurantId} onSuccess={handleItemCreated} />
+                        <MenuItemForm restaurantId={restaurantId} onSuccess={handleItemCreated} />
+                    </div>
+                )}
+
+                {/* Edit Form Section */}
+                {editingItem && (
+                    <div className="card border-0 shadow-sm rounded-4 mb-5 p-4 bg-body position-relative">
+                        <button 
+                            className="btn-close position-absolute top-0 end-0 m-4" 
+                            onClick={() => setEditingItem(null)}
+                            aria-label="Close"
+                        ></button>
+                        <h4 className="fw-bold mb-4">Edit Menu Item</h4>
+                        <MenuItemForm restaurantId={restaurantId} initialData={editingItem} onSuccess={handleItemEdited} />
                     </div>
                 )}
 
@@ -135,6 +177,7 @@ const OwnerMenuManagerScreen = () => {
                                     ownerMode={true} 
                                     deleteEndpoint={`/api/restaurants/${restaurantId}/products/${item.id}`}
                                     onDeleteSuccess={fetchData} 
+                                    onEdit={setEditingItem}
                                 />
                             </div>
                         ))}

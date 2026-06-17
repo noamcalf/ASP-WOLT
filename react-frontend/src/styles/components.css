@@ -137,3 +137,15 @@
 .wolt-icon-btn:hover {
     background-color: #e2e8f0;
 }
+
+/* Navbar Icon Buttons */
+.wolt-nav-btn {
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease !important;
+}
