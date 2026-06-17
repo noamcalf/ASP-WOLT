@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { apiClient } from '../utils/apiClient';
 import CategoryCarousel from '../components/CategoryCarousel';
+import { useAuth } from '../context/authContext';
+import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
 
 const DashboardScreen = () => {
     const [restaurants, setRestaurants] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { user } = useAuth();
 
     // Fetch restaurants on mount
     useEffect(() => {
@@ -31,9 +34,33 @@ const DashboardScreen = () => {
         fetchRestaurants();
     }, []);
 
+    // Enrich restaurants with dynamic distance and delivery time
+    const enrichedRestaurants = useMemo(() => {
+        return restaurants.map(restaurant => {
+            let distanceKm = null;
+            let deliveryTimeMins = restaurant.baseDeliveryTime;
+
+            if (user?.geolocation?.latitude && user?.geolocation?.longitude && restaurant?.geolocation?.latitude && restaurant?.geolocation?.longitude) {
+                distanceKm = calculateDistance(
+                    user.geolocation.latitude, 
+                    user.geolocation.longitude,
+                    restaurant.geolocation.latitude,
+                    restaurant.geolocation.longitude
+                );
+                deliveryTimeMins = estimateDeliveryTime(distanceKm);
+            }
+
+            return {
+                ...restaurant,
+                distanceKm,
+                deliveryTimeMins
+            };
+        });
+    }, [restaurants, user]);
+
     // Group restaurants by cuisine to create dynamic carousels
     // Output: { "Fast Food": [rest1, rest3], "Italian": [rest2] }
-    const groupedRestaurants = restaurants.reduce((acc, restaurant) => {
+    const groupedRestaurants = enrichedRestaurants.reduce((acc, restaurant) => {
         // If a restaurant doesn't have a cuisine, we group it under "Other"
         const cuisine = restaurant.cuisine || 'Other';
         

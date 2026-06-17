@@ -55,6 +55,9 @@ const createRestaurant = (req, res, next) => {
         return res.status(400).json({ error: "Validation failed: 'latitude' and 'longitude' must be numbers" });
     }
 
+    // Set default value
+    const baseDeliveryTime = "25-35 min";
+
     // Construct validated payload
     const restaurantData = {
         name: name.trim(),
@@ -63,6 +66,7 @@ const createRestaurant = (req, res, next) => {
         geolocation,
         image,
         ownerId,
+        baseDeliveryTime,
         rating: 0 // Automatically set rating to 0 (new) for new restaurants
     };
 
