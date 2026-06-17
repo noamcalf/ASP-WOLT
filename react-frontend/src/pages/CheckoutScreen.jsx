@@ -3,14 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/authContext';
 import { apiClient } from '../utils/apiClient';
+import { placeOrder } from '../services/orderService';
 
 const CheckoutScreen = () => {
-    const { cartItems, totalPrice, activeRestaurantId } = useCart();
+    const { cartItems, totalPrice, activeRestaurantId, clearCart } = useCart();
     const { user } = useAuth();
     const navigate = useNavigate();
 
     const [restaurantName, setRestaurantName] = useState('Loading restaurant...');
     const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // If the user manually navigated to /checkout but the cart is empty, send them back
     useEffect(() => {
@@ -40,9 +42,29 @@ const CheckoutScreen = () => {
         fetchRestaurant();
     }, [activeRestaurantId]);
 
-    const handlePlaceOrder = () => {
-        // We will implement the actual backend communication in the next task
-        alert(`Order placed successfully!\nTotal: ₪${totalPrice.toFixed(2)}\nDelivery to: ${user.address?.street} ${user.address?.houseNumber}, ${user.address?.city}`);
+    const handlePlaceOrder = async () => {
+        setIsSubmitting(true);
+        try {
+            const payload = {
+                restaurantId: activeRestaurantId,
+                items: cartItems.map(item => ({
+                    productId: item.product.id,
+                    quantity: item.quantity
+                }))
+            };
+
+            await placeOrder(payload);
+            
+            // On success, clear the cart memory
+            clearCart();
+            
+            // Navigate back to home screen as requested
+            navigate('/');
+        } catch (error) {
+            alert(error.message || "Something went wrong while placing the order.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (isLoading || cartItems.length === 0) {
@@ -119,10 +141,18 @@ const CheckoutScreen = () => {
                             </div>
 
                             <button 
-                                className="wolt-btn w-100 py-3 text-white fw-bold fs-5 shadow-sm"
+                                className="wolt-btn w-100 py-3 text-white fw-bold fs-5 shadow-sm d-flex justify-content-center align-items-center"
                                 onClick={handlePlaceOrder}
+                                disabled={isSubmitting}
                             >
-                                Place Order
+                                {isSubmitting ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        Processing...
+                                    </>
+                                ) : (
+                                    'Place Order'
+                                )}
                             </button>
                         </div>
                     </div>
