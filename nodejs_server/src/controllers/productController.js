@@ -26,8 +26,14 @@ const getProducts = (req, res) => {
 // Validates payload and adds a new product to the requested restaurant
 const createProduct = (req, res) => {
     const { id } = req.params;
-    // Destructure payload properties, defaulting to an empty object to prevent crashes if req.body is undefined
-    const { name, price } = req.body || {};
+    // Destructure payload properties
+    let { name, price, category, description } = req.body || {};
+    const image = req.file ? req.file.path : null;
+
+    // Parse price if sent as string from FormData
+    if (typeof price === 'string') {
+        price = parseFloat(price);
+    }
 
     // Confirm parent restaurant entities are registered
     const restaurant = RestaurantModel.getRestaurant(id);
@@ -44,7 +50,13 @@ const createProduct = (req, res) => {
     }
 
     // Create the product via the model
-    const newProduct = ProductModel.createProductInRestaurant(id, { name: name.trim(), price });
+    const newProduct = ProductModel.createProductInRestaurant(id, { 
+        name: name.trim(), 
+        price, 
+        category: category?.trim(), 
+        description: description?.trim(), 
+        image 
+    });
 
     // Configure 201 status response with specific product Location header
     res.location(`/api/restaurants/${id}/products/${newProduct.id}`);
