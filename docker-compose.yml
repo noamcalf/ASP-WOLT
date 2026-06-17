@@ -45,6 +45,8 @@ services:
     # Run the container and wait for cli   
     stdin_open: true 
     tty: true
+    # Automatically build and run the C++ server
+    command: bash -c "mkdir -p build && cd build && cmake .. && make && ./wolt_app 8080"
 
 # Create the private connected-network between the containers
 networks:
