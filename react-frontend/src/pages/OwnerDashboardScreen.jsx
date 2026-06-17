@@ -78,16 +78,20 @@ const OwnerDashboardScreen = () => {
                         <div className="spinner-border text-primary" role="status"></div>
                     </div>
                 ) : myRestaurants.length === 0 ? (
-                    <div className="text-center text-muted p-5 bg-light rounded-4 border">
+                    <div className="text-center wolt-text-muted p-5 bg-body rounded-4 shadow-sm border" style={{ borderColor: 'var(--bs-border-color-translucent)' }}>
                         <span style={{ fontSize: '3rem' }}>🏪</span>
-                        <h5 className="mt-3">You don't have any restaurants yet.</h5>
+                        <h5 className="mt-3 wolt-text-heading">You don't have any restaurants yet.</h5>
                         <p>Click the button above to create your first restaurant.</p>
                     </div>
                 ) : (
                     <div className="row g-4">
                         {myRestaurants.map(restaurant => (
                             <div key={restaurant.id} className="col-12 col-md-6">
-                                <RestaurantCard restaurant={restaurant} ownerMode={true} />
+                                <RestaurantCard 
+                                    restaurant={restaurant} 
+                                    ownerMode={true} 
+                                    onDelete={fetchMyRestaurants} 
+                                />
                             </div>
                         ))}
                     </div>

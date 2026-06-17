@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import DeleteButton from './DeleteButton';
 
-const RestaurantCard = ({ restaurant, ownerMode = false }) => {
+const RestaurantCard = ({ restaurant, ownerMode = false, onDelete }) => {
     // If the restaurant doesn't have an image, we use a placeholder that fits the Wolt theme.
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
     const imageSrc = restaurant.image 
@@ -9,10 +10,16 @@ const RestaurantCard = ({ restaurant, ownerMode = false }) => {
         : 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'; // generic food placeholder
 
     const linkTarget = ownerMode ? `/owner/restaurant/${restaurant.id}` : `/restaurant/${restaurant.id}`;
+    const navigate = useNavigate();
+
+    const handleManageMenuClick = (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        navigate(`/owner/restaurant/${restaurant.id}`);
+    };
 
     return (
-        <Link to={linkTarget} className="text-decoration-none d-block h-100">
-            <div className="wolt-restaurant-card border-0 shadow-sm d-flex flex-column h-100">
+        <div className="wolt-restaurant-card border-0 shadow-sm d-flex flex-column h-100">
+            <Link to={linkTarget} className="text-decoration-none d-block flex-grow-1">
                 {/* Image Section */}
                 <div className="position-relative" style={{ height: '160px' }}>
                     <img 
@@ -23,20 +30,28 @@ const RestaurantCard = ({ restaurant, ownerMode = false }) => {
                 </div>
                 
                 {/* Content Section */}
-                <div className="p-3 d-flex flex-column flex-grow-1">
+                <div className="p-3 pb-0 d-flex flex-column h-100">
                     <h5 className="fw-bold mb-1 wolt-text-heading text-truncate">{restaurant.name}</h5>
-                    <p className="text-muted small mb-3 text-truncate">
+                    <p className="text-muted small mb-0 text-truncate">
                         {restaurant.cuisine} {ownerMode && restaurant.address?.city ? `• ${restaurant.address.city}` : ''}
                     </p>
-                    
-                    <div className="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+                </div>
+            </Link>
+            
+            <div className="p-3 pt-2 mt-auto d-flex flex-column">
+                <div className="border-top pt-2 d-flex justify-content-between align-items-center">
                         {ownerMode ? (
-                            <button className="btn btn-outline-primary w-100 fw-bold rounded-pill" onClick={(e) => {
-                                // We don't need to prevent default since the whole card is a Link to the same place, 
-                                // but it's good practice just in case the button is styled separately.
-                            }}>
-                                Manage Menu
-                            </button>
+                            <div className="d-flex w-100 gap-2">
+                                <button className="btn btn-outline-primary w-100 fw-bold rounded-pill btn-sm" onClick={handleManageMenuClick}>
+                                    Manage Menu
+                                </button>
+                                <DeleteButton 
+                                    endpoint={`/api/restaurants/${restaurant.id}`}
+                                    confirmationMessage="Are you absolutely sure you want to delete this ENTIRE restaurant? This action cannot be undone!"
+                                    onSuccess={onDelete} 
+                                    className="btn-sm rounded-pill px-3"
+                                />
+                            </div>
                         ) : (
                             <>
                                 <div className="bg-light rounded-pill px-2 py-1 d-flex align-items-center shadow-sm border">
@@ -51,10 +66,9 @@ const RestaurantCard = ({ restaurant, ownerMode = false }) => {
                                 </div>
                             </>
                         )}
-                    </div>
                 </div>
             </div>
-        </Link>
+        </div>
     );
 };
 
