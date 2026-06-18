@@ -97,8 +97,11 @@ Users with the `owner` role have access to a dedicated Owner Dashboard. From her
 - Add, edit, or delete products from their menu.
 - View and manage incoming customer orders.
 
-![Owner Dashboard](./images/edit-menu.png)
-*(The Owner Portal allowing restaurant owners to manage their dynamic menu)*
+![Owner Dashboard](./images/owner-resturants-screen.png)
+*(The Owner Dashboard listing the owner's active restaurants)*
+
+![Edit Menu](./images/edit-menu.png)
+*(The Menu Manager allowing restaurant owners to edit products and view orders)*
 
 ### 🤖 6. Collaborative Filtering Recommendations
 Powered by the C++ engine, the system analyzes user purchase histories to offer real-time product recommendations. When a user clicks on a product, the system suggests complementary items that similar users have bought.
@@ -120,6 +123,6 @@ To comply with the assignment requirements and ensure proper, isolated grading e
 
 * **Assignment 2:** Locked in the `ex2-submition` branch.
 * **Assignment 3:** Locked in the `ex3-submition` branch.
-* **Assignment 4:** All Full-Stack and React developments are organized in the `ex4-submition` branch.
+* **Assignment 4:** All Full-Stack and React developments are organized in the `ex4-submission` branch.
 
 This explicit separation ensures that the ongoing work does not mix with or overwrite the finalized submissions of previous assignments.
