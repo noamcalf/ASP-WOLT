@@ -37,6 +37,9 @@ int HistoryManager::getSimilarityScore(int userId1, int userId2) const {
     
     // Iterate over the second user's history
     for (int productId : history2) {
+        // Ignore dummy product 0 used for initialization
+        if (productId == 0) continue;
+        
         // If the product exists in user1's set, increment the counter
         if (user1Products.count(productId) > 0) {
             similarProductsCount++;

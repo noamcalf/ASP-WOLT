@@ -44,6 +44,7 @@ const dataStore = {
             cuisine: "Fast Food",
             address: { city: "Tel Aviv", street: "Allenby", houseNumber: 100 },
             geolocation: { latitude: 32.0645, longitude: 34.7710 },
+            baseDeliveryTime: "25-35 min",
             rating: 5.0,
             ownerId: 'mock-owner-5678',
             image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&q=80'
@@ -52,6 +53,7 @@ const dataStore = {
     products: [
         { id: crypto.randomUUID(), restaurantId: rest1Id, category: "Mains", name: "Whopper Meal", price: 45, description: "Classic burger with fries and a drink", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80" },
         { id: crypto.randomUUID(), restaurantId: rest1Id, category: "Sides", name: "Chicken Nuggets", price: 30, description: "9 pieces of crispy chicken with dips", image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=600&q=80" },
+        { id: crypto.randomUUID(), restaurantId: rest1Id, category: "Drinks", name: "Coca Cola", price: 12, description: "Refreshing cold drink", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&q=80" },
         { id: crypto.randomUUID(), restaurantId: rest2Id, category: "Slices", name: "Pepperoni Slice", price: 20, description: "Spicy pepperoni slice, baked to perfection", image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600&q=80" },
         { id: crypto.randomUUID(), restaurantId: rest2Id, category: "Slices", name: "Margherita Slice", price: 18, description: "Classic cheese and tomato slice", image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600&q=80" },
         { id: crypto.randomUUID(), restaurantId: rest3Id, category: "Pizzas", name: "Family Pizza", price: 80, description: "Large 100% mozzarella pizza with two toppings", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&q=80" },
