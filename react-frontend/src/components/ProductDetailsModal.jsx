@@ -59,16 +59,7 @@ const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
                     <h2 className="fw-bold wolt-text-heading mb-2">{product.name}</h2>
                     <p className="wolt-text-muted fs-5 mb-4">{product.description}</p>
                     
-                    {/* Mock Ingredients & Allergens (To fulfill assignment "extended dish ingredients") */}
-                    <div className="mb-4">
-                        <h6 className="fw-bold text-uppercase text-muted small mb-2">Ingredients & Allergens</h6>
-                        <ul className="list-unstyled wolt-text-label small">
-                            <li className="mb-1">✅ Freshly sourced local ingredients</li>
-                            <li className="mb-1">⚠️ Contains: Gluten, Dairy, Soy</li>
-                            <li className="mb-1">🌱 Vegetarian Option Available</li>
-                        </ul>
-                    </div>
-                    
+
                     {/* Collaborative Filtering Recommendation Carousel */}
                     <RecommendationCarousel productId={product.id} onAddToOrder={onAddToOrder} />
                 </div>
