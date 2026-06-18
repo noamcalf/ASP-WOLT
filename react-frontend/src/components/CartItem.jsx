@@ -42,7 +42,7 @@ const CartItem = ({ item }) => {
                 </button>
 
                 {/* Quantity Controls */}
-                <div className="d-flex align-items-center bg-light rounded-pill px-2 py-1 border shadow-sm">
+                <div className="d-flex align-items-center bg-body-secondary rounded-pill px-2 py-1 border shadow-sm">
                     <button 
                         className="btn btn-sm text-primary fw-bold p-0 d-flex justify-content-center align-items-center" 
                         style={{ width: '24px', height: '24px', fontSize: '1.2rem' }}
