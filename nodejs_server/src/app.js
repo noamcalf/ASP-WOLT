@@ -45,9 +45,13 @@ const searchRoutes = require('./routes/searchRoutes');
 app.use('/api/search', searchRoutes);                  
 
 
-// Catch-all route to serve the React SPA for any non-API requests
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
+// Catch-all route to serve the React SPA for any non-API requests (Express 5 compatible)
+app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api/')) {
+        res.sendFile(path.join(__dirname, '../public/index.html'));
+    } else {
+        next();
+    }
 });
 
 // 3. Error & Safety Middlewares 
