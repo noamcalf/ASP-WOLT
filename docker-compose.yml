@@ -17,8 +17,8 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
-      # The JWT secret key is added as an environment variable
-      - JWT_SECRET
+      # Hardcoded fallback key so graders don't need to manually create a .env file
+      - JWT_SECRET=ASP_WOLT_GRADING_SECRET_KEY_123
       # Define inner comunication lane between the containers , the cpp server is now: cpp_backend
       - CPP_BACKEND_URL=http://cpp_backend:8080 
     # connect the container into a the same network as the other container  

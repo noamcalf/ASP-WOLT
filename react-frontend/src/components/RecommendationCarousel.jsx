@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/authContext';
 import { apiClient } from '../utils/apiClient';
+import { getImageUrl } from '../utils/imageUtils';
 
 const RecommendationCard = ({ product, onAddToOrder }) => {
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
-    const imageSrc = product.image || fallbackImage;
+    const imageSrc = getImageUrl(product.image, fallbackImage);
 
     return (
         <div 
