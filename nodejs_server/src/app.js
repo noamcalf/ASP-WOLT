@@ -22,6 +22,7 @@ app.use(cors({
 // 1. Initial Middlewares (Global parsing)
 app.use(express.json());
 app.use('/uploads', express.static('uploads')); // Serve uploaded files statically
+app.use(express.static('public')); // Serve static production build files natively
 
 // Basic health-check endpoint to verify the server is running.
 app.get('/', (req, res) => {

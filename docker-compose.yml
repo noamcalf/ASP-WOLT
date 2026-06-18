@@ -7,8 +7,8 @@ services:
   web_server:
   # Define the container's name, the dockerfile we want to build it from and the main directory 
     build:
-      context: ./nodejs_server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: react-frontend/Dockerfile
     container_name: wolt_web_server
     # Bind the server to port 3000
     ports:
@@ -46,7 +46,7 @@ services:
     stdin_open: true 
     tty: true
     # Automatically build and run the C++ server
-    command: bash -c "mkdir -p build && cd build && cmake .. && make && ./wolt_app 8080"
+    command: bash -c "mkdir -p build && cd build && mkdir -p data && cmake .. && make && ./wolt_app 8080"
 
 # Create the private connected-network between the containers
 networks:
