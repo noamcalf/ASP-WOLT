@@ -3,6 +3,7 @@ import { apiClient } from '../utils/apiClient';
 import { useFormValidation } from '../hooks/useFormValidation';
 import WoltInput from './WoltInput';
 
+// A form component used by owners to either create a new restaurant or edit an existing one.
 const RestaurantForm = ({ onSuccess, initialData = null }) => {
     const isEdit = !!initialData;
     // We no longer manage formData and validation state manually!
@@ -46,6 +47,8 @@ const RestaurantForm = ({ onSuccess, initialData = null }) => {
         image: null
     }, validationRules);
 
+    // This function is called when the user clicks the submit button.
+    // It verifies all fields and then sends the data to the server.
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -58,6 +61,8 @@ const RestaurantForm = ({ onSuccess, initialData = null }) => {
         setIsLoading(true);
 
         try {
+            // We use FormData to send the data because it can handle image file uploads 
+            // alongside regular text fields like name and cuisine.
             const payload = new FormData();
             
             payload.append('name', formData.name);

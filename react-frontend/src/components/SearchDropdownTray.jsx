@@ -23,12 +23,14 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
                 display: 'block'
             }}
         >
+            {/* Show a loading spinner if the search is currently running */}
             {isLoading ? (
                 <div className="p-4 text-center text-muted">
                     <div className="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
                     Searching...
                 </div>
             ) : !hasResults ? (
+                /* Show a "No results" message if the search finished but found nothing */
                 <div className="p-4 text-center text-muted">
                     No results found for "{searchQuery}"
                 </div>
@@ -40,6 +42,7 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
                             <h6 className="px-3 py-2 m-0 small fw-bold text-uppercase tracking-wider wolt-tray-header">
                                 Restaurants
                             </h6>
+                            {/* Loop through all found restaurants and display them as clickable links */}
                             {results.restaurants.map(restaurant => (
                                 <Link 
                                     key={`rest-${restaurant.id}`} 
@@ -65,6 +68,7 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
                             <h6 className="px-3 py-2 m-0 small fw-bold text-uppercase tracking-wider wolt-tray-header">
                                 Menu Items
                             </h6>
+                            {/* Loop through all found products and display them as clickable links */}
                             {results.products.map(product => (
                                 <Link 
                                     key={`prod-${product.id}`} 

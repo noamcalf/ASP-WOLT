@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getImageUrl } from '../utils/imageUtils';
 
+// The large banner at the top of a restaurant's menu page.
+// It displays the cover image, name, address, and rating.
 const RestaurantHeaderCard = ({ restaurant }) => {
     const navigate = useNavigate();
     

@@ -5,12 +5,16 @@ import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
 
+// The sign-up page where new users can create an account.
+// Users can choose to register as a regular "customer" or a "restaurant owner".
 const RegistrationScreen = () => {
     const navigate = useNavigate();
     
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // These rules check if what the user typed is valid (e.g. phone number has 10 digits).
+    // The rules change depending on whether the user is a customer or an owner.
     const validationRules = {
         name: (val) => val.trim().length >= 2,
         username: (val) => /^(?=.*[a-zA-Z])[a-zA-Z0-9]{3,}$/.test(val),
@@ -56,6 +60,7 @@ const RegistrationScreen = () => {
         image: null
     }, validationRules);
 
+    // This runs when the user hits "Sign Up". It checks for errors and sends the data to the server.
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');

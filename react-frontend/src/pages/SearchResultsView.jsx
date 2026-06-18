@@ -3,12 +3,15 @@ import { useParams, Link } from 'react-router-dom';
 import RestaurantCard from '../components/RestaurantCard';
 import MenuItemRow from '../components/MenuItemRow';
 
+// The page that shows search results when a user types into the search bar.
+// It groups results into matching Restaurants and matching Menu Items.
 const SearchResultsView = () => {
     const { query } = useParams();
     const [results, setResults] = useState({ restaurants: [], products: [] });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Whenever the search query changes in the URL, this function fetches new results from the server.
     useEffect(() => {
         const fetchSearchResults = async () => {
             setIsLoading(true);

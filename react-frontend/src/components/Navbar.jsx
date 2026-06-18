@@ -59,6 +59,7 @@ const Navbar = () => {
                         </button>
                     )}
 
+                    {/* If the user is logged in, show their profile picture and a dropdown menu */}
                     {isAuthenticated ? (
                         <div className="d-flex align-items-center gap-2 dropdown">
                             <ThemeToggle />

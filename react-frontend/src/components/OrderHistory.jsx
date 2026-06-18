@@ -4,6 +4,8 @@ import OrderCard from './OrderCard';
 import EditOrderModal from './EditOrderModal';
 import { useAuth } from '../context/authContext';
 
+// A component that displays a list of past orders.
+// For customers, it shows what they've bought. For restaurant owners, it shows incoming orders.
 const OrderHistory = () => {
     const { user } = useAuth();
     const [orders, setOrders] = useState([]);
@@ -17,6 +19,7 @@ const OrderHistory = () => {
     const emptyTitle = isOwner ? "No orders for your restaurants yet!" : "You haven't placed any orders yet!";
     const emptyDesc = isOwner ? "Orders placed by customers at your restaurants will appear here." : "Now is the time to go back to the main screen and order something delicious.";
 
+    // Fetches the list of orders from the server.
     const fetchOrders = async () => {
         setIsLoading(true);
         try {
@@ -70,6 +73,7 @@ const OrderHistory = () => {
                 </div>
             ) : (
                 <div className="row mt-4">
+                    {/* Loop through all orders and display a card for each one */}
                     {orders.map(order => (
                         <div key={order.id} className="col-12 col-xl-6 mb-4">
                             <OrderCard 

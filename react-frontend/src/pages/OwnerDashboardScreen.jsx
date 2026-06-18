@@ -5,6 +5,8 @@ import { useAuth } from '../context/authContext';
 import RestaurantForm from '../components/RestaurantForm';
 import RestaurantCard from '../components/RestaurantCard';
 
+// The main dashboard for restaurant owners.
+// It shows a list of all their restaurants and allows them to create new ones.
 const OwnerDashboardScreen = () => {
     const { user } = useAuth();
     const [myRestaurants, setMyRestaurants] = useState([]);
@@ -12,6 +14,8 @@ const OwnerDashboardScreen = () => {
     const [error, setError] = useState(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
 
+    // Fetches all restaurants from the server, but then filters them so the owner
+    // only sees the ones they actually own.
     const fetchMyRestaurants = async () => {
         setIsLoading(true);
         try {
@@ -85,6 +89,7 @@ const OwnerDashboardScreen = () => {
                     </div>
                 ) : (
                     <div className="row g-4">
+                        {/* Loop through the owner's restaurants and display a card for each */}
                         {myRestaurants.map(restaurant => (
                             <div key={restaurant.id} className="col-12 col-md-6">
                                 <RestaurantCard 

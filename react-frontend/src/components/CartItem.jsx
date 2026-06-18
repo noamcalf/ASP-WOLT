@@ -2,6 +2,8 @@ import React from 'react';
 import { useCart } from '../context/CartContext';
 import { getImageUrl } from '../utils/imageUtils';
 
+// A component that displays a single product inside the shopping cart.
+// It includes buttons to increase or decrease the quantity of the item.
 const CartItem = ({ item }) => {
     const { updateQuantity, removeFromCart } = useCart();
     const { product, quantity } = item;
