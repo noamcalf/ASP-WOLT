@@ -53,8 +53,11 @@ The app features secure JWT-based authentication. Users must log in or register 
 - Form validation ensures correct inputs (e.g., matching passwords, valid phone numbers).
 - Separate roles exist for `customer` and `owner`.
 
-![Login Screen](./images/login.png)
-*(Placeholder: Add screenshot of the Login/Registration screen)*
+![Login Screen](./images/login-screen.png)
+*(The secure Login Screen for returning users)*
+
+![Registration Screen](./images/register-screen.png)
+*(The Registration Screen with form validation for new customers and owners)*
 
 ### 🍔 2. Discovery Dashboard
 The main screen organizes restaurants into smart, dynamic carousels:
@@ -62,8 +65,8 @@ The main screen organizes restaurants into smart, dynamic carousels:
 - **Nearby Restaurants:** Uses the user's geolocation and the restaurant's coordinates to calculate distance (`km`) and dynamically sorts the closest options first.
 - **Categorized Carousels:** Groups restaurants dynamically by Cuisine (Fast Food, Italian, Desserts, etc.).
 
-![Dashboard Screen](./images/dashboard.png)
-*(Placeholder: Add screenshot of the main Dashboard screen showing carousels)*
+![Dashboard Screen](./images/dashboard-screen.png)
+*(The main Dashboard screen showing categorized carousels, including Nearby and Promoted restaurants)*
 
 ### 🛒 3. Restaurant Menu & Cart Management
 Navigating to a restaurant displays its full menu. 
@@ -71,14 +74,17 @@ Navigating to a restaurant displays its full menu.
 - A floating Cart Drawer manages the active order, calculates the total price dynamically, and allows quantity adjustments.
 - Placing an order triggers a background telemetry event to the C++ server to improve future recommendations.
 
-![Menu and Cart](./images/cart.png)
-*(Placeholder: Add screenshot of a Restaurant Menu and the open Cart Drawer)*
+![Menu and Cart](./images/cart&menu.png)
+*(A Restaurant Menu with the interactive Cart Drawer open on the right)*
+
+![Checkout Screen](./images/checkout-screen.png)
+*(The Checkout Summary screen finalizing the active order)*
 
 ### 🌙 4. Dark Mode & Responsive Design
 The entire application supports a seamless **Dark Mode**. A toggle in the navigation bar instantly swaps the global theme, recalculating text and background colors for optimal viewing in low-light environments. The layout is fully responsive using Bootstrap grids.
 
-![Dark Mode](./images/darkmode.png)
-*(Placeholder: Add screenshot of the app in Dark Mode)*
+![Dark Mode](./images/dark-mode.png)
+*(The application seamlessly rendering in Dark Mode)*
 
 ### 👨‍🍳 5. Owner Portal (Role-Based Access)
 Users with the `owner` role have access to a dedicated Owner Dashboard. From here, they can:
@@ -86,8 +92,20 @@ Users with the `owner` role have access to a dedicated Owner Dashboard. From her
 - Add, edit, or delete products from their menu.
 - View and manage incoming customer orders.
 
-![Owner Dashboard](./images/owner.png)
-*(Placeholder: Add screenshot of the Owner Dashboard)*
+![Owner Dashboard](./images/edit-menu.png)
+*(The Owner Portal allowing restaurant owners to manage their dynamic menu)*
+
+### 🤖 6. Collaborative Filtering Recommendations
+Powered by the C++ engine, the system analyzes user purchase histories to offer real-time product recommendations. When a user clicks on a product, the system suggests complementary items that similar users have bought.
+
+![Recommendations Example](./images/recomandations-example.png)
+*(The Product Details Modal displaying 'People also bought' recommendations powered by the C++ backend)*
+
+### 👤 7. Client Profile & History
+Customers can access their personal profile to view and edit their orders, updating dynamically via the Node.js API.
+
+![Client Profile](./images/profile-client-screen.png)
+*(The Customer Profile screen showing order history and account details)*
 
 ---
 
@@ -97,6 +115,6 @@ To comply with the assignment requirements and ensure proper, isolated grading e
 
 * **Assignment 2:** Locked in the `ex2-submition` branch.
 * **Assignment 3:** Locked in the `ex3-submition` branch.
-* **Assignment 4:** All Full-Stack and React developments are merged into `main` and tagged for the final submission.
+* **Assignment 4:** All Full-Stack and React developments are organized in the `ex4-submition` branch.
 
 This explicit separation ensures that the ongoing work does not mix with or overwrite the finalized submissions of previous assignments.
