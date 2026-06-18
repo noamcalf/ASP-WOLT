@@ -1,12 +1,13 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
+import { getImageUrl } from '../utils/imageUtils';
 
 const CartItem = ({ item }) => {
     const { updateQuantity, removeFromCart } = useCart();
     const { product, quantity } = item;
 
     // Provide a fallback image just in case
-    const imageSrc = product.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&q=80';
+    const imageSrc = getImageUrl(product.image);
 
     return (
         <div className="d-flex align-items-center py-3 border-bottom position-relative">
