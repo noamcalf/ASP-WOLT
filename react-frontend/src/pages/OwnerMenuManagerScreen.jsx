@@ -6,6 +6,8 @@ import MenuItemRow from '../components/MenuItemRow';
 import DeleteButton from '../components/DeleteButton';
 import RestaurantForm from '../components/RestaurantForm';
 
+// The page where a restaurant owner manages a specific restaurant's menu.
+// It allows them to edit the restaurant details, and add, edit, or delete menu items.
 const OwnerMenuManagerScreen = () => {
     const { id: restaurantId } = useParams();
     const navigate = useNavigate();
@@ -19,6 +21,7 @@ const OwnerMenuManagerScreen = () => {
     const [showEditRestaurantForm, setShowEditRestaurantForm] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
+    // Fetches both the restaurant details and its menu items from the server.
     const fetchData = async () => {
         setIsLoading(true);
         setError(null);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { apiClient } from '../utils/apiClient';
 
+// A reusable, red "Delete" button that asks for confirmation before actually deleting something.
 const DeleteButton = ({ endpoint, confirmationMessage, onSuccess, className, children }) => {
     const [isDeleting, setIsDeleting] = useState(false);
 

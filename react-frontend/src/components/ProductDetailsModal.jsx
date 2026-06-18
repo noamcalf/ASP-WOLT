@@ -3,6 +3,8 @@ import { useAuth } from '../context/authContext';
 import { getImageUrl } from '../utils/imageUtils';
 import RecommendationCarousel from './RecommendationCarousel';
 
+// A pop-up window (modal) that displays the full details of a specific product.
+// It allows customers to read the description and add the item to their cart.
 const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
     const { user } = useAuth();
     

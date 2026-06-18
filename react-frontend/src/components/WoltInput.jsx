@@ -1,5 +1,7 @@
 import React, { forwardRef, useState } from 'react';
 
+// A reusable input field (like a text box) styled specifically for the Wolt theme.
+// It handles labels, error messages, and even a "show password" toggle button automatically.
 const WoltInput = forwardRef(({ 
     label, 
     type = "text", 
@@ -45,6 +47,7 @@ const WoltInput = forwardRef(({
                     onChange={onChange} 
                     disabled={disabled}
                 />
+                {/* If this is a password field, show a toggle button (eye icon) to reveal/hide the password */}
                 {isPasswordType && (
                     <button 
                         type="button" 

@@ -6,6 +6,8 @@ import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
 
+// The page where users log into their accounts.
+// It sends the username and password to the server, gets a token, and saves it in the browser.
 const LoginScreen = () => {
     const navigate = useNavigate();
     const { login } = useAuth(); 
@@ -30,6 +32,7 @@ const LoginScreen = () => {
         validateAll
     } = useFormValidation({ username: '', password: '' }, validationRules);
 
+    // This function handles the login process when the user submits the form.
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');

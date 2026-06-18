@@ -2,6 +2,8 @@ import React from 'react';
 import DeleteButton from './DeleteButton';
 import { getImageUrl } from '../utils/imageUtils';
 
+// A component that displays a single food item in a list format (with an image on the side).
+// It behaves differently if the user is a customer (clickable to order) or an owner (shows edit/delete buttons).
 const MenuItemRow = ({ product, onClick, ownerMode = false, deleteEndpoint, onDeleteSuccess, onEdit }) => {
     // If no image is provided from the backend, use a generic tasty food fallback
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';

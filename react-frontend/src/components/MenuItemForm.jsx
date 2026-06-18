@@ -3,6 +3,7 @@ import { apiClient } from '../utils/apiClient';
 import { useFormValidation } from '../hooks/useFormValidation';
 import WoltInput from './WoltInput';
 
+// A form used by restaurant owners to either add a new item or edit an existing one.
 const MenuItemForm = ({ restaurantId, onSuccess, initialData = null }) => {
     // Determine if we are creating a new item or editing an existing one
     const isEdit = !!initialData;
@@ -38,6 +39,8 @@ const MenuItemForm = ({ restaurantId, onSuccess, initialData = null }) => {
         image: null
     }, validationRules);
 
+    // This function runs when the user clicks the submit button.
+    // It checks if all fields are valid before sending the data to the server.
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -50,7 +53,8 @@ const MenuItemForm = ({ restaurantId, onSuccess, initialData = null }) => {
         setIsLoading(true);
 
         try {
-            // We use FormData because we might be uploading a binary image file
+            // We use FormData instead of standard JSON because we might be uploading an image file.
+            // FormData is the standard way to send files over the internet.
             const payload = new FormData();
             
             payload.append('name', formData.name);

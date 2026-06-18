@@ -4,6 +4,8 @@ import CartItem from './CartItem';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 
+// A sliding side panel that shows the user's current shopping cart.
+// It opens from the right side of the screen when the cart icon is clicked.
 const CartDrawer = () => {
     const { isCartOpen, toggleCart, cartItems, totalPrice, clearCart } = useCart();
     const { isAuthenticated } = useAuth();
@@ -63,7 +65,7 @@ const CartDrawer = () => {
                                 </button>
                             </div>
                             
-                            {/* Render each item */}
+                            {/* Loop through all items in the cart and display them */}
                             {cartItems.map(item => (
                                 <CartItem key={item.product.id} item={item} />
                             ))}

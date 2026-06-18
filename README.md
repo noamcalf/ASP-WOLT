@@ -31,11 +31,16 @@ We have optimized the execution flow using a **Multi-Stage Docker Build**. A sin
 git clone https://github.com/noamcalf/ASP-WOLT.git
 cd ASP-WOLT
 ```
+![Git clone](./images/gitclone.jpeg)
 
 **2. Build and start the infrastructure using Docker Compose:**
 ```bash
 docker-compose up --build
 ```
+![Buil1](./images/build1.jpeg)
+![Buil2](./images/build2.jpeg)
+![Buil3](./images/build3.jpeg)
+
 *(Docker will handle downloading the images, compiling the React App into static files, compiling the C++ code, and launching the services).*
 
 **3. Access the Application:**

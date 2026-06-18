@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import DeleteButton from './DeleteButton';
 import { getImageUrl } from '../utils/imageUtils';
 
+// A component that displays a summary of a restaurant (image, name, cuisine, rating).
+// Customers see rating and delivery time, while owners see "Manage Menu" and "Delete" buttons.
 const RestaurantCard = ({ restaurant, ownerMode = false, onDelete }) => {
     // If the restaurant doesn't have an image, we use a placeholder that fits the Wolt theme.
     const imageSrc = getImageUrl(restaurant.image, 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80');

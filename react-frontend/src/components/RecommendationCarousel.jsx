@@ -3,6 +3,7 @@ import { useAuth } from '../context/authContext';
 import { apiClient } from '../utils/apiClient';
 import { getImageUrl } from '../utils/imageUtils';
 
+// A small card representing a single recommended product.
 const RecommendationCard = ({ product, onAddToOrder }) => {
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
     const imageSrc = getImageUrl(product.image, fallbackImage);
@@ -32,11 +33,14 @@ const RecommendationCard = ({ product, onAddToOrder }) => {
     );
 };
 
+// A component that fetches and displays a horizontal list of recommended products.
+// It uses collaborative filtering ("People also bought") from the backend.
 const RecommendationCarousel = ({ productId, onAddToOrder }) => {
     const { user } = useAuth();
     const [recommendations, setRecommendations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Fetch recommendations when the component loads or when the productId changes
     useEffect(() => {
         // Only fetch if user is logged in
         if (!user || !user.id || user.role === 'owner') {
@@ -86,6 +90,7 @@ const RecommendationCarousel = ({ productId, onAddToOrder }) => {
               and layout logic as the category carousel.
             */}
             <div className="wolt-carousel-track px-1 pb-3">
+                {/* Loop through the recommended products and display a card for each */}
                 {recommendations.map(product => (
                     <RecommendationCard 
                         key={product.id} 
