@@ -4,6 +4,7 @@
  */
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddlewares');
 const { connectToCppServer } = require('./utils/tcpClient'); // Inject TCP Client utility
 
@@ -22,12 +23,10 @@ app.use(cors({
 // 1. Initial Middlewares (Global parsing)
 app.use(express.json());
 app.use('/uploads', express.static('uploads')); // Serve uploaded files statically
+app.use('/images', express.static(path.join(__dirname, '../../images'))); // Serve seed images
 app.use(express.static('public')); // Serve static production build files natively
 
-// Basic health-check endpoint to verify the server is running.
-app.get('/', (req, res) => {
-    res.status(200).json({ message: 'Wolt Web Server is running perfectly!' });
-});
+
 
 // 2. Logical routes
 const restaurantRouter = require('./routes/restaurantRoutes');
@@ -46,8 +45,17 @@ const searchRoutes = require('./routes/searchRoutes');
 app.use('/api/search', searchRoutes);                  
 
 
+// Catch-all route to serve the React SPA for any non-API requests (Express 5 compatible)
+app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api/')) {
+        res.sendFile(path.join(__dirname, '../public/index.html'));
+    } else {
+        next();
+    }
+});
+
 // 3. Error & Safety Middlewares 
-app.use(notFoundMiddleware);      // Catches 404s (Only fires if no route matched above)
+// app.use(notFoundMiddleware);      // We removed notFoundMiddleware because the React app handles 404s on the client side
 app.use(globalErrorMiddleware);   // Our emergency Middleware
 
 // 4. External Integrations

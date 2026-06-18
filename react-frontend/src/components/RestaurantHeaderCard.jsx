@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getImageUrl } from '../utils/imageUtils';
 
 const RestaurantHeaderCard = ({ restaurant }) => {
     const navigate = useNavigate();
     
     if (!restaurant) return null;
 
-    // Use a high-quality placeholder for the restaurant cover banner
-    const coverImage = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80'; 
+    // Use the restaurant's image as the cover if available, otherwise a high-quality placeholder
+    const coverImage = getImageUrl(restaurant.image, 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80');
 
     return (
         <div className="wolt-restaurant-header shadow-sm bg-body overflow-hidden rounded-bottom-4">

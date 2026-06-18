@@ -59,10 +59,9 @@ const Navbar = () => {
                         </button>
                     )}
 
-                    <ThemeToggle />
-                    
                     {isAuthenticated ? (
                         <div className="d-flex align-items-center gap-2 dropdown">
+                            <ThemeToggle />
                             {user && (
                                 <span className="d-none d-md-inline fw-semibold wolt-text-heading me-1" style={{ fontSize: '0.95rem' }}>
                                     Hello, {(user.name || user.username).split(' ')[0]}!

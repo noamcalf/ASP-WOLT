@@ -26,6 +26,9 @@ RUN npm install --production
 # Copy the backend source code
 COPY nodejs_server/ ./
 
+# Copy the seed images to the container's /app/images directory
+COPY images/ /app/images/
+
 # Copy the compiled React static assets from Stage 1 directly into the 'public' folder
 COPY --from=builder /app/react-frontend/dist ./public
 

@@ -4,6 +4,19 @@ import CategoryCarousel from '../components/CategoryCarousel';
 import { useAuth } from '../context/authContext';
 import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
 
+// A generic sorting utility to prevent code duplication for custom carousels
+// Sorts by a specific key (e.g. distance, rating), in asc or desc order, and returns up to 'limit' elements
+const getTopRestaurants = (restaurants, sortKey, order = 'asc', limit = 5) => {
+    return [...restaurants]
+        // Filter out restaurants that don't have the key we want to sort by
+        .filter(r => r[sortKey] !== undefined && r[sortKey] !== null)
+        .sort((a, b) => {
+            if (order === 'asc') return a[sortKey] - b[sortKey];
+            return b[sortKey] - a[sortKey];
+        })
+        .slice(0, limit);
+};
+
 const DashboardScreen = () => {
     const [restaurants, setRestaurants] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -58,17 +71,23 @@ const DashboardScreen = () => {
         });
     }, [restaurants, user]);
 
-    // Group restaurants by cuisine to create dynamic carousels
-    // Output: { "Fast Food": [rest1, rest3], "Italian": [rest2] }
+    // 1. Extract Promoted (Highest Rating)
+    // using 'rating' key, descending order, max 5
+    const promotedRestaurants = useMemo(() => {
+        return getTopRestaurants(enrichedRestaurants, 'rating', 'desc', 5);
+    }, [enrichedRestaurants]);
+
+    // 2. Extract Nearby (Closest Distance)
+    // using 'distanceKm' key, ascending order, max 5
+    const nearbyRestaurants = useMemo(() => {
+        return getTopRestaurants(enrichedRestaurants, 'distanceKm', 'asc', 5);
+    }, [enrichedRestaurants]);
+
+    // 3. Group remaining restaurants by cuisine
     const groupedRestaurants = enrichedRestaurants.reduce((acc, restaurant) => {
-        // If a restaurant doesn't have a cuisine, we group it under "Other"
         const cuisine = restaurant.cuisine || 'Other';
-        
-        if (!acc[cuisine]) {
-            acc[cuisine] = [];
-        }
+        if (!acc[cuisine]) acc[cuisine] = [];
         acc[cuisine].push(restaurant);
-        
         return acc;
     }, {});
 
@@ -97,15 +116,35 @@ const DashboardScreen = () => {
                         <CategoryCarousel title="Trending Near You 🔥" isLoading={true} restaurants={[]} />
                     </>
                 ) : (
-                    // Convert the grouped object into an array and map over it to render a carousel per cuisine
-                    Object.entries(groupedRestaurants).map(([cuisine, rests]) => (
-                        <CategoryCarousel 
-                            key={cuisine} 
-                            title={cuisine} 
-                            restaurants={rests} 
-                            isLoading={false} 
-                        />
-                    ))
+                    <>
+                        {/* Custom Row 1: Promoted Restaurants */}
+                        {promotedRestaurants.length > 0 && (
+                            <CategoryCarousel 
+                                title="Promoted Restaurants 🌟" 
+                                restaurants={promotedRestaurants} 
+                                isLoading={false} 
+                            />
+                        )}
+
+                        {/* Custom Row 2: Nearby Restaurants */}
+                        {nearbyRestaurants.length > 0 && (
+                            <CategoryCarousel 
+                                title="Nearby Restaurants 📍" 
+                                restaurants={nearbyRestaurants} 
+                                isLoading={false} 
+                            />
+                        )}
+
+                        {/* Dynamic Rows: Grouped by Cuisine */}
+                        {Object.entries(groupedRestaurants).map(([cuisine, rests]) => (
+                            <CategoryCarousel 
+                                key={cuisine} 
+                                title={cuisine} 
+                                restaurants={rests} 
+                                isLoading={false} 
+                            />
+                        ))}
+                    </>
                 )}
             </div>
         </div>

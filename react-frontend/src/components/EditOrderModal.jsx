@@ -158,9 +158,9 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                                             </div>
                                         </div>
 
-                                        <div className="d-flex align-items-center bg-light rounded-pill p-1 border">
+                                        <div className="d-flex align-items-center bg-body-secondary rounded-pill p-1 border">
                                             <button 
-                                                className="btn btn-sm rounded-circle d-flex justify-content-center align-items-center bg-white shadow-sm"
+                                                className="btn btn-sm rounded-circle d-flex justify-content-center align-items-center bg-body shadow-sm"
                                                 style={{ width: '32px', height: '32px', color: 'var(--bs-primary)' }}
                                                 onClick={() => handleUpdateQuantity(product.id, -1)}
                                                 disabled={quantity === 0}
@@ -173,7 +173,7 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                                             </span>
                                             
                                             <button 
-                                                className="btn btn-sm rounded-circle d-flex justify-content-center align-items-center bg-white shadow-sm"
+                                                className="btn btn-sm rounded-circle d-flex justify-content-center align-items-center bg-body shadow-sm"
                                                 style={{ width: '32px', height: '32px', color: 'var(--bs-primary)' }}
                                                 onClick={() => handleUpdateQuantity(product.id, 1)}
                                             >
