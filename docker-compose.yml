@@ -19,6 +19,7 @@ services:
       - PORT=3000
       # Hardcoded fallback key so graders don't need to manually create a .env file
       - JWT_SECRET=ASP_WOLT_GRADING_SECRET_KEY_123
+      - MONGO_URI=mongodb://mongodb:27017/wolt_db
       # Define inner comunication lane between the containers , the cpp server is now: cpp_backend
       - CPP_BACKEND_URL=http://cpp_backend:8080 
     # connect the container into a the same network as the other container  
@@ -27,6 +28,8 @@ services:
     # dont run this dockerfile before cpp_backend is running  
     depends_on:
       cpp_backend:
+        condition: service_started
+      mongodb:
         condition: service_started
 
   # Cpp server
@@ -47,6 +50,15 @@ services:
     tty: true
     # Automatically build and run the C++ server
     command: bash -c "mkdir -p build && cd build && mkdir -p data && cmake .. && make && ./wolt_app 8080"
+
+  # MongoDB Server
+  mongodb:
+    image: mongo:latest
+    container_name: wolt_mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - wolt_network
 
 # Create the private connected-network between the containers
 networks:
