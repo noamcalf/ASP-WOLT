@@ -3,15 +3,20 @@
  * Handles all HTTP requests for restaurants and delegates data logic to the Model.
  */
 const RestaurantModel = require('../models/restaurantModel');
+const ProductModel = require('../models/productModel');
 
 // Retrieves all active restaurants and returns them as a JSON array
-const getRestaurants = (req, res, next) => {
-    const restaurants = RestaurantModel.getAllRestaurants();
-    return res.status(200).json(restaurants);
+const getRestaurants = async (req, res, next) => {
+    try {
+        const restaurants = await RestaurantModel.find();
+        return res.status(200).json(restaurants);
+    } catch (error) {
+        next(error);
+    }
 };
 
 // Validates incoming payload and creates a new restaurant entity
-const createRestaurant = (req, res, next) => {
+const createRestaurant = async (req, res, next) => {
     let { name, cuisine, address, geolocation } = req.body || {};
     const image = req.file ? req.file.path : null;
     const ownerId = req.authenticatedUser ? req.authenticatedUser.id : null;
@@ -70,28 +75,40 @@ const createRestaurant = (req, res, next) => {
         rating: 0 // Automatically set rating to 0 (new) for new restaurants
     };
 
-    // Delegate to model
-    const newRestaurant = RestaurantModel.createRestaurant(restaurantData);
-    
-    // Set Location header and return empty body (201 Created)
-    res.location(`/api/restaurants/${newRestaurant.id}`);
-    return res.status(201).end();
+    try {
+        // Delegate to model
+        const newRestaurant = await RestaurantModel.create(restaurantData);
+        
+        // Set Location header and return empty body (201 Created)
+        res.location(`/api/restaurants/${newRestaurant.id}`);
+        return res.status(201).end();
+    } catch (error) {
+        next(error);
+    }
 };
 
 // Retrieves a specific restaurant by its ID
-const getRestaurantById = (req, res, next) => {
+const getRestaurantById = async (req, res, next) => {
     const { id } = req.params;
-    const restaurant = RestaurantModel.getRestaurant(id);
+    try {
+        const restaurant = await RestaurantModel.findById(id);
 
-    if (!restaurant) {
-        return res.status(404).json({ error: "Restaurant not found" });
+        if (!restaurant) {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+
+        return res.status(200).json(restaurant);
+    } catch (error) {
+        // If the id is not even in the mongoose format for object id
+        if (error.name === 'CastError') {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+        next(error);
     }
-
-    return res.status(200).json(restaurant);
 };
 
 // Updates a specific restaurant
-const updateRestaurant = (req, res, next) => {
+const updateRestaurant = async (req, res, next) => {
     // Get the variabels
     const { id } = req.params;
     let updates = req.body || {};
@@ -109,31 +126,50 @@ const updateRestaurant = (req, res, next) => {
         try { updates.geolocation = JSON.parse(updates.geolocation); } catch(e) {}
     }
 
-    // Call the model's func
-    const updatedRestaurant = RestaurantModel.updateRestaurant(id, updates);
+    try {
+        // Call the model's func
+        const updatedRestaurant = await RestaurantModel.findByIdAndUpdate(id, updates, { new: true });
 
-    if (!updatedRestaurant) {
-        return res.status(404).json({ error: "Restaurant not found" });
+        if (!updatedRestaurant) {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+
+        // Return empty body (204 No Content)
+        return res.status(204).end();   
+    } catch (error) {
+        // If the id is not even in the mongoose format for object id
+        if (error.name === 'CastError') {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+        next(error);
     }
-
-    // Return empty body (204 No Content)
-    return res.status(204).end();   
 };
 
 // Deletes a specific restaurant by its ID
-const deleteRestaurant = (req, res, next) => {
+const deleteRestaurant = async (req, res, next) => {
     // Get the variabels
     const { id } = req.params;
 
-    // Call the model's func
-    const isDeleted = RestaurantModel.deleteRestaurant(id);
+    try {
+        // Call the model's func
+        const isDeleted = await RestaurantModel.findByIdAndDelete(id);
 
-    if (!isDeleted) {
-        return res.status(404).json({ error: "Restaurant not found" });
+        if (!isDeleted) {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+        
+        // Delete all products associated with this restaurant
+        await ProductModel.deleteMany({ restaurantId: id });
+        
+        // Return empty body (204 No Content)
+        return res.status(204).end();    
+    } catch (error) {
+        // If the id is not even in the mongoose format for object id
+        if (error.name === 'CastError') {
+            return res.status(404).json({ error: "Restaurant not found" });
+        }
+        next(error);
     }
-    
-    // Return empty body (204 No Content)
-    return res.status(204).end();    
 };
 
 module.exports = {

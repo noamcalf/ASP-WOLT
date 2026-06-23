@@ -29,12 +29,9 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     address: {
-    type: {
-        city: { type: String, required: true },
-        street: { type: String, required: true },
-        houseNumber: { type: String, required: true }
-    },
-    required: true
+        city: { type: String },
+        street: { type: String },
+        houseNumber: { type: String }
     },
     geolocation: {
         latitude: { type: Number },

@@ -1,65 +1,41 @@
-/**
- * Restaurant Model
- * Manages restaurant entities inside the global dataStore.
- */
-const crypto = require('crypto');
-const dataStore = require('./dataStore');
+const mongoose = require('mongoose');
 
-// Retrieves all restaurants with their attached products
-const getAllRestaurants = () => {
-    return dataStore.restaurants;
-};
+// Create the restaurant's schema based on it's fields
+const restaurantSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    cuisine: {
+        type: String,
+        required: true
+    },
+    image: {
+        type: String
+    },
+    ownerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        // Ref let mongooes know this field's type: we can later get the whole type by populate() command
+        ref: 'User'
+    },
+    baseDeliveryTime: {
+        type: String
+    },
+    rating: {
+        type: Number,
+        default: 0
+    },
+    address: {
+        city: { type: String },
+        street: { type: String },
+        houseNumber: { type: String }
+    },
+    geolocation: {
+        latitude: { type: Number },
+        longitude: { type: Number }
+    }
+}, { timestamps: true });
 
-// Retrieves a single restaurant by its unique ID with its attached products
-const getRestaurant = (id) => {
-    // Search for the restaurant
-    const restaurant = dataStore.restaurants.find(r => r.id === id);
-    if (!restaurant) return null;
-
-    // Return it
-    return restaurant;
-};
-
-// Creates a new restaurant and saves it to the global store
-const createRestaurant = (restaurantData) => {
-    const newRestaurant = {
-        id: crypto.randomUUID(),
-        ...restaurantData
-    };
-    dataStore.restaurants.push(newRestaurant);
-    return newRestaurant;
-};
-
-// Updates a specific restaurant
-const updateRestaurant = (id, updates) => {
-    const restaurant = dataStore.restaurants.find(r => r.id === id);
-    if (!restaurant) return null;
-
-    Object.assign(restaurant, updates);
-    return restaurant;
-};
-
-// Deletes a specific restaurant
-const deleteRestaurant = (id) => {
-    const index = dataStore.restaurants.findIndex(r => r.id === id);
-    if (index === -1) return false;
-
-    dataStore.restaurants.splice(index, 1);
-    // Delete all the restaurant's products by restaurant's id
-    dataStore.products = dataStore.products.filter(p => p.restaurantId !== id);
-    
-    return true;
-};
-
-const clearAll = () => {
-    dataStore.restaurants = [];
-};
-
-module.exports = {
-    getAllRestaurants,
-    getRestaurant,
-    createRestaurant,
-    updateRestaurant,
-    deleteRestaurant,
-    clearAll
-};
+const Restaurant = mongoose.model('Restaurant', restaurantSchema);
+// Export the schema
+module.exports = Restaurant;
