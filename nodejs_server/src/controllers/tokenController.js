@@ -7,7 +7,8 @@ const UserModel = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 
 // Authenticates user credentials and generates an access token upon success
-const generateToken = (req, res) => {
+// Use async because we call the data store
+const generateToken = async (req, res) => {
     // Defensive parsing for incoming login credentials
     const { username, password } = req.body || {};
 
@@ -16,8 +17,8 @@ const generateToken = (req, res) => {
         return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    // Attempt to locate the user in the data store using the provided phone number
-    const user = UserModel.getUserByUsername(username);
+    // Attempt to locate the user in the data store using the provided username
+    const user = await UserModel.findOne({ username });
 
     // Verify identity: Check if user exists and if the provided password matches
     if (!user || user.password !== password) {

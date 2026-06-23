@@ -1,47 +1,47 @@
-/**
- * User Model
- * Manages user entities inside the global dataStore.
- */
-const crypto = require('crypto');
-const dataStore = require('./dataStore');
+// Get mongoose
+const mongoose = require('mongoose');
 
-// Creates a new user and saves it to the global store
-const createUser = (userData) => {
-    const newUser = {
-        id: crypto.randomUUID(),
-        ...userData
-    };
-    dataStore.users.push(newUser);
-    return newUser;
-};
+// Create the user schema based on it's fields (both costumer and restaurant owner)
+const userSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    phoneNumber: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: String,
+        enum: ['customer', 'owner'],
+        default: 'customer'
+    },
+    name: {
+        type: String
+    },
+    image: {
+        type: String,
+        required: true
+    },
+    address: {
+    type: {
+        city: { type: String, required: true },
+        street: { type: String, required: true },
+        houseNumber: { type: String, required: true }
+    },
+    required: true
+    },
+    geolocation: {
+        latitude: { type: Number },
+        longitude: { type: Number }
+    }
+}, { timestamps: true });
 
-// Retrieves a single user by their unique ID
-const getUserById = (id) => {
-    const user = dataStore.users.find(u => u.id === id);
-    return user ? user : null;
-};
-
-// Retrieves a single user by their unique ID
-const getUserByPhoneNumber = (id) => {
-    const user = dataStore.users.find(u => u.phoneNumber === id);
-    return user ? user : null;
-};
-
-// Retrieves a single user by their username (crucial for login authentication)
-const getUserByUsername = (username) => {
-    const user = dataStore.users.find(u => u.username === username);
-    return user ? user : null;
-};
-
-// Clears all users (used for testing isolation)
-const clearAll = () => {
-    dataStore.users = [];
-};
-
-module.exports = {
-    createUser,
-    getUserById,
-    getUserByUsername,
-    getUserByPhoneNumber,
-    clearAll
-};
+const User = mongoose.model('User', userSchema);
+// Export the schema
+module.exports = User;

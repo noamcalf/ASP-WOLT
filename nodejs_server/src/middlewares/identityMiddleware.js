@@ -6,7 +6,8 @@
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/userModel'); // Import user model to fetch fresh database profile records
 
-const identityMiddleware = (req, res, next) => {
+// Use async because we call the data base
+const identityMiddleware = async (req, res, next) => {
     // Get the token from the user
     const authHeader = req.headers['authorization'];
 
@@ -35,7 +36,7 @@ const identityMiddleware = (req, res, next) => {
         const decodedPayload = jwt.verify(token, secretKey);
 
         // Fetch the full up-to-date user profile object from the data store using the verified identifier
-        const user = UserModel.getUserById(decodedPayload.userId);
+        const user = await UserModel.findById(decodedPayload.userId);
 
         // Make sure we find the user
         if (!user) {
