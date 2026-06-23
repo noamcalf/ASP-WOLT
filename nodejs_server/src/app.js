@@ -7,6 +7,7 @@ const cors = require('cors');
 const path = require('path');
 const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddlewares');
 const { connectToCppServer } = require('./utils/tcpClient'); // Inject TCP Client utility
+const connectDB = require('./config/db'); // Database connection utility
 
 const app = express();
 
@@ -63,9 +64,11 @@ if (process.env.NODE_ENV !== 'test') {
     // Establish the TCP socket connection to Server 2 automatically on boot
     connectToCppServer();
 
-    // Start listening for incoming HTTP requests (Protected from Jest environment).
-    app.listen(PORT, () => {
-        console.log(`Web Server is listening on port ${PORT}`);
+    // Connect to MongoDB, then start listening for incoming HTTP requests
+    connectDB().then(() => {
+        app.listen(PORT, () => {
+            console.log(`Web Server is listening on port ${PORT}`);
+        });
     });
 }
 
