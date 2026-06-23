@@ -7,7 +7,8 @@ const TcpService = require('../services/tcpService');
 const ProductModel = require('../models/productModel');
 
 // Registers a new user after validating the payload schema
-const registerUser = (req, res) => {
+// Use async because we call the data base
+const registerUser = async (req, res, next) => {
     // Extract flat fields sent via multipart/form-data (FormData) from the frontend
     const { 
         username, 
@@ -103,57 +104,73 @@ const registerUser = (req, res) => {
         }
     }
 
-    // Verify username uniqueness using the correct payload property to ensure schema consistency
-    const isUserExist = username ? UserModel.getUserByUsername(username.trim()) : null;
-    if (isUserExist) {
-         return res.status(409).json({ error: "User with the same username already exists" });
+    try {
+        // Verify username uniqueness using the correct payload property to ensure schema consistency
+        const isUserExist = username ? await UserModel.findOne({ username: username.trim() }) : null;
+        if (isUserExist) {
+             return res.status(409).json({ error: "User with the same username already exists" });
+        }
+
+        // Delegate creation to the model
+        const newUser = await UserModel.create({
+            username: username.trim(),
+            phoneNumber,
+            password,
+            role,
+            address: role === 'customer' ? address : null,
+            image,
+            name,
+            geolocation
+        });
+
+        // Strip the password from the response payload for security
+        const userObj = newUser.toObject();
+        const { password: _, ...userWithoutPassword } = userObj;
+
+        // Create an empty history profile for the new user in the C++ server
+        TcpService.sendPostCommand(newUser.id, []);
+
+        // Return the successful 201 Created status along with the safe user object
+        return res.status(201).json({
+            message: 'User registered successfully',
+            user: userWithoutPassword
+        });
+    } catch (error) {
+        next(error);
     }
-
-    // Delegate creation to the model
-    const newUser = UserModel.createUser({
-        username: username.trim(),
-        phoneNumber,
-        password,
-        role,
-        address: role === 'customer' ? address : null,
-        image,
-        name,
-        geolocation
-    });
-
-    // Strip the password from the response payload for security
-    const { password: _, ...userWithoutPassword } = newUser;
-
-    // Create an empty history profile for the new user in the C++ server
-    TcpService.sendPostCommand(newUser.id, []);
-
-    // Return the successful 201 Created status along with the safe user object
-    return res.status(201).json({
-        message: 'User registered successfully',
-        user: userWithoutPassword
-    });
 };
 
 // Retrieves a user profile by their ID, ensuring sensitive data is strictly filtered out
-const getUserProfile = (req, res) => {
+// Use async because we call the data base
+const getUserProfile = async (req, res, next) => {
     const { id } = req.params;
 
-    // Fetch the user from the model using the provided ID parameter
-    const user = UserModel.getUserById(id);
+    try {
+        // Fetch the user from the model using the provided ID parameter
+        const user = await UserModel.findById(id);
 
-    // If the user does not exist, return a standard 404 Not Found error
-    if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        // If the user does not exist, return a standard 404 Not Found error
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Security: Strip the password before returning the profile using destructuring
+        const userObj = user.toObject();
+        const { password: _, ...safeUserProfile } = userObj;
+
+        // Return the profile data with a 200 OK status
+        return res.status(200).json(safeUserProfile);
+    } catch (error) {
+        // Catch invalid ObjectId cast errors and return 404 instead of 500
+        if (error.name === 'CastError') {
+            return res.status(404).json({ error: "User not found" });
+        }
+        next(error);
     }
-
-    // Security: Strip the password before returning the profile using destructuring
-    const { password: _, ...safeUserProfile } = user;
-
-    // Return the profile data with a 200 OK status
-    return res.status(200).json(safeUserProfile);
 };
 
 // Retrieves product recommendations from the C++ recommandion system
+// Use async because we call the data base
 const getRecommendations = async (req, res, next) => {
     const { id, productId } = req.params;
 
