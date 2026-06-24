@@ -180,18 +180,30 @@ const getRecommendations = async (req, res, next) => {
     }
 
     try {
+        // Validation: Ensure both user and reference product exist in the DB
+        const user = await UserModel.findById(id);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const product = await ProductModel.findById(productId);
+        if (!product) {
+            return res.status(404).json({ error: "Reference product not found" });
+        }
+
         // Fetch raw recommended product IDs from C++ server
         const recommendedIds = await TcpService.fetchRecommendations(id, productId);
         
-        // Map the IDs to actual product objects from our database
-        const allProducts = ProductModel.getAllProducts() || [];
-        const recommendedProducts = recommendedIds.map(recId => {
-            return allProducts.find(p => String(p.id) === String(recId));
-        }).filter(p => p !== undefined); // Remove any nulls if a product was deleted
+        // Map the IDs to actual product objects from our database using Mongoose
+        const recommendedProducts = await ProductModel.find({ _id: { $in: recommendedIds } });
 
         return res.status(200).json(recommendedProducts);
         
     } catch (error) {
+        // Handle invalid ObjectId format
+        if (error.name === 'CastError') {
+            return res.status(404).json({ error: "Invalid ID format" });
+        }
         error.statusCode = 500;
         error.message = "Recommendation engine is currently unavailable";
         next(error);
