@@ -8,6 +8,7 @@ const path = require('path');
 const { notFoundMiddleware, globalErrorMiddleware } = require('./middlewares/errorMiddlewares');
 const { connectToCppServer } = require('./utils/tcpClient'); // Inject TCP Client utility
 const connectDB = require('./config/db'); // Database connection utility
+const seedDatabase = require('./utils/seed'); // Seeding utility
 
 const app = express();
 
@@ -65,7 +66,10 @@ if (process.env.NODE_ENV !== 'test') {
     connectToCppServer();
 
     // Connect to MongoDB, then start listening for incoming HTTP requests
-    connectDB().then(() => {
+    connectDB().then(async () => {
+        // Seed database if empty
+        await seedDatabase();
+
         app.listen(PORT, () => {
             console.log(`Web Server is listening on port ${PORT}`);
         });
