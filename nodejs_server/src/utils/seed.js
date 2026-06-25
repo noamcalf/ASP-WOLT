@@ -17,7 +17,7 @@ const seedDatabase = async () => {
             await User.insertMany([
                 {
                     username: 'bk26',
-                    password: 'p12345678', // Plain text as per current system design
+                    password: 'p12345678',
                     name: 'Ben Kolman',
                     phoneNumber: '0501234567',
                     role: 'customer',
@@ -52,6 +52,7 @@ const seedDatabase = async () => {
                     geolocation: { latitude: 32.0645, longitude: 34.7710 },
                     baseDeliveryTime: "25-35 min",
                     rating: 4.9,
+                    image: 'images/burger-resturant.jpg'
                     // Note: We leave ownerId out for now, or we could fetch 'bigboss' user and set it.
                     // Let's fetch the owner user.
                 },
@@ -63,6 +64,7 @@ const seedDatabase = async () => {
                     geolocation: { latitude: 32.0621, longitude: 34.7760 },
                     baseDeliveryTime: "30-40 min",
                     rating: 4.8,
+                    image: 'images/pizza-resturant.jpg'
                 },
                 { 
                     _id: rest3Id,
@@ -72,6 +74,7 @@ const seedDatabase = async () => {
                     geolocation: { latitude: 32.0772, longitude: 34.7738 },
                     baseDeliveryTime: "15-25 min",
                     rating: 4.7,
+                    image: 'images/ice-cream-resturant.jpg'
                 }
             ]);
             console.log('Restaurants seeded successfully.');

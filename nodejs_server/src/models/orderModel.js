@@ -53,7 +53,11 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         default: 0
     }
-}, { timestamps: true });
+}, { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
 
 const Order = mongoose.model('Order', orderSchema);
 // Export the schema and the status's object
