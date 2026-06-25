@@ -5,6 +5,11 @@ const notFoundMiddleware = (req, res, next) => {
 
 // Handle any any other error
 const globalErrorMiddleware = (err, req, res, next) => {
+    // If it's a Mongoose validation error, convert it to 400 Bad Request
+    if (err.name === 'ValidationError') {
+        err.statusCode = 400;
+    }
+
     // Get status code or default
     const status = err.statusCode || 500;
     // Get error message or default
