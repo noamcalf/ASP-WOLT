@@ -28,7 +28,11 @@ const productSchema = new mongoose.Schema({
         type: String,
         default: null
     }
-}, { timestamps: true });
+}, { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
 
 const Product = mongoose.model('Product', productSchema);
 // Export the schema

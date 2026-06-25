@@ -34,7 +34,11 @@ const restaurantSchema = new mongoose.Schema({
         latitude: { type: Number },
         longitude: { type: Number }
     }
-}, { timestamps: true });
+}, { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
 
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 // Export the schema
