@@ -48,7 +48,13 @@ function MainStack() {
 }
 
 function RootNavigator() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    // Now we are using a async function to get the token from the mobile's memory, so until this command will end we will present an empty page
+    // isLoading state is representing the time that takes to get the token
+    return null; 
+  }
 
   // If the user is not Authenticated it has only login and registration screen's
   if (!isAuthenticated) {

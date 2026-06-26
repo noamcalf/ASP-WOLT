@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Create the context with default value "null" - when the app first reboot's - no user is connected
 const AuthContext = createContext(null);
@@ -23,23 +24,51 @@ export const AuthProvider = ({ children }) => {
 
     // Create token state 
     // If the user is connected, set his token. else set null that means that the user is not connected
-    // Use the web storage API
-    const [token, setToken] = useState(localStorage.getItem('token') || null);
+    const [token, setToken] = useState(null);
     
     // User profile state
     const [user, setUser] = useState(null);
 
+    // Track loading state so the app doesn't flash the login screen before AsyncStorage finishes reading
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Initial load from AsyncStorage
+    useEffect(() => {
+        const loadStoredToken = async () => {
+            try {
+                const storedToken = await AsyncStorage.getItem('token');
+                if (storedToken) {
+                    setToken(storedToken);
+                }
+            } catch (error) {
+                console.error("Failed to load token from AsyncStorage", error);
+            } finally {
+                // Done checking storage, we can render the app now
+                setIsLoading(false); 
+            }
+        };
+        loadStoredToken();
+    }, []);
+
     // Login func
-    const login = (newToken) => {
+    const login = async (newToken) => {
         setToken(newToken);
-        localStorage.setItem('token', newToken); // Save in the web storage API to prevent token loss when refreshing the page
+        try {
+            await AsyncStorage.setItem('token', newToken); // Save in AsyncStorage
+        } catch (error) {
+            console.error("Failed to save token to AsyncStorage", error);
+        }
     };
 
     // Logout func
-    const logout = () => {
+    const logout = async () => {
         setToken(null);
         setUser(null);
-        localStorage.removeItem('token');// delete from the web storage API when the user is disconnected
+        try {
+            await AsyncStorage.removeItem('token'); // Delete from AsyncStorage
+        } catch (error) {
+            console.error("Failed to remove token from AsyncStorage", error);
+        }
     };
 
     // Listen to token changes to fetch user profile
@@ -57,7 +86,9 @@ export const AuthProvider = ({ children }) => {
             }
 
             try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+                // In a real device you can't use localhost. For development in Expo, you usually use the machine's IP.
+                // Keeping as is per previous implementation, but be aware for testing.
+                const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
                 const response = await fetch(`${apiUrl}/api/users/${decoded.userId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -76,12 +107,15 @@ export const AuthProvider = ({ children }) => {
             }
         };
 
-        fetchUserProfile();
-    }, [token]);
+        // We only want to fetch the profile once the token is loaded and not null
+        if (!isLoading) {
+            fetchUserProfile();
+        }
+    }, [token, isLoading]);
 
     // Every app part will get accsess to the token, the login\loguot functions and boolean variable isAuthenticated
     return (
-        <AuthContext.Provider value={{ token, user, login, logout, isAuthenticated: !!token }}>
+        <AuthContext.Provider value={{ token, user, login, logout, isAuthenticated: !!token, isLoading }}>
             {children}
         </AuthContext.Provider>
     );
