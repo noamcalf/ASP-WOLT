@@ -16,7 +16,6 @@ const WoltInput = forwardRef(({
     disabled, 
     containerStyle // Replaces colClass for React Native
 }, ref) => {
-    
     const [showPassword, setShowPassword] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 

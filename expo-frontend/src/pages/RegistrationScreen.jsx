@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { View, Text, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 import { useFormValidation } from '../hooks/useFormValidation';
 import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
+import { registrationStyles as styles } from '../styles/registrationScreenStyles';
 
 // The sign-up page where new users can create an account.
-// Users can choose to register as a regular "customer" or a "restaurant owner".
+// Refactored to React Native layout with Native Camera integration.
 const RegistrationScreen = () => {
-    const navigate = useNavigate();
+    const navigation = useNavigation();
     
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // These rules check if what the user typed is valid (e.g. phone number has 10 digits).
-    // The rules change depending on whether the user is a customer or an owner.
     const validationRules = {
         name: (val) => val.trim().length >= 2,
         username: (val) => /^(?=.*[a-zA-Z])[a-zA-Z0-9]{3,}$/.test(val),
@@ -60,9 +61,30 @@ const RegistrationScreen = () => {
         image: null
     }, validationRules);
 
-    // This runs when the user hits "Sign Up". It checks for errors and sends the data to the server.
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // Function to handle the Native Camera
+    const pickImage = async () => {
+        // Request camera permissions explicitly from the mobile OS
+        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+        
+        if (permissionResult.granted === false) {
+            setError("Camera permissions are required to take a profile picture!");
+            return;
+        }
+
+        // Open the native camera interface
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1], // Square image for profile
+            quality: 0.5,
+        });
+
+        if (!result.canceled) {
+            // Pass the native image object to our hook
+            handleFileChange('image', result.assets[0]);
+        }
+    };
+
+    const handleSubmit = async () => {
         setError('');
 
         if (!validateAll()) {
@@ -73,26 +95,38 @@ const RegistrationScreen = () => {
         setIsLoading(true);
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
             
             const dataToSubmit = new FormData();
             Object.keys(formData).forEach(key => {
-                dataToSubmit.append(key, formData[key]);
+                if (key === 'image' && formData.image) {
+                    // React Native specific format for sending files via FormData
+                    dataToSubmit.append('image', {
+                        uri: formData.image.uri,
+                        name: formData.image.fileName || 'profile.jpg',
+                        type: formData.image.mimeType || 'image/jpeg'
+                    });
+                } else {
+                    dataToSubmit.append(key, formData[key]);
+                }
             });
 
             const response = await fetch(`${apiUrl}/api/users/`, {
                 method: 'POST',
+                headers: {
+                    // Let the browser/fetch automatically set the multipart/form-data boundary
+                    'Accept': 'application/json',
+                },
                 body: dataToSubmit,
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                // The backend returns errors under 'error', not 'message'
                 throw new Error(data.error || data.message || 'Registration failed.');
             }
 
-            navigate('/login');
+            navigation.navigate('Login');
 
         } catch (err) {
             setError(err.message || 'Connection error. Please try again.');
@@ -102,114 +136,111 @@ const RegistrationScreen = () => {
     };
 
     return (
-        <div className="container-fluid min-vh-100 p-0 m-0 position-relative wolt-custom-bg"
-             style={{ backgroundImage: `url(${woltBg})` }}>
-            
-            <div className="position-absolute top-0 start-0 w-100 h-100" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', zIndex: 0 }}></div>
+        <KeyboardAvoidingView 
+            style={styles.container} 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <ImageBackground source={woltBg} style={styles.backgroundImage}>
+                <View style={styles.overlay} />
 
-            <div className="card p-5 bg-white shadow-lg wolt-centered-card" 
-                 style={{ 
-                     width: '90%', 
-                     maxWidth: '650px', 
-                     borderRadius: '24px', 
-                     border: 'none',
-                     zIndex: 1,
-                     maxHeight: '95vh',
-                     overflowY: 'auto'
-                 }}>
-                
-                <h2 className="text-center mb-1 fw-bold wolt-text-heading" style={{ fontSize: '2.2rem', letterSpacing: '-0.8px' }}>
-                    Join WOLT! 🍔
-                </h2>
-                <p className="text-center mb-4 wolt-text-muted">Create an account to start ordering</p>
+                <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+                    <View style={styles.card}>
+                        
+                        <Text style={styles.heading}>Join WOLT! 🍔</Text>
+                        <Text style={styles.subheading}>Create an account to start ordering</Text>
 
-                {error && (
-                    <div className="alert alert-danger border-0 p-3 mb-4 wolt-error-alert" role="alert" style={{ borderRadius: '14px', fontSize: '0.9rem' }}>
-                        <div className="fw-bold"><span className="me-2">⚠️</span>{error}</div>
-                    </div>
-                )}
-                
-                <form onSubmit={handleSubmit} className="w-100" noValidate>
-                    
-                    {/* Role Selection */}
-                    <div className="mb-4 text-start w-100 p-3 wolt-role-box" style={{ borderRadius: '14px', border: '1px solid var(--bs-border-color)' }}>
-                        <label className="form-label fw-bold mb-3 small text-uppercase tracking-wider d-block px-1 wolt-text-label" style={{ fontSize: '0.8rem' }}>
-                            I am a...
-                        </label>
-                        <div className="d-flex gap-4">
-                            <div className="form-check">
-                                <input className="form-check-input wolt-radio" type="radio" name="role" id="roleCustomer" value="customer" checked={formData.role === 'customer'} onChange={handleChange} />
-                                <label className="form-check-label fw-semibold" htmlFor="roleCustomer">
-                                    Customer 🧑‍💼
-                                </label>
-                            </div>
-                            <div className="form-check">
-                                <input className="form-check-input wolt-radio" type="radio" name="role" id="roleOwner" value="owner" checked={formData.role === 'owner'} onChange={handleChange} />
-                                <label className="form-check-label fw-semibold" htmlFor="roleOwner">
-                                    Restaurant Owner 👨‍🍳
-                                </label>
-                            </div>
-                        </div>
-                    </div>
+                        {error ? (
+                            <View style={styles.errorAlert}>
+                                <Text style={styles.errorAlertText}>⚠️ {error}</Text>
+                            </View>
+                        ) : null}
+                        
+                        {/* Role Selection (Native Implementation) */}
+                        <View style={styles.roleContainer}>
+                            <Text style={styles.sectionLabel}>I am a...</Text>
+                            <View style={styles.roleButtonsRow}>
+                                <TouchableOpacity 
+                                    style={[styles.roleButton, formData.role === 'customer' && styles.roleButtonActive]}
+                                    onPress={() => handleChange('role', 'customer')}
+                                >
+                                    <Text style={[styles.roleButtonText, formData.role === 'customer' && styles.roleButtonTextActive]}>
+                                        Customer 🧑‍💼
+                                    </Text>
+                                </TouchableOpacity>
+                                
+                                <TouchableOpacity 
+                                    style={[styles.roleButton, formData.role === 'owner' && styles.roleButtonActive]}
+                                    onPress={() => handleChange('role', 'owner')}
+                                >
+                                    <Text style={[styles.roleButtonText, formData.role === 'owner' && styles.roleButtonTextActive]}>
+                                        Owner 👨‍🍳
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
 
-                    <div className="row">
-                        <WoltInput ref={refs.name} label="Full Name 🏷️" name="name" value={formData.name} onChange={handleChange} isValid={hasSubmitted ? validations.name : null} errorMessage="Must be at least 2 characters long" disabled={isLoading} colClass="col-md-12 mb-3" />
-                    </div>
+                        <WoltInput ref={refs.name} label="Full Name 🏷️" name="name" value={formData.name} onChange={handleChange} isValid={hasSubmitted ? validations.name : null} errorMessage="Must be at least 2 characters long" disabled={isLoading} />
 
-                    <div className="row">
-                        <WoltInput ref={refs.username} label="Username 👤" name="username" placeholder="Min 3 chars" value={formData.username} onChange={handleChange} isValid={hasSubmitted ? validations.username : null} errorMessage="Min 3 chars, letters and numbers only (no spaces)" disabled={isLoading} colClass="col-md-6 mb-3" />
-                        <WoltInput ref={refs.phone} label="Phone Number 📱" name="phone" type="tel" placeholder="050..." value={formData.phone} onChange={handleChange} isValid={hasSubmitted ? validations.phone : null} errorMessage="Valid 10-digit Israeli number required" disabled={isLoading} colClass="col-md-6 mb-3" />
-                    </div>
+                        <View style={styles.row}>
+                            <WoltInput ref={refs.username} containerStyle={styles.halfWidth} label="Username 👤" name="username" placeholder="Min 3 chars" value={formData.username} onChange={handleChange} isValid={hasSubmitted ? validations.username : null} errorMessage="Min 3 chars, letters/numbers" disabled={isLoading} />
+                            <WoltInput ref={refs.phone} containerStyle={styles.halfWidth} label="Phone 📱" name="phone" type="phone" placeholder="050..." value={formData.phone} onChange={handleChange} isValid={hasSubmitted ? validations.phone : null} errorMessage="10-digit number" disabled={isLoading} />
+                        </View>
 
-                    <div className="row">
-                        <WoltInput ref={refs.password} label="Password 🔒" name="password" type="password" placeholder="Min 8 chars, 1 letter, 1 number" value={formData.password} onChange={handleChange} isValid={hasSubmitted ? validations.password : null} errorMessage="Min 8 chars, 1 letter, 1 number" disabled={isLoading} colClass="col-md-6 mb-3" />
-                        <WoltInput ref={refs.confirmPassword} label="Confirm Password 🔑" name="confirmPassword" type="password" placeholder="Repeat password" value={formData.confirmPassword} onChange={handleChange} isValid={hasSubmitted ? validations.confirmPassword : null} errorMessage="Passwords do not match" disabled={isLoading} colClass="col-md-6 mb-3" />
-                    </div>
+                        <View style={styles.row}>
+                            <WoltInput ref={refs.password} containerStyle={styles.halfWidth} label="Password 🔒" name="password" type="password" placeholder="Min 8 chars" value={formData.password} onChange={handleChange} isValid={hasSubmitted ? validations.password : null} errorMessage="Min 8 chars, 1 letter, 1 number" disabled={isLoading} />
+                            <WoltInput ref={refs.confirmPassword} containerStyle={styles.halfWidth} label="Confirm 🔑" name="confirmPassword" type="password" placeholder="Repeat" value={formData.confirmPassword} onChange={handleChange} isValid={hasSubmitted ? validations.confirmPassword : null} errorMessage="Passwords do not match" disabled={isLoading} />
+                        </View>
 
-                    {formData.role === 'customer' && (
-                        <>
-                            <hr className="my-4 text-muted" />
-                            <h6 className="fw-bold mb-3 text-muted text-uppercase tracking-wider">Address Details 📍</h6>
-                            <div className="row">
-                                <WoltInput ref={refs.city} name="city" placeholder="City" value={formData.city} onChange={handleChange} isValid={hasSubmitted ? validations.city : null} errorMessage="Invalid city name" disabled={isLoading} colClass="col-md-5 mb-3" />
-                                <WoltInput ref={refs.street} name="street" placeholder="Street" value={formData.street} onChange={handleChange} isValid={hasSubmitted ? validations.street : null} errorMessage="Invalid street name" disabled={isLoading} colClass="col-md-5 mb-3" />
-                                <WoltInput ref={refs.streetNumber} name="streetNumber" placeholder="No." value={formData.streetNumber} onChange={handleChange} isValid={hasSubmitted ? validations.streetNumber : null} errorMessage="Digits only" disabled={isLoading} colClass="col-md-2 mb-3" />
-                            </div>
+                        {formData.role === 'customer' && (
+                            <View>
+                                <View style={styles.divider} />
+                                <Text style={styles.sectionLabel}>Address Details 📍</Text>
+                                <View style={styles.row}>
+                                    <WoltInput ref={refs.city} containerStyle={{ flex: 2 }} name="city" placeholder="City" value={formData.city} onChange={handleChange} isValid={hasSubmitted ? validations.city : null} errorMessage="Invalid" disabled={isLoading} />
+                                    <WoltInput ref={refs.street} containerStyle={{ flex: 2 }} name="street" placeholder="Street" value={formData.street} onChange={handleChange} isValid={hasSubmitted ? validations.street : null} errorMessage="Invalid" disabled={isLoading} />
+                                    <WoltInput ref={refs.streetNumber} containerStyle={{ flex: 1 }} name="streetNumber" placeholder="No." value={formData.streetNumber} onChange={handleChange} isValid={hasSubmitted ? validations.streetNumber : null} errorMessage="Digits" disabled={isLoading} />
+                                </View>
 
-                            <h6 className="fw-bold mb-3 mt-2 text-muted text-uppercase tracking-wider">Geolocation 🌍</h6>
-                            <div className="row">
-                                <WoltInput ref={refs.latitude} name="latitude" placeholder="Lat (X)" value={formData.latitude} onChange={handleChange} isValid={hasSubmitted ? validations.latitude : null} errorMessage="Invalid latitude" disabled={isLoading} colClass="col-md-6 mb-3" />
-                                <WoltInput ref={refs.longitude} name="longitude" placeholder="Lng (Y)" value={formData.longitude} onChange={handleChange} isValid={hasSubmitted ? validations.longitude : null} errorMessage="Invalid longitude" disabled={isLoading} colClass="col-md-6 mb-3" />
-                            </div>
-                        </>
-                    )}
+                                <Text style={styles.sectionLabel}>Geolocation 🌍</Text>
+                                <View style={styles.row}>
+                                    <WoltInput ref={refs.latitude} containerStyle={styles.halfWidth} name="latitude" placeholder="Lat (X)" value={formData.latitude} onChange={handleChange} isValid={hasSubmitted ? validations.latitude : null} errorMessage="Invalid" disabled={isLoading} />
+                                    <WoltInput ref={refs.longitude} containerStyle={styles.halfWidth} name="longitude" placeholder="Lng (Y)" value={formData.longitude} onChange={handleChange} isValid={hasSubmitted ? validations.longitude : null} errorMessage="Invalid" disabled={isLoading} />
+                                </View>
+                            </View>
+                        )}
 
-                    <hr className="my-4 text-muted" />
+                        <View style={styles.divider} />
 
-                    {/* Image Selection */}
-                    <div className="mb-4 text-start w-100" ref={refs.image}>
-                        <label className="form-label fw-bold mb-2 small text-uppercase tracking-wider d-block px-1 wolt-text-label" style={{ fontSize: '0.8rem' }}>
-                            Profile Picture 📸
-                        </label>
-                        <input 
-                            type="file" 
-                            accept="image/*"
-                            className={`form-control px-4 py-2 text-dark wolt-input w-100 ${validations.image === true ? 'wolt-input-valid' : validations.image === false ? 'wolt-input-invalid' : ''}`}
-                            onChange={(e) => handleFileChange(e, 'image')} 
+                        {/* Native Camera Button */}
+                        <Text style={styles.sectionLabel}>Profile Picture 📸</Text>
+                        <TouchableOpacity 
+                            style={[styles.imageButton, validations.image === false && styles.imageButtonError]} 
+                            onPress={pickImage}
                             disabled={isLoading}
-                        />
-                    </div>
+                        >
+                            {formData.image ? (
+                                <Image source={{ uri: formData.image.uri }} style={styles.imagePreview} />
+                            ) : (
+                                <Text style={{ fontSize: 40 }}>📷</Text>
+                            )}
+                            <Text style={styles.imageButtonText}>
+                                {formData.image ? 'Retake Photo' : 'Snap a Profile Picture'}
+                            </Text>
+                        </TouchableOpacity>
 
-                    <MainButton text="Sign Up" isLoading={isLoading} />
-                    
-                    <div className="text-center mt-3 mb-2">
-                        <Link to="/login" className="text-decoration-none" style={{ color: '#009de0', fontWeight: '600' }}>
-                            Already have an account? Login here.
-                        </Link>
-                    </div>
-                </form>
-            </div>
-        </div>
+                        <MainButton text="Sign Up" onClick={handleSubmit} isLoading={isLoading} />
+                        
+                        <TouchableOpacity 
+                            style={styles.linkContainer}
+                            onPress={() => navigation.navigate('Login')}
+                        >
+                            <Text style={styles.linkText}>Already have an account? Login here.</Text>
+                        </TouchableOpacity>
+                        
+                    </View>
+                </ScrollView>
+            </ImageBackground>
+        </KeyboardAvoidingView>
     );
 };
 
