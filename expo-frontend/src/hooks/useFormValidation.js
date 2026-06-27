@@ -38,16 +38,27 @@ export const useFormValidation = (initialState, validationRules) => {
     };
 
     // Generic input handler for texts, numbers, selects, etc.
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        const newValue = type === 'checkbox' ? checked : value;
+    // Supports Web (e.target) and React Native (name, value)
+    const handleChange = (nameOrEvent, nativeValue) => {
+        let name, value;
+        
+        if (nameOrEvent && nameOrEvent.target !== undefined) {
+            // Web environment
+            name = nameOrEvent.target.name;
+            const type = nameOrEvent.target.type;
+            value = type === 'checkbox' ? nameOrEvent.target.checked : nameOrEvent.target.value;
+        } else {
+            // React Native environment
+            name = nameOrEvent;
+            value = nativeValue;
+        }
         
         // 1. Update the form data state
-        const newFormData = { ...formData, [name]: newValue };
+        const newFormData = { ...formData, [name]: value };
         setFormData(newFormData);
         
         // 2. Validate the new value immediately
-        const isValid = validateField(name, newValue, newFormData);
+        const isValid = validateField(name, value, newFormData);
         
         // Special Case: If the user changes the password, we MUST re-validate the 'confirmPassword' field
         // because its validity depends on the main password.
@@ -64,8 +75,19 @@ export const useFormValidation = (initialState, validationRules) => {
     };
 
     // Specialized handler for file inputs (images)
-    const handleFileChange = (e, name) => {
-        const file = e.target.files && e.target.files.length > 0 ? e.target.files[0] : null;
+    const handleFileChange = (eOrName, nativeFile) => {
+        let name, file;
+        
+        if (eOrName && eOrName.target !== undefined) {
+            // Web
+            name = eOrName.target.name;
+            file = eOrName.target.files && eOrName.target.files.length > 0 ? eOrName.target.files[0] : null;
+        } else {
+            // Native
+            name = eOrName;
+            file = nativeFile;
+        }
+
         const newFormData = { ...formData, [name]: file };
         setFormData(newFormData);
         
@@ -74,12 +96,19 @@ export const useFormValidation = (initialState, validationRules) => {
     };
 
     // UX Function: Forces a DOM element to restart its CSS 'shake' animation
+    // Safely handles both Web DOM nodes and React Native refs
     const triggerShake = (fieldName) => {
         const ref = refs.current[fieldName];
         if (ref && ref.current) {
-            ref.current.style.animation = 'none';
-            void ref.current.offsetWidth; // Magic trick: forces the browser to redraw, resetting the animation
-            ref.current.style.animation = 'shake 0.4s ease-in-out';
+            if (ref.current.style) {
+                // Web implementation
+                ref.current.style.animation = 'none';
+                void ref.current.offsetWidth; // Magic trick: forces the browser to redraw, resetting the animation
+                ref.current.style.animation = 'shake 0.4s ease-in-out';
+            } else if (typeof ref.current.shake === 'function') {
+                // React Native implementation (if component exposes a shake method)
+                ref.current.shake();
+            }
         }
     };
 
