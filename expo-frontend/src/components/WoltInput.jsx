@@ -1,4 +1,6 @@
 import React, { forwardRef, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { woltTheme } from '../styles/woltTheme';
 
 // A reusable input field (like a text box) styled specifically for the Wolt theme.
 // It handles labels, error messages, and even a "show password" toggle button automatically.
@@ -12,60 +14,126 @@ const WoltInput = forwardRef(({
     isValid, 
     errorMessage, 
     disabled, 
-    colClass = "mb-3 text-start w-100" 
+    containerStyle // Replaces colClass for React Native
 }, ref) => {
     
     const [showPassword, setShowPassword] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
     const isPasswordType = type === "password";
-    const currentType = isPasswordType && showPassword ? "text" : type;
+    const secureTextEntry = isPasswordType && !showPassword;
 
-    const getInputClass = () => {
-        let baseClass = "form-control px-4 py-3 text-dark wolt-input w-100";
-        if (isPasswordType) {
-            baseClass += " pe-5"; // Add right padding to make room for the toggle icon
+    // We pass both name and text to onChange to support our unified useFormValidation hook
+    const handleChangeText = (text) => {
+        if (onChange) {
+            onChange(name, text);
         }
-        if (isValid === true) return `${baseClass} wolt-input-valid`;
-        if (isValid === false) return `${baseClass} wolt-input-invalid`;
-        return baseClass;
     };
 
     return (
-        <div className={colClass} ref={ref}>
+        <View style={[styles.container, containerStyle]}>
             {label && (
-                <label className="form-label fw-bold mb-2 small text-uppercase tracking-wider d-block px-1" style={{ color: '#3a3c42', fontSize: '0.8rem' }}>
-                    {label}
-                </label>
+                <Text style={styles.label}>
+                    {label.toUpperCase()}
+                </Text>
             )}
-            <div className="position-relative">
-                <input 
-                    type={currentType} 
-                    name={name}
-                    className={getInputClass()}
+            <View style={styles.inputContainer}>
+                <TextInput 
+                    ref={ref}
+                    style={[
+                        styles.input,
+                        isFocused && styles.inputFocused,
+                        isValid === true && styles.inputValid,
+                        isValid === false && styles.inputInvalid,
+                        isPasswordType && styles.inputWithIcon,
+                        disabled && styles.inputDisabled
+                    ]}
                     placeholder={placeholder}
+                    placeholderTextColor={woltTheme.colors.textMuted}
                     value={value} 
-                    onChange={onChange} 
-                    disabled={disabled}
+                    onChangeText={handleChangeText} 
+                    secureTextEntry={secureTextEntry}
+                    editable={!disabled}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                    // Translate common HTML types to Native keyboards
+                    keyboardType={type === 'email' ? 'email-address' : type === 'number' ? 'numeric' : 'default'}
+                    autoCapitalize={type === 'email' || type === 'password' ? 'none' : 'sentences'}
                 />
-                {/* If this is a password field, show a toggle button (eye icon) to reveal/hide the password */}
+                
+                {/* If this is a password field, show a toggle button to reveal/hide the password */}
                 {isPasswordType && (
-                    <button 
-                        type="button" 
-                        className="bg-transparent border-0 p-1 position-absolute top-50 end-0 translate-middle-y me-3" 
-                        onClick={() => setShowPassword(!showPassword)} 
-                        style={{ zIndex: 5 }}
+                    <TouchableOpacity 
+                        style={styles.eyeIcon} 
+                        onPress={() => setShowPassword(!showPassword)}
                     >
-                        {showPassword ? "🙈" : "👁️"}
-                    </button>
+                        <Text style={{ fontSize: 16 }}>{showPassword ? "🙈" : "👁️"}</Text>
+                    </TouchableOpacity>
                 )}
-            </div>
-            {isValid === false && errorMessage && (
-                <div className="text-danger mt-1 ms-1" style={{ fontSize: '0.78rem', fontWeight: '600' }}>
+            </View>
+            
+            {isValid === false && errorMessage ? (
+                <Text style={styles.errorText}>
                     {errorMessage}
-                </div>
-            )}
-        </div>
+                </Text>
+            ) : null}
+        </View>
     );
+});
+
+const styles = StyleSheet.create({
+    container: {
+        marginBottom: woltTheme.spacing.medium,
+        width: '100%',
+    },
+    label: {
+        fontWeight: 'bold',
+        marginBottom: woltTheme.spacing.small,
+        color: woltTheme.colors.textLabel,
+        fontSize: 12,
+        letterSpacing: 1,
+        paddingHorizontal: 4,
+    },
+    inputContainer: {
+        position: 'relative',
+        justifyContent: 'center',
+    },
+    input: {
+        ...woltTheme.components.input,
+        width: '100%',
+    },
+    inputWithIcon: {
+        paddingRight: 45, // Make room for eye icon
+    },
+    inputFocused: {
+        borderColor: woltTheme.colors.primary,
+        ...woltTheme.shadows.focus,
+    },
+    inputValid: {
+        borderColor: woltTheme.colors.success,
+        backgroundColor: woltTheme.colors.successBackground,
+    },
+    inputInvalid: {
+        borderColor: woltTheme.colors.danger,
+        backgroundColor: woltTheme.colors.dangerBackground,
+    },
+    inputDisabled: {
+        opacity: 0.7,
+        backgroundColor: woltTheme.colors.border,
+    },
+    eyeIcon: {
+        position: 'absolute',
+        right: 15,
+        padding: 5,
+        zIndex: 5,
+    },
+    errorText: {
+        color: woltTheme.colors.danger,
+        marginTop: 4,
+        marginLeft: 4,
+        fontSize: 12,
+        fontWeight: '600',
+    }
 });
 
 export default WoltInput;

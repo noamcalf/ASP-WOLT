@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
+import { TouchableOpacity, Text, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { apiClient } from '../utils/apiClient';
+import { woltTheme } from '../styles/woltTheme';
 
 // A reusable, red "Delete" button that asks for confirmation before actually deleting something.
-const DeleteButton = ({ endpoint, confirmationMessage, onSuccess, className, children }) => {
+const DeleteButton = ({ endpoint, confirmationMessage, onSuccess, style, children }) => {
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleDelete = async (e) => {
-        if (e && e.preventDefault) e.preventDefault();
-        if (e && e.stopPropagation) e.stopPropagation();
-
-        const defaultMessage = 'Are you sure you want to delete this? This action cannot be undone.';
-        if (!window.confirm(confirmationMessage || defaultMessage)) {
-            return;
-        }
-
+    const performDelete = async () => {
+        // Change the state's value
         setIsDeleting(true);
         try {
             const { response, data } = await apiClient(endpoint, {
@@ -28,25 +23,72 @@ const DeleteButton = ({ endpoint, confirmationMessage, onSuccess, className, chi
                 onSuccess();
             }
         } catch (err) {
-            alert('Error during deletion: ' + err.message);
+            Alert.alert('Error', 'Error during deletion: ' + err.message);
         } finally {
             setIsDeleting(false);
         }
     };
 
+    const handleDelete = (e) => {
+        // Prevent default navigation if wrapped in a link (mostly for web)
+        if (e && e.preventDefault) e.preventDefault();
+        if (e && e.stopPropagation) e.stopPropagation();
+
+        const defaultMessage = 'Are you sure you want to delete this? This action cannot be undone.';
+        
+        // This unified Alert works on Mobile, and automatically translates to window.confirm on Web
+        Alert.alert(
+            'Confirm Deletion',
+            confirmationMessage || defaultMessage,
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: performDelete,
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
     return (
-        <button 
-            className={`btn btn-outline-danger fw-bold ${className || ''}`}
-            onClick={handleDelete}
+        <TouchableOpacity 
+            style={[styles.button, style]}
+            onPress={handleDelete}
             disabled={isDeleting}
+            activeOpacity={0.7}
         >
             {isDeleting ? (
-                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <ActivityIndicator size="small" color={woltTheme.colors.danger} />
             ) : (
-                children || 'Delete'
+                <Text style={styles.text}>
+                    {children || 'Delete'}
+                </Text>
             )}
-        </button>
+        </TouchableOpacity>
     );
 };
+
+const styles = StyleSheet.create({
+    button: {
+        borderWidth: 1.5,
+        borderColor: woltTheme.colors.danger,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
+    },
+    text: {
+        color: woltTheme.colors.danger,
+        fontWeight: 'bold',
+        fontSize: 14,
+    }
+});
 
 export default DeleteButton;

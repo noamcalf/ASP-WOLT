@@ -1,28 +1,85 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Animated } from 'react-native';
+import { woltTheme } from '../styles/woltTheme';
 
 const CardSkeletonLoader = () => {
+    // Create an animated value for opacity, starting at 0.3
+    const opacityAnim = useRef(new Animated.Value(0.3)).current;
+
+    useEffect(() => {
+        // Create a looping animation that fades in and out smoothly
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(opacityAnim, {
+                    toValue: 0.7, // Fade in to 70% opacity
+                    duration: 800,
+                    useNativeDriver: true, // Use hardware acceleration for smooth 60fps animation
+                }),
+                Animated.timing(opacityAnim, {
+                    toValue: 0.3, // Fade back out to 30% opacity
+                    duration: 800,
+                    useNativeDriver: true,
+                })
+            ])
+        ).start();
+    }, [opacityAnim]);
+
     return (
-        <div className="wolt-restaurant-card border-0 shadow-sm d-flex flex-column h-100">
+        <View style={styles.card}>
             {/* Image Placeholder */}
-            <div className="wolt-shimmer w-100" style={{ height: '160px', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}></div>
+            <Animated.View style={[styles.imageShimmer, { opacity: opacityAnim }]} />
             
             {/* Content Placeholder */}
-            <div className="p-3 d-flex flex-column flex-grow-1">
+            <View style={styles.contentContainer}>
                 {/* Title Line */}
-                <div className="wolt-shimmer rounded mb-2" style={{ height: '24px', width: '70%' }}></div>
+                <Animated.View style={[styles.shimmerLine, { opacity: opacityAnim, height: 24, width: '70%', marginBottom: 8 }]} />
                 
                 {/* Subtitle Line (Cuisine) */}
-                <div className="wolt-shimmer rounded mb-3" style={{ height: '16px', width: '40%' }}></div>
+                <Animated.View style={[styles.shimmerLine, { opacity: opacityAnim, height: 16, width: '40%', marginBottom: 16 }]} />
                 
-                <div className="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+                <View style={styles.footer}>
                     {/* Rating Pill */}
-                    <div className="wolt-shimmer rounded-pill" style={{ height: '24px', width: '50px' }}></div>
+                    <Animated.View style={[styles.shimmerLine, { opacity: opacityAnim, height: 24, width: 50, borderRadius: 12 }]} />
                     {/* Delivery Time / Distance */}
-                    <div className="wolt-shimmer rounded" style={{ height: '16px', width: '60px' }}></div>
-                </div>
-            </div>
-        </div>
+                    <Animated.View style={[styles.shimmerLine, { opacity: opacityAnim, height: 16, width: 60 }]} />
+                </View>
+            </View>
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    card: {
+        ...woltTheme.components.card,
+        height: '100%',
+        flexDirection: 'column',
+        overflow: 'hidden', // Ensures the image shimmer doesn't bleed out of rounded corners
+    },
+    imageShimmer: {
+        backgroundColor: '#e2e8f0',
+        height: 160,
+        width: '100%',
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
+    },
+    contentContainer: {
+        padding: 12,
+        flexGrow: 1,
+        flexDirection: 'column',
+    },
+    shimmerLine: {
+        backgroundColor: '#e2e8f0',
+        borderRadius: 4,
+    },
+    footer: {
+        marginTop: 'auto',
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: '#f1f5f9',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    }
+});
 
 export default CardSkeletonLoader;
