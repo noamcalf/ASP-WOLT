@@ -1,23 +1,54 @@
 import React from 'react';
+import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, View } from 'react-native';
+import { woltTheme } from '../styles/woltTheme';
 
 const MainButton = ({ text, loadingText = "Loading... ⏳", isLoading, type = "submit", onClick, disabled }) => {
     return (
-        <button 
-            type={type} 
-            className="btn py-3 text-white fw-bold w-100 mt-2 d-block wolt-btn"
-            onClick={onClick}
+        // Native version for the button tag
+        <TouchableOpacity 
+            style={[
+                styles.button,
+                (isLoading || disabled) && styles.buttonDisabled
+            ]}
+            onPress={onClick}
             disabled={isLoading || disabled}
+            activeOpacity={0.8}
         >
             {isLoading ? (
-                <div className="d-flex justify-content-center align-items-center gap-2">
-                    <div className="spinner-border spinner-border-sm text-white" role="status"></div>
-                    <span>{loadingText}</span>
-                </div>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="small" color="#ffffff" />
+                    <Text style={styles.loadingText}>{loadingText}</Text>
+                </View>
             ) : (
-                text
+                <Text style={styles.text}>{text}</Text>
             )}
-        </button>
+        </TouchableOpacity>
     );
 };
+
+const styles = StyleSheet.create({
+    button: {
+        ...woltTheme.components.button,
+        marginTop: woltTheme.spacing.small,
+        width: '100%',
+    },
+    buttonDisabled: {
+        backgroundColor: '#a0dbf5',
+    },
+    text: {
+        ...woltTheme.components.buttonText,
+    },
+    loadingContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 8,
+    },
+    loadingText: {
+        color: '#ffffff',
+        fontSize: 16,
+        fontWeight: '500',
+    }
+});
 
 export default MainButton;
