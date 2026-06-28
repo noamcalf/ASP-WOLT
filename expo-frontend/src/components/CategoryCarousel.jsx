@@ -1,35 +1,69 @@
 import React from 'react';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import RestaurantCard from './RestaurantCard';
 import CardSkeletonLoader from './CardSkeletonLoader';
+import { woltTheme } from '../styles/woltTheme';
 
 const CategoryCarousel = ({ title, restaurants, isLoading }) => {
     return (
-        <div className="mb-5">
-            <h3 className="fw-bold mb-3 wolt-text-heading px-1">{title}</h3>
+        <View style={styles.container}>
+            <Text style={styles.title}>{title}</Text>
             
-            <div className="wolt-carousel-track px-1">
+            <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
                 {isLoading ? (
                     /* Render 4 skeletons if loading */
                     <>
-                        <CardSkeletonLoader />
-                        <CardSkeletonLoader />
-                        <CardSkeletonLoader />
-                        <CardSkeletonLoader />
+                        <View style={styles.cardWrapper}><CardSkeletonLoader /></View>
+                        <View style={styles.cardWrapper}><CardSkeletonLoader /></View>
+                        <View style={styles.cardWrapper}><CardSkeletonLoader /></View>
+                        <View style={styles.cardWrapper}><CardSkeletonLoader /></View>
                     </>
                 ) : (
                     /* Map restaurants to cards */
                     restaurants.map(restaurant => (
-                        <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+                        <View key={restaurant.id} style={styles.cardWrapper}>
+                            <RestaurantCard restaurant={restaurant} />
+                        </View>
                     ))
                 )}
                 
                 {/* Fallback if loaded but empty */}
                 {!isLoading && restaurants.length === 0 && (
-                    <div className="text-muted fst-italic p-3">No restaurants available in this category.</div>
+                    <Text style={styles.emptyText}>No restaurants available in this category.</Text>
                 )}
-            </div>
-        </div>
+            </ScrollView>
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        marginBottom: woltTheme.spacing.extraLarge,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+        marginBottom: woltTheme.spacing.medium,
+        paddingHorizontal: woltTheme.spacing.medium,
+    },
+    scrollContent: {
+        paddingHorizontal: woltTheme.spacing.medium,
+        gap: woltTheme.spacing.medium,
+    },
+    cardWrapper: {
+        width: 300, // Fixed width so they look like horizontal cards
+        marginRight: woltTheme.spacing.medium,
+    },
+    emptyText: {
+        color: woltTheme.colors.textMuted,
+        fontStyle: 'italic',
+        padding: woltTheme.spacing.medium,
+    }
+});
 
 export default CategoryCarousel;

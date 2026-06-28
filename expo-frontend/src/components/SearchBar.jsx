@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { View, TextInput, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import SearchDropdownTray from './SearchDropdownTray';
+import { woltTheme } from '../styles/woltTheme';
+import { Ionicons } from '@expo/vector-icons';
 
 // SearchBar handles user input for the live search feature.
 // It implements a debounce mechanism to optimize API calls to the backend.
@@ -10,23 +13,8 @@ const SearchBar = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     
-    const wrapperRef = useRef(null);
-    const navigate = useNavigate();
-
-    // Debounce timer reference
+    const navigation = useNavigation();
     const debounceRef = useRef(null);
-
-    useEffect(() => {
-        // Handle outside click to close the dropdown
-        const handleClickOutside = (event) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     const fetchResults = async (searchQuery) => {
         // If the search query is empty, clear results and stop loading
@@ -51,9 +39,8 @@ const SearchBar = () => {
         }
     };
 
-    const handleInputChange = (e) => {
-        const value = e.target.value;
-        setQuery(value);
+    const handleInputChange = (text) => {
+        setQuery(text);
         setIsOpen(true);
 
         // Clear existing timeout
@@ -63,7 +50,7 @@ const SearchBar = () => {
 
         // Set new debounce timeout
         debounceRef.current = setTimeout(() => {
-            fetchResults(value);
+            fetchResults(text);
         }, 300); // 300ms delay
     };
 
@@ -73,29 +60,30 @@ const SearchBar = () => {
         }
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && query.trim()) {
+    const handleSubmitEditing = () => {
+        if (query.trim()) {
             setIsOpen(false); // Close dropdown
-            navigate(`/search/${encodeURIComponent(query.trim())}`); // Go to results view
+            navigation.navigate('Search', { query: query.trim() }); // Go to results view passing query as param
         }
     };
 
     return (
-        <div ref={wrapperRef} className="position-relative w-100" style={{ maxWidth: '500px' }}>
-            <div className="input-group shadow-sm wolt-search-wrapper" style={{ borderRadius: '12px', overflow: 'hidden' }}>
-                <span className="input-group-text border-0 text-muted ps-3 pe-2 wolt-search-icon">
-                    🔍
-                </span>
-                <input 
-                    type="text" 
-                    className="form-control border-0 py-2 wolt-search-input shadow-none" 
+        <View style={styles.wrapper}>
+            <View style={styles.inputContainer}>
+                <Ionicons name="search" size={20} color={woltTheme.colors.textMuted} style={styles.searchIcon} />
+                <TextInput 
+                    style={styles.input}
                     placeholder="Search in Wolt..." 
+                    placeholderTextColor={woltTheme.colors.textMuted}
                     value={query}
-                    onChange={handleInputChange}
+                    onChangeText={handleInputChange}
                     onFocus={handleFocus}
-                    onKeyDown={handleKeyDown}
+                    onSubmitEditing={handleSubmitEditing}
+                    returnKeyType="search"
+                    autoCapitalize="none"
+                    autoCorrect={false}
                 />
-            </div>
+            </View>
             
             <SearchDropdownTray 
                 results={results} 
@@ -104,8 +92,35 @@ const SearchBar = () => {
                 searchQuery={query}
                 onClose={() => setIsOpen(false)}
             />
-        </div>
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    wrapper: {
+        width: '100%',
+        maxWidth: 500,
+        position: 'relative',
+        zIndex: 1000, // Important to ensure dropdown stays above other content
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        paddingHorizontal: woltTheme.spacing.medium,
+        ...woltTheme.shadows.small,
+        height: 48,
+    },
+    searchIcon: {
+        marginRight: woltTheme.spacing.small,
+    },
+    input: {
+        flex: 1,
+        fontSize: 16,
+        color: woltTheme.colors.text,
+        height: '100%',
+    }
+});
 
 export default SearchBar;
