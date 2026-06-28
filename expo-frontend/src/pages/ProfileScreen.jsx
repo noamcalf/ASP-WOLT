@@ -4,7 +4,7 @@ import { useAuth } from '../context/authContext';
 
 const ProfileScreen = () => {
     const { user } = useAuth();
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
     return (
         <div className="container-fluid min-vh-100 py-5" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
             <div className="container">

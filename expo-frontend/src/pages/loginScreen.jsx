@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { View, Text, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/authContext'; 
 import { useFormValidation } from '../hooks/useFormValidation';
 import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
+import { loginStyles as styles } from '../styles/loginScreenStyles';
 
 // The page where users log into their accounts.
-// It sends the username and password to the server, gets a token, and saves it in the browser.
+// Refactored to React Native layout.
 const LoginScreen = () => {
-    const navigate = useNavigate();
+    const navigation = useNavigation();
     const { login } = useAuth(); 
-    
-    // We extracted all the complicated validation logic into useFormValidation!
-    // Now this component only cares about its specific rules and what to do on submit.
     
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -33,8 +32,7 @@ const LoginScreen = () => {
     } = useFormValidation({ username: '', password: '' }, validationRules);
 
     // This function handles the login process when the user submits the form.
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         setError('');
 
         if (!validateAll()) {
@@ -45,7 +43,9 @@ const LoginScreen = () => {
         setIsLoading(true);
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            // Note: process.env or import.meta.env behavior differs in Expo.
+            // Using a fallback to localhost, but for Android emulator it often needs 10.0.2.2.
+            const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
             const response = await fetch(`${apiUrl}/api/tokens/`, {
                 method: 'POST',
                 headers: {
@@ -64,7 +64,8 @@ const LoginScreen = () => {
             }
 
             login(data.token); 
-            navigate('/'); 
+            // In React Navigation, auth context usually switches stacks automatically,
+            // but we can also explicitly navigate to Dashboard if needed.
 
         } catch (err) {
             setError(err.message || 'Connection error. Please try again.');
@@ -74,65 +75,65 @@ const LoginScreen = () => {
     };
 
     return (
-        <div className="container-fluid min-vh-100 p-0 m-0 position-relative wolt-custom-bg"
-             style={{ backgroundImage: `url(${woltBg})` }}>
-            
-            <div className="position-absolute top-0 start-0 w-100 h-100" style={{ backgroundColor: 'rgba(0, 0, 0, 0.15)', zIndex: 0 }}></div>
+        <KeyboardAvoidingView 
+            style={styles.container} 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <ImageBackground source={woltBg} style={styles.backgroundImage}>
+                {/* Dark overlay for better readability */}
+                <View style={styles.overlay} />
 
-            <div className="card p-5 bg-white shadow-lg wolt-centered-card" 
-                 style={{ 
-                     width: '90%', 
-                     maxWidth: '460px', 
-                     borderRadius: '24px', 
-                     border: 'none',
-                     zIndex: 1
-                 }}>
-                
-                <h2 className="text-center mb-4 fw-bold wolt-text-heading" style={{ fontSize: '2.2rem', letterSpacing: '-0.8px' }}>
-                    Let's Login to WOLT!
-                </h2>
+                <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+                    <View style={styles.card}>
+                        
+                        <Text style={styles.heading}>Let's Login to WOLT!</Text>
 
-                {error && (
-                    <div className="alert alert-danger border-0 p-3 mb-4 wolt-error-alert" role="alert" style={{ borderRadius: '14px', fontSize: '0.9rem' }}>
-                        <div className="fw-bold"><span className="me-2">⚠️</span>{error}</div>
-                    </div>
-                )}
-                
-                <form onSubmit={handleSubmit} className="w-100" noValidate>
-                    
-                    <WoltInput 
-                        ref={refs.username} 
-                        label="Username 👤" 
-                        name="username" 
-                        placeholder="Enter your username" 
-                        value={formData.username} 
-                        onChange={handleChange} 
-                        isValid={hasSubmitted ? validations.username : null} 
-                        disabled={isLoading} 
-                    />
+                        {error ? (
+                            <View style={styles.errorAlert}>
+                                <Text style={styles.errorAlertText}>⚠️ {error}</Text>
+                            </View>
+                        ) : null}
+                        
+                        <WoltInput 
+                            ref={refs.username} 
+                            label="Username 👤" 
+                            name="username" 
+                            placeholder="Enter your username" 
+                            value={formData.username} 
+                            onChange={handleChange} 
+                            isValid={hasSubmitted ? validations.username : null} 
+                            disabled={isLoading} 
+                        />
 
-                    <WoltInput 
-                        ref={refs.password} 
-                        label="Password 🔒" 
-                        name="password" 
-                        type="password" 
-                        placeholder="Enter your password" 
-                        value={formData.password} 
-                        onChange={handleChange} 
-                        isValid={hasSubmitted ? validations.password : null} 
-                        disabled={isLoading} 
-                    />
+                        <WoltInput 
+                            ref={refs.password} 
+                            label="Password 🔒" 
+                            name="password" 
+                            type="password" 
+                            placeholder="Enter your password" 
+                            value={formData.password} 
+                            onChange={handleChange} 
+                            isValid={hasSubmitted ? validations.password : null} 
+                            disabled={isLoading} 
+                        />
 
-                    <MainButton text="Login" isLoading={isLoading} />
-                    
-                    <div className="text-center mt-3">
-                        <Link to="/register" className="text-decoration-none" style={{ color: '#009de0', fontWeight: '600' }}>
-                            New user? Sign up here!
-                        </Link>
-                    </div>
-                </form>
-            </div>
-        </div>
+                        <MainButton 
+                            text="Login" 
+                            onClick={handleSubmit} 
+                            isLoading={isLoading} 
+                        />
+                        
+                        <TouchableOpacity 
+                            style={styles.linkContainer}
+                            onPress={() => navigation.navigate('Register')}
+                        >
+                            <Text style={styles.linkText}>New user? Sign up here!</Text>
+                        </TouchableOpacity>
+                        
+                    </View>
+                </ScrollView>
+            </ImageBackground>
+        </KeyboardAvoidingView>
     );
 };
 

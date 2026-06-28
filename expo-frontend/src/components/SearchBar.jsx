@@ -38,7 +38,7 @@ const SearchBar = () => {
 
         setIsLoading(true);
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
             const response = await fetch(`${apiUrl}/api/search/${encodeURIComponent(searchQuery)}`);
             if (response.ok) {
                 const data = await response.json();

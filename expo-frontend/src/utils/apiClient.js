@@ -5,13 +5,18 @@
  */
 
 // We load the base URL of our backend server from the .env file.
-// In Vite, environment variables must start with VITE_ and are accessed via import.meta.env
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// In Expo, environment variables must start with EXPO_PUBLIC_ and are accessed via process.env
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'; 
 
 export const apiClient = async (endpoint, options = {}) => {
-    // 1. Get the token from local memory (localStorage)
+    // 1. Get the token from local memory (AsyncStorage)
     // Here we retrieve the token that we saved when the user logged in.
-    const token = localStorage.getItem('token');
+    let token = null;
+    try {
+        token = await AsyncStorage.getItem('token');
+    } catch (e) {}
 
     // 2. Setup the headers
     // By default, we tell the server we are sending JSON data.
