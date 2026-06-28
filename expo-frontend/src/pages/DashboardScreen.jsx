@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import { apiClient } from '../utils/apiClient';
 import CategoryCarousel from '../components/CategoryCarousel';
+import SearchBar from '../components/SearchBar';
 import { useAuth } from '../context/authContext';
 import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
 import { dashboardStyles as styles } from '../styles/DashboardScreen.styles';
@@ -71,85 +72,84 @@ const DashboardScreen = () => {
         });
     }, [restaurants, user]);
 
-    // Construct the data array for our FlatList. 
-    // This allows us to scroll through all the vertical carousels efficiently.
-    const sectionsData = useMemo(() => {
-        if (isLoading) {
-            // Provide fake sections for the Skeleton Loaders while data is fetching
-            return [
-                { id: 'loading-1', title: 'Loading Best Matches 🌟', data: [], isLoading: true },
-                { id: 'loading-2', title: 'Trending Near You 🔥', data: [], isLoading: true }
-            ];
-        }
+    // 1. Extract Promoted (Highest Rating)
+    const promotedRestaurants = useMemo(() => {
+        return getTopRestaurants(enrichedRestaurants, 'rating', 'desc', 5);
+    }, [enrichedRestaurants]);
 
-        const sections = [];
-        
-        // 1. Extract Promoted (Highest Rating) - using 'rating' key, descending order
-        const promoted = getTopRestaurants(enrichedRestaurants, 'rating', 'desc', 5);
-        if (promoted.length > 0) {
-            sections.push({ id: 'promoted', title: 'Promoted Restaurants 🌟', data: promoted, isLoading: false });
-        }
+    // 2. Extract Nearby (Closest Distance)
+    const nearbyRestaurants = useMemo(() => {
+        return getTopRestaurants(enrichedRestaurants, 'distanceKm', 'asc', 5);
+    }, [enrichedRestaurants]);
 
-        // 2. Extract Nearby (Closest Distance) - using 'distanceKm' key, ascending order
-        const nearby = getTopRestaurants(enrichedRestaurants, 'distanceKm', 'asc', 5);
-        if (nearby.length > 0) {
-            sections.push({ id: 'nearby', title: 'Nearby Restaurants 📍', data: nearby, isLoading: false });
-        }
+    // 3. Group remaining restaurants by cuisine
+    const groupedRestaurants = enrichedRestaurants.reduce((acc, restaurant) => {
+        const cuisine = restaurant.cuisine || 'Other';
+        if (!acc[cuisine]) acc[cuisine] = [];
+        acc[cuisine].push(restaurant);
+        return acc;
+    }, {});
 
-        // 3. Group remaining restaurants by cuisine category
-        const grouped = enrichedRestaurants.reduce((acc, restaurant) => {
-            const cuisine = restaurant.cuisine || 'Other';
-            if (!acc[cuisine]) acc[cuisine] = [];
-            acc[cuisine].push(restaurant);
-            return acc;
-        }, {});
+    return (
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+            {/* Header Section */}
+            <View style={styles.headerContainer}>
+                <Text style={styles.headerTitle}>
+                    Discovery
+                </Text>
+                <Text style={styles.headerSubtitle}>Find the best food in town, delivered fast.</Text>
 
-        Object.entries(grouped).forEach(([cuisine, rests]) => {
-            sections.push({ id: `cuisine-${cuisine}`, title: cuisine, data: rests, isLoading: false });
-        });
+                {/* Search Bar */}
+                <View style={{ marginTop: 16 }}>
+                    <SearchBar />
+                </View>
+            </View>
 
-        return sections;
-    }, [enrichedRestaurants, isLoading]);
-
-    // Render the header component (Title & Subtitle) inside the FlatList
-    const renderHeader = () => (
-        <View style={styles.headerContainer}>
-            <Text style={styles.headerTitle}>Discovery</Text>
-            <Text style={styles.headerSubtitle}>Find the best food in town, delivered fast.</Text>
-            
-            {/* Show error banner if network fails */}
+            {/* Error State */}
             {error && (
                 <View style={styles.errorContainer}>
                     <Text style={styles.errorText}>⚠️ Error: {error}</Text>
                 </View>
             )}
-        </View>
-    );
 
-    // Render an individual section (A horizontal CategoryCarousel)
-    const renderSection = ({ item }) => (
-        <CategoryCarousel 
-            title={item.title} 
-            restaurants={item.data} 
-            isLoading={item.isLoading} 
-        />
-    );
+            {/* Content Rendering: Loading Skeletons OR Dynamic Carousels */}
+            {isLoading ? (
+                <>
+                    <CategoryCarousel title="Loading Best Matches 🌟" isLoading={true} restaurants={[]} />
+                    <CategoryCarousel title="Trending Near You 🔥" isLoading={true} restaurants={[]} />
+                </>
+            ) : (
+                <>
+                    {/* Custom Row 1: Promoted Restaurants */}
+                    {promotedRestaurants.length > 0 && (
+                        <CategoryCarousel 
+                            title="Promoted Restaurants 🌟" 
+                            restaurants={promotedRestaurants} 
+                            isLoading={false} 
+                        />
+                    )}
 
-    return (
-        <View style={styles.container}>
-            {/* 
-              We use FlatList here instead of a regular ScrollView for Memory Optimization. 
-              FlatList only renders the carousels that are currently visible on screen.
-            */}
-            <FlatList
-                data={sectionsData}
-                keyExtractor={(item) => item.id}
-                renderItem={renderSection}
-                ListHeaderComponent={renderHeader}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-            />
-        </View>
+                    {/* Custom Row 2: Nearby Restaurants */}
+                    {nearbyRestaurants.length > 0 && (
+                        <CategoryCarousel 
+                            title="Nearby Restaurants 📍" 
+                            restaurants={nearbyRestaurants} 
+                            isLoading={false} 
+                        />
+                    )}
+
+                    {/* Dynamic Rows: Grouped by Cuisine */}
+                    {Object.entries(groupedRestaurants).map(([cuisine, rests]) => (
+                        <CategoryCarousel 
+                            key={cuisine} 
+                            title={cuisine} 
+                            restaurants={rests} 
+                            isLoading={false} 
+                        />
+                    ))}
+                </>
+            )}
+        </ScrollView>
     );
 };
 

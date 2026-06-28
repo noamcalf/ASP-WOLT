@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { woltTheme } from '../styles/woltTheme';
+import { getImageUrl } from '../utils/imageUtils';
 
 // SearchDropdownTray is an absolute-positioned overlay that displays live search results.
 // It renders lists of matching restaurants and menu items below the SearchBar.
@@ -13,6 +14,9 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
     const hasRestaurants = results?.restaurants?.length > 0;
     const hasProducts = results?.products?.length > 0;
     const hasResults = hasRestaurants || hasProducts;
+
+    const fallbackRestaurantImage = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=100&q=80';
+    const fallbackProductImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&q=80';
 
     const handleRestaurantPress = (id) => {
         onClose();
@@ -51,9 +55,10 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
                                     style={styles.row}
                                     onPress={() => handleRestaurantPress(restaurant.id)}
                                 >
-                                    <View style={[styles.iconCircle, { backgroundColor: woltTheme.colors.primary }]}>
-                                        <Text style={styles.emoji}>🍽️</Text>
-                                    </View>
+                                    <Image 
+                                        source={{ uri: getImageUrl(restaurant.image, fallbackRestaurantImage) }} 
+                                        style={styles.resultImage} 
+                                    />
                                     <View>
                                         <Text style={styles.titleText}>{restaurant.name}</Text>
                                         <Text style={styles.subtitleText}>Restaurant</Text>
@@ -72,9 +77,10 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
                                     style={styles.row}
                                     onPress={() => handleProductPress(product)}
                                 >
-                                    <View style={[styles.iconCircle, { backgroundColor: woltTheme.colors.success }]}>
-                                        <Text style={styles.emoji}>🍔</Text>
-                                    </View>
+                                    <Image 
+                                        source={{ uri: getImageUrl(product.image, fallbackProductImage) }} 
+                                        style={styles.resultImage} 
+                                    />
                                     <View>
                                         <Text style={styles.titleText}>{product.name}</Text>
                                         <Text style={styles.subtitleText}>₪{product.price}</Text>
@@ -142,16 +148,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
     },
-    iconCircle: {
+    resultImage: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
         marginRight: 12,
-    },
-    emoji: {
-        fontSize: 18,
+        backgroundColor: woltTheme.colors.border,
     },
     titleText: {
         fontWeight: 'bold',

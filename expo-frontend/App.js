@@ -71,7 +71,7 @@ function RootNavigator() {
     <Drawer.Navigator 
       drawerPosition="right" 
       drawerContent={(props) => <CartDrawer {...props} />}
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false, swipeEnabled: false }}
     >
       <Drawer.Screen name="MainStack" component={MainStack} />
     </Drawer.Navigator>

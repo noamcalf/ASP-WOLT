@@ -1,71 +1,92 @@
 import React from 'react';
-import { useCart } from '../context/CartContext';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { woltTheme } from '../styles/woltTheme';
 import { getImageUrl } from '../utils/imageUtils';
 
-// A component that displays a single product inside the shopping cart.
-// It includes buttons to increase or decrease the quantity of the item.
-const CartItem = ({ item }) => {
-    const { updateQuantity, removeFromCart } = useCart();
-    const { product, quantity } = item;
-
-    // Provide a fallback image just in case
-    const imageSrc = getImageUrl(product.image);
+const CartItem = ({ item, updateQuantity, removeFromCart }) => {
+    const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&q=80';
+    const imageSrc = getImageUrl(item.product.image, fallbackImage);
 
     return (
-        <div className="d-flex align-items-center py-3 border-bottom position-relative">
-            {/* Image Thumbnail */}
-            <div 
-                className="rounded-3 overflow-hidden me-3 flex-shrink-0" 
-                style={{ width: '60px', height: '60px' }}
-            >
-                <img src={imageSrc} alt={product.name} className="w-100 h-100 object-fit-cover" />
-            </div>
-
-            {/* Product Details */}
-            <div className="flex-grow-1">
-                <h6 className="mb-1 wolt-text-heading fw-bold">{product.name}</h6>
-                <div className="text-muted small">₪{product.price.toFixed(2)}</div>
-                
-                <div className="fw-bold mt-1" style={{ color: 'var(--bs-primary)' }}>
-                    ₪{(product.price * quantity).toFixed(2)}
-                </div>
-            </div>
-
-            {/* Controls */}
-            <div className="d-flex flex-column align-items-end justify-content-between h-100 ms-2">
-                {/* Remove Item Button */}
-                <button 
-                    className="btn btn-link text-danger p-0 text-decoration-none mb-2" 
-                    title="Remove item"
-                    onClick={() => removeFromCart(product.id)}
-                    style={{ fontSize: '1.2rem' }}
-                >
-                    🗑️
-                </button>
-
-                {/* Quantity Controls */}
-                <div className="d-flex align-items-center bg-body-secondary rounded-pill px-2 py-1 border shadow-sm">
-                    <button 
-                        className="btn btn-sm text-primary fw-bold p-0 d-flex justify-content-center align-items-center" 
-                        style={{ width: '24px', height: '24px', fontSize: '1.2rem' }}
-                        onClick={() => updateQuantity(product.id, -1)}
-                    >
-                        -
-                    </button>
-                    <span className="mx-2 fw-bold wolt-text-heading" style={{ minWidth: '16px', textAlign: 'center' }}>
-                        {quantity}
-                    </span>
-                    <button 
-                        className="btn btn-sm text-primary fw-bold p-0 d-flex justify-content-center align-items-center" 
-                        style={{ width: '24px', height: '24px', fontSize: '1.2rem' }}
-                        onClick={() => updateQuantity(product.id, 1)}
-                    >
-                        +
-                    </button>
-                </div>
-            </div>
-        </div>
+        <View style={styles.cartItem}>
+            <View style={styles.itemInfo}>
+                <Image source={{ uri: imageSrc }} style={styles.itemImage} />
+                <View style={styles.itemTextContainer}>
+                    <Text style={styles.itemName} numberOfLines={2}>{item.product.name}</Text>
+                    <Text style={styles.itemPrice}>₪{(item.product.price * item.quantity).toFixed(2)}</Text>
+                </View>
+            </View>
+            <View style={styles.itemActions}>
+                <TouchableOpacity onPress={() => updateQuantity(item.product.id, -1)}>
+                    <Text style={styles.actionButton}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.quantity}>{item.quantity}</Text>
+                <TouchableOpacity onPress={() => updateQuantity(item.product.id, 1)}>
+                    <Text style={styles.actionButton}>+</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => removeFromCart(item.product.id)} style={styles.removeButton}>
+                    <Text style={styles.removeText}>🗑️</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    cartItem: {
+        marginBottom: woltTheme.spacing.large,
+        borderBottomWidth: 1,
+        borderBottomColor: woltTheme.colors.border,
+        paddingBottom: 15,
+    },
+    itemInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    itemImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 8,
+        marginRight: 12,
+        backgroundColor: woltTheme.colors.border,
+    },
+    itemTextContainer: {
+        flex: 1,
+    },
+    itemName: {
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+        marginBottom: 4,
+    },
+    itemPrice: {
+        fontWeight: 'bold',
+        color: woltTheme.colors.primary,
+    },
+    itemActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 15,
+    },
+    actionButton: {
+        fontSize: 20,
+        padding: 5,
+        backgroundColor: woltTheme.colors.cardBackground,
+        borderRadius: 5,
+        overflow: 'hidden',
+        color: woltTheme.colors.text,
+    },
+    quantity: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+    },
+    removeButton: {
+        marginLeft: 'auto',
+    },
+    removeText: {
+        fontSize: 16,
+    },
+});
 
 export default CartItem;

@@ -6,45 +6,44 @@ export const restaurantMenuStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: woltTheme.colors.background,
     },
+    scrollContent: {
+        paddingBottom: 40,
+    },
     centerContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: woltTheme.colors.background,
         padding: woltTheme.spacing.large,
     },
     errorText: {
         fontSize: 18,
-        color: woltTheme.colors.danger,
-        marginBottom: woltTheme.spacing.large,
         fontWeight: 'bold',
+        color: woltTheme.colors.error,
+        marginBottom: woltTheme.spacing.large,
     },
-    button: {
+    backButton: {
         backgroundColor: woltTheme.colors.primary,
-        paddingHorizontal: woltTheme.spacing.large,
-        paddingVertical: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
         borderRadius: 8,
     },
-    buttonText: {
+    backButtonText: {
         color: '#fff',
         fontWeight: 'bold',
     },
-    listContent: {
-        paddingBottom: 100, // Allows user to scroll past the bottom content
-    },
-    headerWrapper: {
-        marginBottom: woltTheme.spacing.large,
-    },
-    emptyStateContainer: {
+    emptyContainer: {
         alignItems: 'center',
-        padding: woltTheme.spacing.extraLarge,
+        padding: 40,
         backgroundColor: woltTheme.colors.cardBackground,
-        margin: woltTheme.spacing.medium,
         borderRadius: 16,
+        margin: woltTheme.spacing.large,
     },
-    emptyStateText: {
+    emptyText: {
         fontSize: 16,
         color: woltTheme.colors.textMuted,
-        fontWeight: '500',
+        fontWeight: 'bold',
+    },
+    menuContent: {
+        paddingTop: woltTheme.spacing.extraLarge,
     }
 });

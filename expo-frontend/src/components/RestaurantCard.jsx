@@ -5,80 +5,77 @@ import DeleteButton from './DeleteButton';
 import { getImageUrl } from '../utils/imageUtils';
 import { woltTheme } from '../styles/woltTheme';
 
-// A component that displays a summary of a restaurant (image, name, cuisine, rating).
-// Customers see rating and delivery time, while owners see "Manage Menu" and "Delete" buttons.
-// This component encapsulates its own styles to allow reuse across different screens.
 const RestaurantCard = ({ restaurant, ownerMode = false, onDelete }) => {
     // If the restaurant doesn't have an image, we use a placeholder that fits the Wolt theme.
     const imageSrc = getImageUrl(restaurant.image, 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80');
 
     const navigation = useNavigation();
 
-    // Determines where to navigate based on the user's role (Customer vs Owner)
-    const handlePress = () => {
+    const handleCardPress = () => {
         if (ownerMode) {
-            navigation.navigate('OwnerMenuManager', { id: restaurant.id });
+            navigation.navigate('OwnerRestaurantDetails', { id: restaurant.id });
         } else {
             navigation.navigate('RestaurantMenu', { id: restaurant.id });
         }
     };
 
+    const handleManageMenuClick = (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        navigation.navigate('OwnerRestaurantDetails', { id: restaurant.id });
+    };
+
     return (
-        <TouchableOpacity 
-            style={styles.cardContainer}
-            activeOpacity={0.9}
-            onPress={handlePress}
-        >
-            {/* Image Section */}
-            <View style={styles.imageContainer}>
-                <Image 
-                    source={{ uri: imageSrc }} 
-                    style={styles.image}
-                />
-            </View>
-            
-            {/* Content Section */}
-            <View style={styles.contentContainer}>
-                <Text style={styles.title} numberOfLines={1}>
-                    {restaurant.name}
-                </Text>
-                <Text style={styles.subtitle} numberOfLines={1}>
-                    {restaurant.cuisine} {ownerMode && restaurant.address?.city ? `• ${restaurant.address.city}` : ''}
-                </Text>
+        <View style={styles.cardContainer}>
+            <TouchableOpacity 
+                activeOpacity={0.9} 
+                style={styles.touchableArea} 
+                onPress={handleCardPress}
+            >
+                {/* Image Section */}
+                <View style={styles.imageContainer}>
+                    <Image source={{ uri: imageSrc }} style={styles.image} />
+                </View>
                 
-                {/* Footer Data (Rating/Time for Customers, Management actions for Owners) */}
-                <View style={styles.footerContainer}>
+                {/* Content Section */}
+                <View style={styles.contentContainer}>
+                    <Text style={styles.title} numberOfLines={1}>{restaurant.name}</Text>
+                    <Text style={styles.subtitle} numberOfLines={1}>
+                        {restaurant.cuisine} {ownerMode && restaurant.address?.city ? `• ${restaurant.address.city}` : ''}
+                    </Text>
+                </View>
+            </TouchableOpacity>
+            
+            <View style={styles.footerContainer}>
+                <View style={styles.footerInner}>
                     {ownerMode ? (
-                        <View style={styles.ownerButtonsContainer}>
-                            <TouchableOpacity style={styles.manageButton} onPress={handlePress}>
+                        <View style={styles.ownerActions}>
+                            <TouchableOpacity style={styles.manageButton} onPress={handleManageMenuClick}>
                                 <Text style={styles.manageButtonText}>Manage Menu</Text>
                             </TouchableOpacity>
                             <DeleteButton 
                                 endpoint={`/api/restaurants/${restaurant.id}`}
                                 confirmationMessage="Are you absolutely sure you want to delete this ENTIRE restaurant? This action cannot be undone!"
                                 onSuccess={onDelete} 
-                                style={{ borderRadius: 20 }}
+                                style={styles.deleteButton}
                             />
                         </View>
                     ) : (
                         <>
-                            <View style={styles.ratingBadge}>
-                                <Text style={styles.ratingText}>
+                            <View style={styles.ratingPill}>
+                                <Text style={styles.ratingValue}>
                                     {restaurant.rating === 0 ? "New" : restaurant.rating.toFixed(1)}
                                 </Text>
-                                <Text style={{ fontSize: 12 }}>⭐</Text>
+                                <Text style={styles.ratingIcon}>⭐</Text>
                             </View>
                             
-                            <View style={styles.metaDataContainer}>
-                                <Text style={styles.metaDataText}>
+                            <View style={styles.deliveryInfo}>
+                                <Text style={styles.deliveryText}>
                                     {restaurant.deliveryTimeMins || restaurant.baseDeliveryTime}
                                 </Text>
                                 {restaurant.distanceKm && (
                                     <>
-                                        <Text style={styles.metaDataDot}>•</Text>
-                                        <Text style={styles.metaDataText}>
-                                            {restaurant.distanceKm.toFixed(1)} km
-                                        </Text>
+                                        <Text style={styles.deliveryBullet}>•</Text>
+                                        <Text style={styles.deliveryText}>{restaurant.distanceKm.toFixed(1)} km</Text>
                                     </>
                                 )}
                             </View>
@@ -86,7 +83,7 @@ const RestaurantCard = ({ restaurant, ownerMode = false, onDelete }) => {
                     )}
                 </View>
             </View>
-        </TouchableOpacity>
+        </View>
     );
 };
 
@@ -95,22 +92,25 @@ const styles = StyleSheet.create({
         backgroundColor: woltTheme.colors.cardBackground,
         borderRadius: 16,
         overflow: 'hidden',
-        marginHorizontal: woltTheme.spacing.medium,
-        marginBottom: woltTheme.spacing.large,
+        borderWidth: 1,
+        borderColor: woltTheme.colors.border,
+        flexDirection: 'column',
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.1,
-                shadowRadius: 8,
+                shadowRadius: 4,
             },
             android: {
-                elevation: 4,
+                elevation: 3,
             },
             web: {
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
             }
         }),
+    },
+    touchableArea: {
     },
     imageContainer: {
         height: 160,
@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         padding: woltTheme.spacing.medium,
+        paddingBottom: 0,
     },
     title: {
         fontSize: 18,
@@ -133,61 +134,76 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 14,
         color: woltTheme.colors.textMuted,
-        marginBottom: woltTheme.spacing.medium,
     },
     footerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        padding: woltTheme.spacing.medium,
+        paddingTop: woltTheme.spacing.small,
+    },
+    footerInner: {
         borderTopWidth: 1,
         borderTopColor: woltTheme.colors.border,
-        paddingTop: woltTheme.spacing.medium,
-    },
-    ratingBadge: {
+        paddingTop: woltTheme.spacing.small,
         flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: woltTheme.colors.primaryLight,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
-    },
-    ratingText: {
-        color: woltTheme.colors.primary,
-        fontWeight: 'bold',
-        fontSize: 14,
-        marginRight: 4,
-    },
-    metaDataContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    metaDataText: {
-        fontSize: 13,
-        color: woltTheme.colors.textMuted,
-        fontWeight: '600',
-    },
-    metaDataDot: {
-        marginHorizontal: 6,
-        color: woltTheme.colors.textMuted,
-    },
-    ownerButtonsContainer: {
-        flexDirection: 'row',
-        width: '100%',
         justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    ratingPill: {
+        backgroundColor: woltTheme.colors.cardBackground,
+        borderRadius: 16,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: woltTheme.colors.border,
+    },
+    ratingValue: {
+        fontWeight: 'bold',
+        color: woltTheme.colors.primary,
+        fontSize: 14,
+    },
+    ratingIcon: {
+        fontSize: 12,
+        marginLeft: 4,
+    },
+    deliveryInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    deliveryText: {
+        color: woltTheme.colors.textMuted,
+        fontWeight: '600',
+        fontSize: 13,
+    },
+    deliveryBullet: {
+        color: woltTheme.colors.textMuted,
+        marginHorizontal: 4,
+    },
+    ownerActions: {
+        flexDirection: 'row',
+        flex: 1,
+        justifyContent: 'space-between',
+        gap: 8,
     },
     manageButton: {
         flex: 1,
         borderWidth: 1,
         borderColor: woltTheme.colors.primary,
         borderRadius: 20,
-        paddingVertical: 8,
         alignItems: 'center',
-        marginRight: 8,
+        justifyContent: 'center',
+        paddingVertical: 6,
     },
     manageButtonText: {
         color: woltTheme.colors.primary,
         fontWeight: 'bold',
+        fontSize: 14,
+    },
+    deleteButton: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        borderWidth: 1,
     }
 });
 

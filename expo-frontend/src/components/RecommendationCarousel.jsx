@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import { useAuth } from '../context/authContext';
 import { apiClient } from '../utils/apiClient';
 import { getImageUrl } from '../utils/imageUtils';
+import { woltTheme } from '../styles/woltTheme';
 
 // A small card representing a single recommended product.
 const RecommendationCard = ({ product, onAddToOrder }) => {
@@ -9,27 +11,23 @@ const RecommendationCard = ({ product, onAddToOrder }) => {
     const imageSrc = getImageUrl(product.image, fallbackImage);
 
     return (
-        <div 
-            className="wolt-restaurant-card bg-body overflow-hidden border shadow-sm d-flex flex-column" 
-            style={{ width: '180px', minWidth: '180px', borderRadius: '12px', marginRight: '16px' }}
-        >
-            <div style={{ height: '120px' }}>
-                <img src={imageSrc} alt={product.name} className="w-100 h-100 object-fit-cover" />
-            </div>
-            <div className="p-3 flex-grow-1 d-flex flex-column justify-content-between">
-                <div>
-                    <h6 className="fw-bold mb-1 text-truncate wolt-text-heading" title={product.name}>{product.name}</h6>
-                    <span className="wolt-text-muted small fw-semibold">₪{product.price.toFixed(2)}</span>
-                </div>
-                <button 
-                    className="wolt-btn py-1 w-100 mt-3 text-white fw-bold d-flex justify-content-center align-items-center"
-                    style={{ fontSize: '0.9rem', borderRadius: '8px' }}
-                    onClick={() => onAddToOrder(product)}
+        <View style={styles.cardContainer}>
+            <View style={styles.imageContainer}>
+                <Image source={{ uri: imageSrc }} style={styles.image} />
+            </View>
+            <View style={styles.cardContent}>
+                <View>
+                    <Text style={styles.cardTitle} numberOfLines={1}>{product.name}</Text>
+                    <Text style={styles.cardPrice}>₪{product.price.toFixed(2)}</Text>
+                </View>
+                <TouchableOpacity 
+                    style={styles.addButton}
+                    onPress={() => onAddToOrder(product)}
                 >
-                    + Add
-                </button>
-            </div>
-        </div>
+                    <Text style={styles.addButtonText}>+ Add</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
     );
 };
 
@@ -66,14 +64,12 @@ const RecommendationCarousel = ({ productId, onAddToOrder }) => {
 
     if (isLoading) {
         return (
-            <div className="mt-4 mb-2">
-                <h6 className="fw-bold mb-3 wolt-text-heading px-1">People also bought</h6>
-                <div className="d-flex overflow-hidden px-1">
-                    <div className="spinner-border text-primary spinner-border-sm" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            </div>
+            <View style={styles.container}>
+                <Text style={styles.heading}>People also bought</Text>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="small" color={woltTheme.colors.primary} />
+                </View>
+            </View>
         );
     }
 
@@ -82,25 +78,114 @@ const RecommendationCarousel = ({ productId, onAddToOrder }) => {
     }
 
     return (
-        <div className="mt-4 mb-2">
-            <h6 className="fw-bold mb-3 wolt-text-heading px-1">People also bought</h6>
+        <View style={styles.container}>
+            <Text style={styles.heading}>People also bought</Text>
             
             {/* 
-              We use 'wolt-carousel-track' to inherit the same nice horizontal scrollbar 
-              and layout logic as the category carousel.
+              FlatList with snapToInterval creates the native "snapping" carousel effect 
+              where cards slide smoothly and snap exactly to the edge.
             */}
-            <div className="wolt-carousel-track px-1 pb-3">
-                {/* Loop through the recommended products and display a card for each */}
-                {recommendations.map(product => (
+            <FlatList
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                data={recommendations}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
                     <RecommendationCard 
-                        key={product.id} 
-                        product={product} 
+                        product={item} 
                         onAddToOrder={onAddToOrder} 
                     />
-                ))}
-            </div>
-        </div>
+                )}
+                contentContainerStyle={styles.listContent}
+                // snapToInterval = width of card (180) + marginRight (16)
+                snapToInterval={196}
+                decelerationRate="fast"
+                snapToAlignment="start"
+            />
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        marginTop: woltTheme.spacing.large,
+        marginBottom: woltTheme.spacing.medium,
+    },
+    heading: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+        marginBottom: woltTheme.spacing.medium,
+        paddingHorizontal: woltTheme.spacing.medium,
+    },
+    loadingContainer: {
+        paddingVertical: 20,
+        alignItems: 'center',
+    },
+    listContent: {
+        paddingHorizontal: woltTheme.spacing.medium,
+        paddingBottom: woltTheme.spacing.medium, // For shadow
+    },
+    cardContainer: {
+        width: 180,
+        backgroundColor: woltTheme.colors.cardBackground,
+        borderRadius: 12,
+        marginRight: 16,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: woltTheme.colors.border,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+            },
+            android: {
+                elevation: 3,
+            },
+            web: {
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            }
+        }),
+    },
+    imageContainer: {
+        height: 120,
+        width: '100%',
+    },
+    image: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    cardContent: {
+        padding: woltTheme.spacing.medium,
+        flex: 1,
+        justifyContent: 'space-between',
+    },
+    cardTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+        marginBottom: 4,
+    },
+    cardPrice: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: woltTheme.colors.textMuted,
+    },
+    addButton: {
+        marginTop: woltTheme.spacing.medium,
+        backgroundColor: woltTheme.colors.primaryLight,
+        paddingVertical: 6,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    addButtonText: {
+        color: woltTheme.colors.primary,
+        fontWeight: 'bold',
+        fontSize: 14,
+    }
+});
 
 export default RecommendationCarousel;
