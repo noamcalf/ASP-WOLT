@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-na
 import { useAuth } from '../context/authContext';
 import { useCart } from '../context/CartContext';
 import { useNavigation } from '@react-navigation/native';
+import { woltTheme } from '../styles/woltTheme';
 
 const NativeHeader = (props) => {
     const { isAuthenticated, user, logout } = useAuth();
@@ -62,12 +63,11 @@ const NativeHeader = (props) => {
     );
 };
 
-// Styels are now Hard-Coded, change it in WOLT-241
 const styles = StyleSheet.create({
     safeArea: {
-        backgroundColor: '#fff',
+        backgroundColor: woltTheme.colors.background,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: woltTheme.colors.border,
     },
     container: {
         flexDirection: 'row',
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     brand: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#007AFF', // Using a generic blue for now
+        color: woltTheme.colors.primary, 
     },
     rightSection: {
         flexDirection: 'row',
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     iconButton: {
         padding: 8,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: woltTheme.colors.border,
         borderRadius: 8,
         position: 'relative',
     },
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: -5,
         right: -5,
-        backgroundColor: 'red',
+        backgroundColor: woltTheme.colors.error,
         borderRadius: 10,
         width: 18,
         height: 18,
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     loginButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: woltTheme.colors.primary,
         paddingHorizontal: 15,
         paddingVertical: 8,
         borderRadius: 20,
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     logoutText: {
-        color: 'red',
+        color: woltTheme.colors.error,
         fontWeight: 'bold',
     }
 });

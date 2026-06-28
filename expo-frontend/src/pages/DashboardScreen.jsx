@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import { apiClient } from '../utils/apiClient';
 import CategoryCarousel from '../components/CategoryCarousel';
 import { useAuth } from '../context/authContext';
 import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
+import { dashboardStyles as styles } from '../styles/DashboardScreen.styles';
 
-// A generic sorting utility to prevent code duplication for custom carousels
-// Sorts by a specific key (e.g. distance, rating), in asc or desc order, and returns up to 'limit' elements
+// A generic sorting utility to prevent code duplication for custom carousels.
+// It sorts an array of restaurants by a specific key (e.g. distance, rating), 
+// in ascending or descending order, and returns up to 'limit' elements.
 const getTopRestaurants = (restaurants, sortKey, order = 'asc', limit = 5) => {
     return [...restaurants]
         // Filter out restaurants that don't have the key we want to sort by
@@ -17,6 +20,7 @@ const getTopRestaurants = (restaurants, sortKey, order = 'asc', limit = 5) => {
         .slice(0, limit);
 };
 
+// The main discovery screen for the app. Shows carousels of restaurants.
 const DashboardScreen = () => {
     const [restaurants, setRestaurants] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -47,7 +51,7 @@ const DashboardScreen = () => {
         fetchRestaurants();
     }, []);
 
-    // Enrich restaurants with dynamic distance and delivery time
+    // Enrich restaurants with dynamic distance and delivery time based on the user's location
     const enrichedRestaurants = useMemo(() => {
         return restaurants.map(restaurant => {
             let distanceKm = null;
@@ -63,91 +67,89 @@ const DashboardScreen = () => {
                 deliveryTimeMins = estimateDeliveryTime(distanceKm);
             }
 
-            return {
-                ...restaurant,
-                distanceKm,
-                deliveryTimeMins
-            };
+            return { ...restaurant, distanceKm, deliveryTimeMins };
         });
     }, [restaurants, user]);
 
-    // 1. Extract Promoted (Highest Rating)
-    // using 'rating' key, descending order, max 5
-    const promotedRestaurants = useMemo(() => {
-        return getTopRestaurants(enrichedRestaurants, 'rating', 'desc', 5);
-    }, [enrichedRestaurants]);
+    // Construct the data array for our FlatList. 
+    // This allows us to scroll through all the vertical carousels efficiently.
+    const sectionsData = useMemo(() => {
+        if (isLoading) {
+            // Provide fake sections for the Skeleton Loaders while data is fetching
+            return [
+                { id: 'loading-1', title: 'Loading Best Matches 🌟', data: [], isLoading: true },
+                { id: 'loading-2', title: 'Trending Near You 🔥', data: [], isLoading: true }
+            ];
+        }
 
-    // 2. Extract Nearby (Closest Distance)
-    // using 'distanceKm' key, ascending order, max 5
-    const nearbyRestaurants = useMemo(() => {
-        return getTopRestaurants(enrichedRestaurants, 'distanceKm', 'asc', 5);
-    }, [enrichedRestaurants]);
+        const sections = [];
+        
+        // 1. Extract Promoted (Highest Rating) - using 'rating' key, descending order
+        const promoted = getTopRestaurants(enrichedRestaurants, 'rating', 'desc', 5);
+        if (promoted.length > 0) {
+            sections.push({ id: 'promoted', title: 'Promoted Restaurants 🌟', data: promoted, isLoading: false });
+        }
 
-    // 3. Group remaining restaurants by cuisine
-    const groupedRestaurants = enrichedRestaurants.reduce((acc, restaurant) => {
-        const cuisine = restaurant.cuisine || 'Other';
-        if (!acc[cuisine]) acc[cuisine] = [];
-        acc[cuisine].push(restaurant);
-        return acc;
-    }, {});
+        // 2. Extract Nearby (Closest Distance) - using 'distanceKm' key, ascending order
+        const nearby = getTopRestaurants(enrichedRestaurants, 'distanceKm', 'asc', 5);
+        if (nearby.length > 0) {
+            sections.push({ id: 'nearby', title: 'Nearby Restaurants 📍', data: nearby, isLoading: false });
+        }
+
+        // 3. Group remaining restaurants by cuisine category
+        const grouped = enrichedRestaurants.reduce((acc, restaurant) => {
+            const cuisine = restaurant.cuisine || 'Other';
+            if (!acc[cuisine]) acc[cuisine] = [];
+            acc[cuisine].push(restaurant);
+            return acc;
+        }, {});
+
+        Object.entries(grouped).forEach(([cuisine, rests]) => {
+            sections.push({ id: `cuisine-${cuisine}`, title: cuisine, data: rests, isLoading: false });
+        });
+
+        return sections;
+    }, [enrichedRestaurants, isLoading]);
+
+    // Render the header component (Title & Subtitle) inside the FlatList
+    const renderHeader = () => (
+        <View style={styles.headerContainer}>
+            <Text style={styles.headerTitle}>Discovery</Text>
+            <Text style={styles.headerSubtitle}>Find the best food in town, delivered fast.</Text>
+            
+            {/* Show error banner if network fails */}
+            {error && (
+                <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>⚠️ Error: {error}</Text>
+                </View>
+            )}
+        </View>
+    );
+
+    // Render an individual section (A horizontal CategoryCarousel)
+    const renderSection = ({ item }) => (
+        <CategoryCarousel 
+            title={item.title} 
+            restaurants={item.data} 
+            isLoading={item.isLoading} 
+        />
+    );
 
     return (
-        <div className="container-fluid min-vh-100 py-5" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
-            <div className="container">
-                {/* Header Section */}
-                <div className="mb-5">
-                    <h1 className="display-4 fw-bold wolt-text-heading" style={{ letterSpacing: '-1px' }}>
-                        Discovery
-                    </h1>
-                    <p className="fs-5 text-muted">Find the best food in town, delivered fast.</p>
-                </div>
-
-                {/* Error State */}
-                {error && (
-                    <div className="alert alert-danger shadow-sm border-0 rounded-4">
-                        <span className="fw-bold">⚠️ Error: </span> {error}
-                    </div>
-                )}
-
-                {/* Content Rendering: Loading Skeletons OR Dynamic Carousels */}
-                {isLoading ? (
-                    <>
-                        <CategoryCarousel title="Loading Best Matches 🌟" isLoading={true} restaurants={[]} />
-                        <CategoryCarousel title="Trending Near You 🔥" isLoading={true} restaurants={[]} />
-                    </>
-                ) : (
-                    <>
-                        {/* Custom Row 1: Promoted Restaurants */}
-                        {promotedRestaurants.length > 0 && (
-                            <CategoryCarousel 
-                                title="Promoted Restaurants 🌟" 
-                                restaurants={promotedRestaurants} 
-                                isLoading={false} 
-                            />
-                        )}
-
-                        {/* Custom Row 2: Nearby Restaurants */}
-                        {nearbyRestaurants.length > 0 && (
-                            <CategoryCarousel 
-                                title="Nearby Restaurants 📍" 
-                                restaurants={nearbyRestaurants} 
-                                isLoading={false} 
-                            />
-                        )}
-
-                        {/* Dynamic Rows: Grouped by Cuisine */}
-                        {Object.entries(groupedRestaurants).map(([cuisine, rests]) => (
-                            <CategoryCarousel 
-                                key={cuisine} 
-                                title={cuisine} 
-                                restaurants={rests} 
-                                isLoading={false} 
-                            />
-                        ))}
-                    </>
-                )}
-            </div>
-        </div>
+        <View style={styles.container}>
+            {/* 
+              We use FlatList here instead of a regular ScrollView for Memory Optimization. 
+              FlatList only renders the carousels that are currently visible on screen.
+            */}
+            <FlatList
+                data={sectionsData}
+                keyExtractor={(item) => item.id}
+                renderItem={renderSection}
+                ListHeaderComponent={renderHeader}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+            />
+        </View>
     );
 };
 
