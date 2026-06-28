@@ -1,108 +1,183 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { woltTheme } from '../styles/woltTheme';
 
 // SearchDropdownTray is an absolute-positioned overlay that displays live search results.
 // It renders lists of matching restaurants and menu items below the SearchBar.
 const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }) => {
+    const navigation = useNavigation();
+
     if (!isOpen || !searchQuery.trim()) return null;
 
     const hasRestaurants = results?.restaurants?.length > 0;
     const hasProducts = results?.products?.length > 0;
     const hasResults = hasRestaurants || hasProducts;
 
+    const handleRestaurantPress = (id) => {
+        onClose();
+        navigation.navigate('RestaurantMenu', { id });
+    };
+
+    const handleProductPress = (product) => {
+        onClose();
+        navigation.navigate('RestaurantMenu', { id: product.restaurantId, highlightProductId: product.id });
+    };
+
+    const handleSeeAll = () => {
+        onClose();
+        navigation.navigate('Search', { query: searchQuery });
+    };
+
     return (
-        <div 
-            className="position-absolute bg-white shadow-lg rounded-4 overflow-hidden mt-2 w-100" 
-            style={{ 
-                top: '100%', 
-                left: 0, 
-                zIndex: 1050, 
-                maxHeight: '400px', 
-                overflowY: 'auto',
-                border: '1px solid #e2e8f0',
-                display: 'block'
-            }}
-        >
-            {/* Show a loading spinner if the search is currently running */}
+        <View style={styles.container}>
             {isLoading ? (
-                <div className="p-4 text-center text-muted">
-                    <div className="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                    Searching...
-                </div>
+                <View style={styles.centerContent}>
+                    <ActivityIndicator size="small" color={woltTheme.colors.primary} />
+                    <Text style={styles.mutedText}>Searching...</Text>
+                </View>
             ) : !hasResults ? (
-                /* Show a "No results" message if the search finished but found nothing */
-                <div className="p-4 text-center text-muted">
-                    No results found for "{searchQuery}"
-                </div>
+                <View style={styles.centerContent}>
+                    <Text style={styles.mutedText}>No results found for "{searchQuery}"</Text>
+                </View>
             ) : (
-                <div className="py-2">
-                    {/* Restaurants Section */}
+                <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
                     {hasRestaurants && (
-                        <div className="mb-2">
-                            <h6 className="px-3 py-2 m-0 small fw-bold text-uppercase tracking-wider wolt-tray-header">
-                                Restaurants
-                            </h6>
-                            {/* Loop through all found restaurants and display them as clickable links */}
+                        <View style={styles.section}>
+                            <Text style={styles.headerText}>RESTAURANTS</Text>
                             {results.restaurants.map(restaurant => (
-                                <Link 
+                                <TouchableOpacity 
                                     key={`rest-${restaurant.id}`} 
-                                    to={`/restaurant/${restaurant.id}`}
-                                    className="d-flex align-items-center px-3 py-2 text-decoration-none text-dark hover-bg-light"
-                                    onClick={onClose}
+                                    style={styles.row}
+                                    onPress={() => handleRestaurantPress(restaurant.id)}
                                 >
-                                    <div className="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-3" style={{ width: '40px', height: '40px', fontSize: '1.2rem' }}>
-                                        🍽️
-                                    </div>
-                                    <div>
-                                        <div className="fw-bold">{restaurant.name}</div>
-                                        <div className="text-muted small">Restaurant</div>
-                                    </div>
-                                </Link>
+                                    <View style={[styles.iconCircle, { backgroundColor: woltTheme.colors.primary }]}>
+                                        <Text style={styles.emoji}>🍽️</Text>
+                                    </View>
+                                    <View>
+                                        <Text style={styles.titleText}>{restaurant.name}</Text>
+                                        <Text style={styles.subtitleText}>Restaurant</Text>
+                                    </View>
+                                </TouchableOpacity>
                             ))}
-                        </div>
+                        </View>
                     )}
 
-                    {/* Products Section */}
                     {hasProducts && (
-                        <div>
-                            <h6 className="px-3 py-2 m-0 small fw-bold text-uppercase tracking-wider wolt-tray-header">
-                                Menu Items
-                            </h6>
-                            {/* Loop through all found products and display them as clickable links */}
+                        <View style={styles.section}>
+                            <Text style={styles.headerText}>MENU ITEMS</Text>
                             {results.products.map(product => (
-                                <Link 
+                                <TouchableOpacity 
                                     key={`prod-${product.id}`} 
-                                    to={`/restaurant/${product.restaurantId}`} // Link to the restaurant that has this product
-                                    className="d-flex align-items-center px-3 py-2 text-decoration-none text-dark hover-bg-light"
-                                    onClick={onClose}
+                                    style={styles.row}
+                                    onPress={() => handleProductPress(product)}
                                 >
-                                    <div className="bg-success text-white rounded-circle d-flex justify-content-center align-items-center me-3" style={{ width: '40px', height: '40px', fontSize: '1.2rem' }}>
-                                        🍔
-                                    </div>
-                                    <div>
-                                        <div className="fw-bold">{product.name}</div>
-                                        <div className="text-muted small">₪{product.price}</div>
-                                    </div>
-                                </Link>
+                                    <View style={[styles.iconCircle, { backgroundColor: woltTheme.colors.success }]}>
+                                        <Text style={styles.emoji}>🍔</Text>
+                                    </View>
+                                    <View>
+                                        <Text style={styles.titleText}>{product.name}</Text>
+                                        <Text style={styles.subtitleText}>₪{product.price}</Text>
+                                    </View>
+                                </TouchableOpacity>
                             ))}
-                        </div>
+                        </View>
                     )}
 
-                    {/* View All Results Link */}
-                    <div className="border-top mt-2 pt-2 px-3 pb-1">
-                        <Link 
-                            to={`/search/${encodeURIComponent(searchQuery)}`}
-                            className="text-primary text-decoration-none fw-bold small d-flex justify-content-between align-items-center wolt-text-heading"
-                            onClick={onClose}
-                        >
-                            <span>See all results for "{searchQuery}"</span>
-                            <span>→</span>
-                        </Link>
-                    </div>
-                </div>
+                    <TouchableOpacity style={styles.viewAllRow} onPress={handleSeeAll}>
+                        <Text style={styles.viewAllText}>See all results for "{searchQuery}"</Text>
+                        <Text style={styles.viewAllText}>→</Text>
+                    </TouchableOpacity>
+                </ScrollView>
             )}
-        </div>
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        position: 'absolute',
+        top: '100%',
+        left: 0,
+        right: 0,
+        marginTop: 8,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        maxHeight: 400,
+        ...woltTheme.shadows.medium,
+        elevation: 5,
+        borderWidth: 1,
+        borderColor: woltTheme.colors.border,
+        zIndex: 1050,
+        overflow: 'hidden',
+    },
+    scrollView: {
+        paddingVertical: 8,
+    },
+    centerContent: {
+        padding: 24,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 8,
+    },
+    mutedText: {
+        color: woltTheme.colors.textMuted,
+        fontSize: 14,
+    },
+    section: {
+        marginBottom: 8,
+    },
+    headerText: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: woltTheme.colors.textMuted,
+        letterSpacing: 1,
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+    },
+    iconCircle: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    emoji: {
+        fontSize: 18,
+    },
+    titleText: {
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+        fontSize: 15,
+        marginBottom: 2,
+    },
+    subtitleText: {
+        color: woltTheme.colors.textMuted,
+        fontSize: 13,
+    },
+    viewAllRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderTopWidth: 1,
+        borderTopColor: woltTheme.colors.border,
+        marginTop: 4,
+    },
+    viewAllText: {
+        color: woltTheme.colors.primary,
+        fontWeight: 'bold',
+        fontSize: 14,
+    }
+});
 
 export default SearchDropdownTray;
