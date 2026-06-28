@@ -1,7 +1,9 @@
 import React from 'react';
+import { View, Text, Modal, Image, TouchableOpacity, ScrollView, SafeAreaView, StyleSheet, Platform } from 'react-native';
 import { useAuth } from '../context/authContext';
 import { getImageUrl } from '../utils/imageUtils';
-import RecommendationCarousel from './RecommendationCarousel';
+import { woltTheme } from '../styles/woltTheme';
+// import RecommendationCarousel from './RecommendationCarousel'; // TODO: Enable in WOLT-248
 
 // A pop-up window (modal) that displays the full details of a specific product.
 // It allows customers to read the description and add the item to their cart.
@@ -16,74 +18,182 @@ const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
 
     return (
         /* 
-          1. The Dark Overlay (Backdrop)
-          'position-fixed top-0 start-0 w-100 h-100' stretches this div over the entire screen.
-          'zIndex: 1050' ensures it sits above everything else (like the Navbar).
-          We attach 'onClick={onClose}' here so clicking anywhere outside the white modal closes it!
+          1. React Native's Native <Modal>
+          We use animationType="slide" so it glides smoothly up from the bottom of the screen.
+          transparent={true} allows the dark overlay to show through behind the modal.
         */
-        <div 
-            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-            style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050, padding: '20px' }}
-            onClick={onClose} 
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={!!product}
+            onRequestClose={onClose}
         >
-            {/* 
-              2. The Modal Container
-              'onClick={e => e.stopPropagation()}' is CRITICAL here!
-              Without it, clicking inside the white box would "bubble up" to the dark overlay 
-              and trigger the 'onClose' function, closing the modal by mistake!
-            */}
-            <div 
-                className="bg-body rounded-4 overflow-hidden shadow-lg position-relative d-flex flex-column"
-                style={{ width: '100%', maxWidth: '500px', maxHeight: '90vh' }}
-                onClick={e => e.stopPropagation()} // Prevent clicks inside the white modal from bubbling up and closing it
+            {/* The Dark Overlay (Backdrop) */}
+            <TouchableOpacity 
+                style={styles.overlay} 
+                activeOpacity={1} 
+                onPress={onClose}
             >
-                {/* Floating Close Button */}
-                <button 
-                    className="btn btn-light position-absolute rounded-circle shadow-sm d-flex justify-content-center align-items-center"
-                    style={{ top: '15px', right: '15px', zIndex: 10, width: '40px', height: '40px' }}
-                    onClick={onClose}
-                >
-                    ✕
-                </button>
-
-                {/* Hero Image */}
-                <div style={{ height: '250px' }}>
-                    <img src={imageSrc} alt={product.name} className="w-100 h-100 object-fit-cover" />
-                </div>
-
                 {/* 
-                  3. Content Details
-                  'overflow-auto' allows this specific section to scroll if the description/ingredients 
-                  are very long, preventing the modal from growing larger than the screen!
-                  'flex-grow-1' pushes the footer down to the bottom.
+                  2. The Modal Container 
+                  Using activeOpacity={1} and a TouchableOpacity here acts exactly like
+                  e.stopPropagation() in the web DOM, preventing touches inside the white
+                  box from closing the modal!
                 */}
-                <div className="p-4 overflow-auto flex-grow-1 bg-body">
-                    <h2 className="fw-bold wolt-text-heading mb-2">{product.name}</h2>
-                    <p className="wolt-text-muted fs-5 mb-4">{product.description}</p>
-                    
+                <TouchableOpacity 
+                    activeOpacity={1} 
+                    style={styles.modalContainer}
+                >
+                    {/* Floating Close Button */}
+                    <TouchableOpacity 
+                        style={styles.closeButton} 
+                        onPress={onClose}
+                    >
+                        <Text style={styles.closeButtonText}>✕</Text>
+                    </TouchableOpacity>
 
-                    {/* Collaborative Filtering Recommendation Carousel */}
-                    <RecommendationCarousel productId={product.id} onAddToOrder={onAddToOrder} />
-                </div>
+                    {/* Hero Image */}
+                    <View style={styles.imageContainer}>
+                        <Image source={{ uri: imageSrc }} style={styles.image} />
+                    </View>
 
-                {/* Footer Action (Sticky at the bottom) - Hidden for owners */}
-                {user?.role !== 'owner' && (
-                    <div className="p-3 border-top bg-body">
-                        <button 
-                            className="wolt-btn w-100 py-3 text-white fw-bold d-flex justify-content-between align-items-center fs-5"
-                            onClick={() => {
-                                onAddToOrder(product);
-                                onClose();
-                            }}
-                        >
-                            <span>Add to order</span>
-                            <span>₪{product.price.toFixed(2)}</span>
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
+                    {/* 
+                      3. Content Details
+                      ScrollView handles long descriptions so the modal doesn't overflow the screen.
+                    */}
+                    <ScrollView contentContainerStyle={styles.scrollContent}>
+                        <Text style={styles.title}>{product.name}</Text>
+                        <Text style={styles.description}>{product.description}</Text>
+                        
+                        {/* 
+                          TODO: RecommendationCarousel will be converted to Native in WOLT-248 
+                          <RecommendationCarousel productId={product.id} onAddToOrder={onAddToOrder} />
+                        */}
+                    </ScrollView>
+
+                    {/* Footer Action (Sticky at the bottom) - Hidden for owners */}
+                    {user?.role !== 'owner' && (
+                        <SafeAreaView style={styles.footer}>
+                            <TouchableOpacity 
+                                style={styles.addButton}
+                                onPress={() => {
+                                    onAddToOrder(product);
+                                    onClose();
+                                }}
+                            >
+                                <Text style={styles.addButtonText}>Add to order</Text>
+                                <Text style={styles.priceText}>₪{product.price.toFixed(2)}</Text>
+                            </TouchableOpacity>
+                        </SafeAreaView>
+                    )}
+                </TouchableOpacity>
+            </TouchableOpacity>
+        </Modal>
     );
 };
+
+const styles = StyleSheet.create({
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'flex-end', // Aligns modal to the bottom like Wolt
+    },
+    modalContainer: {
+        backgroundColor: woltTheme.colors.background,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        overflow: 'hidden',
+        maxHeight: '90%', // Don't cover the entire screen
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: -2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 10,
+            },
+            android: {
+                elevation: 10,
+            }
+        })
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        zIndex: 10,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+            },
+            android: {
+                elevation: 4,
+            }
+        })
+    },
+    closeButtonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+    },
+    imageContainer: {
+        height: 250,
+        width: '100%',
+    },
+    image: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    scrollContent: {
+        padding: woltTheme.spacing.large,
+        paddingBottom: 40,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+        marginBottom: woltTheme.spacing.small,
+    },
+    description: {
+        fontSize: 16,
+        color: woltTheme.colors.textMuted,
+        lineHeight: 24,
+        marginBottom: woltTheme.spacing.large,
+    },
+    footer: {
+        padding: woltTheme.spacing.large,
+        borderTopWidth: 1,
+        borderTopColor: woltTheme.colors.border,
+        backgroundColor: woltTheme.colors.background,
+    },
+    addButton: {
+        backgroundColor: woltTheme.colors.primary,
+        paddingVertical: 16,
+        paddingHorizontal: woltTheme.spacing.large,
+        borderRadius: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    addButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 18,
+    },
+    priceText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 18,
+    }
+});
 
 export default ProductDetailsModal;
