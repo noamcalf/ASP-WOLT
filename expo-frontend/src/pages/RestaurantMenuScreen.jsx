@@ -4,6 +4,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { apiClient } from '../utils/apiClient';
 import { useAuth } from '../context/authContext';
 import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
+import { restaurantMenuStyles as styles } from '../styles/RestaurantMenuScreen.styles';
+import { woltTheme } from '../styles/woltTheme';
 
 import RestaurantHeaderCard from '../components/RestaurantHeaderCard';
 import MenuSection from '../components/MenuSection';
@@ -12,6 +14,7 @@ import { useCart } from '../context/CartContext';
 import { restaurantMenuStyles as styles } from '../styles/RestaurantMenuScreen.styles';
 import { woltTheme } from '../styles/woltTheme';
 
+// This screen shows the details of a specific restaurant and its full menu
 const RestaurantMenuScreen = () => {
     // In React Native Navigation, we extract params from useRoute() instead of useParams()
     const route = useRoute();
@@ -21,30 +24,21 @@ const RestaurantMenuScreen = () => {
     
     const { user } = useAuth();
 
-    // State management for our component:
-    // 'restaurant' holds the restaurant metadata (name, image, etc.)
-    // 'products' holds the array of all menu items.
     const [restaurant, setRestaurant] = useState(null);
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    
-    // State to control the Product Details Modal
     const [selectedProduct, setSelectedProduct] = useState(null);
     
-    // Connect to the global Cart Context
     const { addToCart } = useCart();
 
-    // useEffect runs when the component mounts, or when the 'id' variable changes.
+    // Fetch the restaurant details and its products when the screen opens
     useEffect(() => {
         if (!id) return;
         
         const fetchRestaurantData = async () => {
             try {
-                // Promise.all is a super powerful JavaScript feature!
-                // Instead of fetching the restaurant, WAITING, and then fetching the products,
-                // Promise.all fires BOTH requests to the server at the exact same time (concurrently),
-                // cutting the loading time in half!
+                // Fetch restaurant metadata and products concurrently for speed
                 const [restaurantRes, productsRes] = await Promise.all([
                     apiClient(`/api/restaurants/${id}`),
                     apiClient(`/api/restaurants/${id}/products`)
@@ -57,6 +51,7 @@ const RestaurantMenuScreen = () => {
                 let distanceKm = null;
                 let deliveryTimeMins = fetchedRestaurant.baseDeliveryTime;
 
+                // If user has location, calculate dynamic distance to this specific restaurant
                 if (user?.geolocation?.latitude && user?.geolocation?.longitude && fetchedRestaurant?.geolocation?.latitude && fetchedRestaurant?.geolocation?.longitude) {
                     distanceKm = calculateDistance(
                         user.geolocation.latitude, 
@@ -91,15 +86,15 @@ const RestaurantMenuScreen = () => {
         fetchRestaurantData();
     }, [id, highlightProductId, user]);
 
-    // Handle adding a product to the basket
+    // Handles adding the product to the global cart context
     const handleAddToOrder = (product) => {
         const result = addToCart(product);
         if (!result.success) {
-            // Blocked by cross-restaurant logic
             alert(result.error);
         }
     };
 
+    // Show a loading spinner while fetching
     if (isLoading) {
         return (
             <View style={styles.centerContainer}>
@@ -108,6 +103,7 @@ const RestaurantMenuScreen = () => {
         );
     }
 
+    // Show error or fallback if restaurant doesn't exist
     if (error || !restaurant) {
         return (
             <View style={styles.centerContainer}>
@@ -122,17 +118,40 @@ const RestaurantMenuScreen = () => {
         );
     }
 
-    // Data Transformation: Grouping Products
-    // We receive a flat array of products: [{name: "Pizza", category: "Mains"}, {name: "Cola", category: "Drinks"}]
-    // We want to group them into an object so we can render sections: 
-    // { "Mains": [Pizza, ...], "Drinks": [Cola, ...] }
-    // The 'reduce' function iterates over the array and builds this object dynamically.
+    // Convert flat product array to categorized sections for the FlatList
     const groupedProducts = products.reduce((acc, product) => {
         const category = product.category || 'Other';
         if (!acc[category]) acc[category] = [];
         acc[category].push(product);
         return acc;
     }, {});
+
+    const menuSections = Object.entries(groupedProducts).map(([categoryName, items]) => ({
+        id: categoryName,
+        title: categoryName,
+        data: items
+    }));
+
+    // Render the Restaurant header (Image, Name, Rating) above the menu
+    const renderHeader = () => (
+        <View style={styles.headerWrapper}>
+            <RestaurantHeaderCard restaurant={restaurant} />
+            {menuSections.length === 0 && (
+                <View style={styles.emptyStateContainer}>
+                    <Text style={styles.emptyStateText}>No items found in this menu.</Text>
+                </View>
+            )}
+        </View>
+    );
+
+    // Render each category (e.g. "Starters", "Mains")
+    const renderSection = ({ item }) => (
+        <MenuSection 
+            title={item.title} 
+            products={item.data} 
+            onProductClick={setSelectedProduct} 
+        />
+    );
 
     return (
         <View style={styles.container}>

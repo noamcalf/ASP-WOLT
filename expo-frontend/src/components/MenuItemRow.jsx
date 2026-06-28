@@ -8,6 +8,10 @@ const MenuItemRow = ({ product, onClick, ownerMode = false, deleteEndpoint, onDe
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
     const imageSrc = getImageUrl(product.image, fallbackImage);
 
+    // If we're an owner, clicking the row shouldn't open the "Add to Cart" modal.
+    const Component = ownerMode ? View : TouchableOpacity;
+    const clickProps = ownerMode ? {} : { onPress: () => onClick(product), activeOpacity: 0.7 };
+
     return (
         <TouchableOpacity 
             style={styles.container}

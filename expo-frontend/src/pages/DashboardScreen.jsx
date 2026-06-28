@@ -7,8 +7,9 @@ import { useAuth } from '../context/authContext';
 import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
 import { dashboardStyles as styles } from '../styles/DashboardScreen.styles';
 
-// A generic sorting utility to prevent code duplication for custom carousels
-// Sorts by a specific key (e.g. distance, rating), in asc or desc order, and returns up to 'limit' elements
+// A generic sorting utility to prevent code duplication for custom carousels.
+// It sorts an array of restaurants by a specific key (e.g. distance, rating), 
+// in ascending or descending order, and returns up to 'limit' elements.
 const getTopRestaurants = (restaurants, sortKey, order = 'asc', limit = 5) => {
     return [...restaurants]
         // Filter out restaurants that don't have the key we want to sort by
@@ -20,6 +21,7 @@ const getTopRestaurants = (restaurants, sortKey, order = 'asc', limit = 5) => {
         .slice(0, limit);
 };
 
+// The main discovery screen for the app. Shows carousels of restaurants.
 const DashboardScreen = () => {
     const [restaurants, setRestaurants] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -50,7 +52,7 @@ const DashboardScreen = () => {
         fetchRestaurants();
     }, []);
 
-    // Enrich restaurants with dynamic distance and delivery time
+    // Enrich restaurants with dynamic distance and delivery time based on the user's location
     const enrichedRestaurants = useMemo(() => {
         return restaurants.map(restaurant => {
             let distanceKm = null;
@@ -66,11 +68,7 @@ const DashboardScreen = () => {
                 deliveryTimeMins = estimateDeliveryTime(distanceKm);
             }
 
-            return {
-                ...restaurant,
-                distanceKm,
-                deliveryTimeMins
-            };
+            return { ...restaurant, distanceKm, deliveryTimeMins };
         });
     }, [restaurants, user]);
 
