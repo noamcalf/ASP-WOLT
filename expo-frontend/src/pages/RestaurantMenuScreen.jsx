@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { apiClient } from '../utils/apiClient';
 import { useAuth } from '../context/authContext';
 import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
@@ -8,11 +9,16 @@ import RestaurantHeaderCard from '../components/RestaurantHeaderCard';
 import MenuSection from '../components/MenuSection';
 import ProductDetailsModal from '../components/ProductDetailsModal';
 import { useCart } from '../context/CartContext';
+import { restaurantMenuStyles as styles } from '../styles/RestaurantMenuScreen.styles';
+import { woltTheme } from '../styles/woltTheme';
 
 const RestaurantMenuScreen = () => {
-    // useParams() is a React Router hook that extracts the dynamic parts of the URL.
-    // For example, if the URL is '/restaurant/123', 'id' will be '123'.
-    const { id } = useParams();
+    // In React Native Navigation, we extract params from useRoute() instead of useParams()
+    const route = useRoute();
+    const id = route.params?.id;
+    const highlightProductId = route.params?.highlightProductId;
+    const navigation = useNavigation();
+    
     const { user } = useAuth();
 
     // State management for our component:
@@ -31,6 +37,8 @@ const RestaurantMenuScreen = () => {
 
     // useEffect runs when the component mounts, or when the 'id' variable changes.
     useEffect(() => {
+        if (!id) return;
+        
         const fetchRestaurantData = async () => {
             try {
                 // Promise.all is a super powerful JavaScript feature!
@@ -65,6 +73,14 @@ const RestaurantMenuScreen = () => {
                     deliveryTimeMins
                 });
                 setProducts(productsRes.data);
+
+                // If a specific product was requested via search, open its modal automatically!
+                if (highlightProductId) {
+                    const productToHighlight = productsRes.data.find(p => p.id === highlightProductId);
+                    if (productToHighlight) {
+                        setSelectedProduct(productToHighlight);
+                    }
+                }
             } catch (err) {
                 setError(err.message || 'Network error');
             } finally {
@@ -73,7 +89,7 @@ const RestaurantMenuScreen = () => {
         };
 
         fetchRestaurantData();
-    }, [id]);
+    }, [id, highlightProductId, user]);
 
     // Handle adding a product to the basket
     const handleAddToOrder = (product) => {
@@ -86,22 +102,23 @@ const RestaurantMenuScreen = () => {
 
     if (isLoading) {
         return (
-            <div className="container-fluid min-vh-100 py-5 d-flex justify-content-center align-items-center" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
-                <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
-                    <span className="visually-hidden">Loading...</span>
-                </div>
-            </div>
+            <View style={styles.centerContainer}>
+                <ActivityIndicator size="large" color={woltTheme.colors.primary} />
+            </View>
         );
     }
 
     if (error || !restaurant) {
         return (
-            <div className="container-fluid min-vh-100 py-5 d-flex flex-column justify-content-center align-items-center" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
-                <h3 className="text-danger mb-4">⚠️ {error || 'Restaurant not found'}</h3>
-                <Link to="/" className="wolt-btn text-white px-4 py-2 text-decoration-none">
-                    Back to Dashboard
-                </Link>
-            </div>
+            <View style={styles.centerContainer}>
+                <Text style={styles.errorText}>⚠️ {error || 'Restaurant not found'}</Text>
+                <TouchableOpacity 
+                    style={styles.backButton}
+                    onPress={() => navigation.navigate('Dashboard')}
+                >
+                    <Text style={styles.backButtonText}>Back to Dashboard</Text>
+                </TouchableOpacity>
+            </View>
         );
     }
 
@@ -118,37 +135,32 @@ const RestaurantMenuScreen = () => {
     }, {});
 
     return (
-        <div className="container-fluid min-vh-100 py-4" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
-            <div className="container" style={{ maxWidth: '1000px' }}>
+        <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
                 
                 {/* 1. The Main Billboard Header */}
                 <RestaurantHeaderCard restaurant={restaurant} />
 
                 {/* 2. Menu Content Layout */}
-                <div className="row mt-5">
-                    
-                    {/* Left Sidebar: Quick Navigation (Optional extra for Premium UI, but we'll leave space or use full width) */}
-                    {/* In a real app we'd have anchor links here, but we'll use full width for simplicity */}
-                    <div className="col-12">
-                        {Object.entries(groupedProducts).length === 0 ? (
-                            <div className="text-center text-muted p-5 bg-light rounded-4">
-                                <h5>No items found in this menu.</h5>
-                            </div>
-                        ) : (
-                            // Render a MenuSection for each category group
-                            Object.entries(groupedProducts).map(([categoryName, items]) => (
-                                <MenuSection 
-                                    key={categoryName} 
-                                    title={categoryName} 
-                                    products={items} 
-                                    onProductClick={setSelectedProduct} // Opens the modal
-                                />
-                            ))
-                        )}
-                    </div>
-                </div>
+                <View style={styles.menuContent}>
+                    {Object.entries(groupedProducts).length === 0 ? (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>No items found in this menu.</Text>
+                        </View>
+                    ) : (
+                        // Render a MenuSection for each category group
+                        Object.entries(groupedProducts).map(([categoryName, items]) => (
+                            <MenuSection 
+                                key={categoryName} 
+                                title={categoryName} 
+                                products={items} 
+                                onProductClick={setSelectedProduct} // Opens the modal
+                            />
+                        ))
+                    )}
+                </View>
 
-            </div>
+            </ScrollView>
 
             {/* 3. The Dynamic Modal Pop-up */}
             {/* If selectedProduct has a value, render the modal on top of the screen */}
@@ -159,7 +171,7 @@ const RestaurantMenuScreen = () => {
                     onAddToOrder={handleAddToOrder}
                 />
             )}
-        </div>
+        </View>
     );
 };
 

@@ -103,14 +103,12 @@ const SearchResultsView = () => {
                                 contentContainerStyle={styles.horizontalScrollContent}
                             >
                                 {results.products.map((product) => (
-                                    <TouchableOpacity 
-                                        key={`prod-${product.id}`} 
-                                        style={styles.cardWrapper}
-                                        onPress={() => handleProductPress(product)}
-                                        activeOpacity={0.8}
-                                    >
-                                        <MenuItemRow product={product} onClick={() => {}} />
-                                    </TouchableOpacity>
+                                    <View key={`prod-${product.id}`} style={styles.cardWrapper}>
+                                        <MenuItemRow 
+                                            product={product} 
+                                            onClick={handleProductPress} 
+                                        />
+                                    </View>
                                 ))}
                             </ScrollView>
                         </View>
@@ -175,11 +173,12 @@ const styles = StyleSheet.create({
         marginBottom: woltTheme.spacing.medium,
     },
     horizontalScrollContent: {
-        paddingRight: woltTheme.spacing.large, // Ensure last item isn't cut off
-        gap: woltTheme.spacing.medium, // Space between cards
+        paddingRight: woltTheme.spacing.large,
+        gap: woltTheme.spacing.medium,
+        paddingBottom: woltTheme.spacing.medium, // Extra space for shadows
     },
     cardWrapper: {
-        width: 300, // Fixed width for horizontal scroll items
+        width: 340, // Increased width for better text wrapping
         marginRight: woltTheme.spacing.medium,
     }
 });

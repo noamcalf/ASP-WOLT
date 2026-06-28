@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { ScrollView, View, Text } from 'react-native';
 import { apiClient } from '../utils/apiClient';
 import CategoryCarousel from '../components/CategoryCarousel';
+import SearchBar from '../components/SearchBar';
 import { useAuth } from '../context/authContext';
 import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
+import { dashboardStyles as styles } from '../styles/DashboardScreen.styles';
 
 // A generic sorting utility to prevent code duplication for custom carousels
 // Sorts by a specific key (e.g. distance, rating), in asc or desc order, and returns up to 'limit' elements
@@ -72,13 +75,11 @@ const DashboardScreen = () => {
     }, [restaurants, user]);
 
     // 1. Extract Promoted (Highest Rating)
-    // using 'rating' key, descending order, max 5
     const promotedRestaurants = useMemo(() => {
         return getTopRestaurants(enrichedRestaurants, 'rating', 'desc', 5);
     }, [enrichedRestaurants]);
 
     // 2. Extract Nearby (Closest Distance)
-    // using 'distanceKm' key, ascending order, max 5
     const nearbyRestaurants = useMemo(() => {
         return getTopRestaurants(enrichedRestaurants, 'distanceKm', 'asc', 5);
     }, [enrichedRestaurants]);
@@ -92,62 +93,65 @@ const DashboardScreen = () => {
     }, {});
 
     return (
-        <div className="container-fluid min-vh-100 py-5" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
-            <div className="container">
-                {/* Header Section */}
-                <div className="mb-5">
-                    <h1 className="display-4 fw-bold wolt-text-heading" style={{ letterSpacing: '-1px' }}>
-                        Discovery
-                    </h1>
-                    <p className="fs-5 text-muted">Find the best food in town, delivered fast.</p>
-                </div>
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+            {/* Header Section */}
+            <View style={styles.headerContainer}>
+                <Text style={styles.headerTitle}>
+                    Discovery
+                </Text>
+                <Text style={styles.headerSubtitle}>Find the best food in town, delivered fast.</Text>
 
-                {/* Error State */}
-                {error && (
-                    <div className="alert alert-danger shadow-sm border-0 rounded-4">
-                        <span className="fw-bold">⚠️ Error: </span> {error}
-                    </div>
-                )}
+                {/* Search Bar */}
+                <View style={{ marginTop: 16 }}>
+                    <SearchBar />
+                </View>
+            </View>
 
-                {/* Content Rendering: Loading Skeletons OR Dynamic Carousels */}
-                {isLoading ? (
-                    <>
-                        <CategoryCarousel title="Loading Best Matches 🌟" isLoading={true} restaurants={[]} />
-                        <CategoryCarousel title="Trending Near You 🔥" isLoading={true} restaurants={[]} />
-                    </>
-                ) : (
-                    <>
-                        {/* Custom Row 1: Promoted Restaurants */}
-                        {promotedRestaurants.length > 0 && (
-                            <CategoryCarousel 
-                                title="Promoted Restaurants 🌟" 
-                                restaurants={promotedRestaurants} 
-                                isLoading={false} 
-                            />
-                        )}
+            {/* Error State */}
+            {error && (
+                <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>⚠️ Error: {error}</Text>
+                </View>
+            )}
 
-                        {/* Custom Row 2: Nearby Restaurants */}
-                        {nearbyRestaurants.length > 0 && (
-                            <CategoryCarousel 
-                                title="Nearby Restaurants 📍" 
-                                restaurants={nearbyRestaurants} 
-                                isLoading={false} 
-                            />
-                        )}
+            {/* Content Rendering: Loading Skeletons OR Dynamic Carousels */}
+            {isLoading ? (
+                <>
+                    <CategoryCarousel title="Loading Best Matches 🌟" isLoading={true} restaurants={[]} />
+                    <CategoryCarousel title="Trending Near You 🔥" isLoading={true} restaurants={[]} />
+                </>
+            ) : (
+                <>
+                    {/* Custom Row 1: Promoted Restaurants */}
+                    {promotedRestaurants.length > 0 && (
+                        <CategoryCarousel 
+                            title="Promoted Restaurants 🌟" 
+                            restaurants={promotedRestaurants} 
+                            isLoading={false} 
+                        />
+                    )}
 
-                        {/* Dynamic Rows: Grouped by Cuisine */}
-                        {Object.entries(groupedRestaurants).map(([cuisine, rests]) => (
-                            <CategoryCarousel 
-                                key={cuisine} 
-                                title={cuisine} 
-                                restaurants={rests} 
-                                isLoading={false} 
-                            />
-                        ))}
-                    </>
-                )}
-            </div>
-        </div>
+                    {/* Custom Row 2: Nearby Restaurants */}
+                    {nearbyRestaurants.length > 0 && (
+                        <CategoryCarousel 
+                            title="Nearby Restaurants 📍" 
+                            restaurants={nearbyRestaurants} 
+                            isLoading={false} 
+                        />
+                    )}
+
+                    {/* Dynamic Rows: Grouped by Cuisine */}
+                    {Object.entries(groupedRestaurants).map(([cuisine, rests]) => (
+                        <CategoryCarousel 
+                            key={cuisine} 
+                            title={cuisine} 
+                            restaurants={rests} 
+                            isLoading={false} 
+                        />
+                    ))}
+                </>
+            )}
+        </ScrollView>
     );
 };
 

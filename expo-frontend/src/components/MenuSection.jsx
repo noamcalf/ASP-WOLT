@@ -1,25 +1,41 @@
 import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import MenuItemRow from './MenuItemRow';
+import { woltTheme } from '../styles/woltTheme';
 
 const MenuSection = ({ title, products, onProductClick }) => {
-    // Hide the section entirely if there are no products in this category
     if (!products || products.length === 0) return null;
 
     return (
-        <div className="mb-5">
-            {/* The category title (e.g., "Starters", "Mains") */}
-            <h3 className="fw-bold mb-4 wolt-text-heading">{title}</h3>
-            
-            {/* A responsive grid: 1 column on small screens, 2 columns on medium+ screens */}
-            <div className="row">
+        <View style={styles.container}>
+            <Text style={styles.title}>{title}</Text>
+            <View style={styles.productsGrid}>
                 {products.map(product => (
-                    <div key={product.id} className="col-12 col-lg-6 px-3">
-                        <MenuItemRow product={product} onClick={onProductClick} />
-                    </div>
+                    <MenuItemRow 
+                        key={product.id} 
+                        product={product} 
+                        onClick={onProductClick} 
+                    />
                 ))}
-            </div>
-        </div>
+            </View>
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        marginBottom: 40,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+        marginBottom: woltTheme.spacing.large,
+        paddingHorizontal: woltTheme.spacing.large,
+    },
+    productsGrid: {
+        paddingHorizontal: woltTheme.spacing.medium,
+    }
+});
 
 export default MenuSection;

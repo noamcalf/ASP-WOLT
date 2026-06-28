@@ -43,17 +43,19 @@ const CategoryCarousel = ({ title, restaurants, isLoading }) => {
 const styles = StyleSheet.create({
     container: {
         marginBottom: woltTheme.spacing.extraLarge,
+        marginTop: woltTheme.spacing.medium,
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontWeight: '900',
         color: woltTheme.colors.text,
-        marginBottom: woltTheme.spacing.medium,
-        paddingHorizontal: woltTheme.spacing.medium,
+        marginBottom: woltTheme.spacing.large,
+        paddingHorizontal: woltTheme.spacing.large,
+        letterSpacing: -0.5,
     },
     scrollContent: {
-        paddingHorizontal: woltTheme.spacing.medium,
-        gap: woltTheme.spacing.medium,
+        paddingHorizontal: woltTheme.spacing.large,
+        gap: woltTheme.spacing.large,
     },
     cardWrapper: {
         width: 300, // Fixed width so they look like horizontal cards

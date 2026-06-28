@@ -1,84 +1,131 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { View, Text, ImageBackground, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { getImageUrl } from '../utils/imageUtils';
+import { woltTheme } from '../styles/woltTheme';
 
-// The large banner at the top of a restaurant's menu page.
-// It displays the cover image, name, address, and rating.
 const RestaurantHeaderCard = ({ restaurant }) => {
-    const navigate = useNavigate();
+    const navigation = useNavigation();
     
     if (!restaurant) return null;
 
-    // Use the restaurant's image as the cover if available, otherwise a high-quality placeholder
     const coverImage = getImageUrl(restaurant.image, 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80');
 
     return (
-        <div className="wolt-restaurant-header shadow-sm bg-body overflow-hidden rounded-bottom-4">
-            
-            {/* 
-              1. The Cover Image Area
-              Using 'background-image' with 'background-size: cover' instead of an <img> tag 
-              is a CSS trick that guarantees the image perfectly fills the 280px height rectangle 
-              without stretching or distorting, automatically cropping the edges!
-            */}
-            <div 
-                className="w-100 position-relative" 
-                style={{ 
-                    height: '280px', 
-                    backgroundImage: `url(${coverImage})`, 
-                    backgroundSize: 'cover', 
-                    backgroundPosition: 'center' 
-                }}
+        <View style={styles.container}>
+            <ImageBackground 
+                source={{ uri: coverImage }} 
+                style={styles.coverImage}
             >
-                {/* 
-                  2. Floating Back Button
-                  'position-absolute' combined with 'top: 20px, left: 20px' rips this button 
-                  out of the normal HTML flow and pins it exactly to the top-left corner of the image.
-                  
-                  'navigate(-1)' is the React Router magic that tells the browser history 
-                  to go back to the exact previous page (e.g. Search results or Dashboard).
-                */}
-                <div className="position-absolute" style={{ top: '20px', left: '20px' }}>
-                    <button 
-                        onClick={() => navigate(-1)} 
-                        className="rounded-circle shadow-sm d-flex justify-content-center align-items-center bg-body" 
-                        style={{ width: '45px', height: '45px', opacity: 0.9, border: 'none' }}
-                    >
-                        <span className="fs-4 wolt-text-heading">←</span>
-                    </button>
-                </div>
-            </div>
+                <TouchableOpacity 
+                    style={styles.backButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <Text style={styles.backButtonText}>←</Text>
+                </TouchableOpacity>
+            </ImageBackground>
             
-            <div className="container py-4 position-relative bg-body">
-                <div className="d-flex justify-content-between align-items-start flex-column flex-md-row gap-3">
-                    <div>
-                        <h1 className="display-5 fw-bold mb-1 wolt-text-heading">{restaurant.name}</h1>
-                        <p className="text-muted fs-5 mb-2">{restaurant.cuisine}</p>
-                        
-                        <div className="d-flex align-items-center wolt-text-muted small">
-                            <span className="me-4 fs-6">
-                                📍 {restaurant.address.street} {restaurant.address.houseNumber}, {restaurant.address.city}
-                            </span>
-                            <span className="fs-6 d-flex align-items-center">
-                                ⏱️ {restaurant.deliveryTimeMins || restaurant.baseDeliveryTime}
-                                {restaurant.distanceKm && (
-                                    <>
-                                        <span className="mx-2">•</span>
-                                        <span>{restaurant.distanceKm.toFixed(1)} km</span>
-                                    </>
-                                )}
-                            </span>
-                        </div>
-                    </div>
+            <View style={styles.contentContainer}>
+                <View style={styles.textSection}>
+                    <Text style={styles.title}>{restaurant.name}</Text>
+                    <Text style={styles.subtitle}>{restaurant.cuisine}</Text>
                     
-                    <div className="d-flex align-items-center bg-body-tertiary rounded-pill px-4 py-2 border shadow-sm">
-                        <span className="fs-4 fw-bold" style={{ color: '#009de0' }}>{restaurant.rating.toFixed(1)}</span>
-                        <span className="fs-5 ms-2">⭐</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    <View style={styles.detailsRow}>
+                        <Text style={styles.detailsText}>
+                            📍 {restaurant.address.street} {restaurant.address.houseNumber}, {restaurant.address.city}
+                        </Text>
+                        <Text style={styles.detailsText}>
+                            ⏱️ {restaurant.deliveryTimeMins || restaurant.baseDeliveryTime}
+                            {restaurant.distanceKm && ` • ${restaurant.distanceKm.toFixed(1)} km`}
+                        </Text>
+                    </View>
+                </View>
+                
+                <View style={styles.ratingPill}>
+                    <Text style={styles.ratingValue}>{restaurant.rating.toFixed(1)}</Text>
+                    <Text style={styles.ratingIcon}>⭐</Text>
+                </View>
+            </View>
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: woltTheme.colors.background,
+        borderBottomLeftRadius: 16,
+        borderBottomRightRadius: 16,
+        overflow: 'hidden',
+        ...woltTheme.shadows.light,
+    },
+    coverImage: {
+        height: 280,
+        width: '100%',
+        justifyContent: 'flex-start',
+    },
+    backButton: {
+        width: 45,
+        height: 45,
+        backgroundColor: woltTheme.colors.background,
+        borderRadius: 22.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 20,
+        opacity: 0.9,
+    },
+    backButtonText: {
+        fontSize: 24,
+        color: woltTheme.colors.text,
+        fontWeight: 'bold',
+    },
+    contentContainer: {
+        padding: woltTheme.spacing.large,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    textSection: {
+        flex: 1,
+        marginRight: woltTheme.spacing.medium,
+    },
+    title: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: woltTheme.colors.text,
+        marginBottom: 4,
+    },
+    subtitle: {
+        fontSize: 18,
+        color: woltTheme.colors.textMuted,
+        marginBottom: 8,
+    },
+    detailsRow: {
+        flexDirection: 'column',
+        gap: 4,
+    },
+    detailsText: {
+        fontSize: 14,
+        color: woltTheme.colors.textMuted,
+    },
+    ratingPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: woltTheme.colors.backgroundAlt,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: woltTheme.colors.border,
+    },
+    ratingValue: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: woltTheme.colors.primary,
+    },
+    ratingIcon: {
+        fontSize: 16,
+        marginLeft: 4,
+    }
+});
 
 export default RestaurantHeaderCard;
