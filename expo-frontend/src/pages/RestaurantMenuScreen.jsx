@@ -11,8 +11,6 @@ import RestaurantHeaderCard from '../components/RestaurantHeaderCard';
 import MenuSection from '../components/MenuSection';
 import ProductDetailsModal from '../components/ProductDetailsModal';
 import { useCart } from '../context/CartContext';
-import { restaurantMenuStyles as styles } from '../styles/RestaurantMenuScreen.styles';
-import { woltTheme } from '../styles/woltTheme';
 
 // This screen shows the details of a specific restaurant and its full menu
 const RestaurantMenuScreen = () => {
