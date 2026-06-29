@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiClient } from '../utils/apiClient';
 
 // Create the context with default value "null" - when the app first reboot's - no user is connected
 const AuthContext = createContext(null);
@@ -86,17 +87,10 @@ export const AuthProvider = ({ children }) => {
             }
 
             try {
-                // In a real device you can't use localhost. For development in Expo, you usually use the machine's IP.
-                // Keeping as is per previous implementation, but be aware for testing.
-                const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
-                const response = await fetch(`${apiUrl}/api/users/${decoded.userId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                // apiClient automatically handles the base URL and Authorization headers
+                const { response, data: userData } = await apiClient(`/api/users/${decoded.userId}`);
 
                 if (response.ok) {
-                    const userData = await response.json();
                     setUser(userData);
                 } else {
                     // If fetching fails (e.g. token expired/invalidated server-side)

@@ -74,9 +74,9 @@ const DashboardScreen = () => {
         });
     }, [restaurants, user]);
 
-    // 1. Extract Promoted (Highest Rating)
+    // 1. Extract Promoted (Highest Rating > 0)
     const promotedRestaurants = useMemo(() => {
-        return getTopRestaurants(enrichedRestaurants, 'rating', 'desc', 5);
+        return getTopRestaurants(enrichedRestaurants.filter(r => r.rating > 0), 'rating', 'desc', 5);
     }, [enrichedRestaurants]);
 
     // 2. Extract Nearby (Closest Distance)

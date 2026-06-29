@@ -90,8 +90,18 @@ const NativeHeader = (props) => {
                                 >
                                     <View style={[styles.dropdownMenu, { top: insets.top + 55 }]}>
                                         <TouchableOpacity style={styles.dropdownItem} onPress={handleProfileClick}>
-                                            <Text style={styles.dropdownText}>Profile</Text>
+                                            <Text style={styles.dropdownText}>
+                                                {user?.role === 'owner' ? 'Orders' : 'Profile'}
+                                            </Text>
                                         </TouchableOpacity>
+                                        {user?.role === 'owner' && (
+                                            <TouchableOpacity style={styles.dropdownItem} onPress={() => {
+                                                setIsProfileMenuOpen(false);
+                                                navigation.navigate('OwnerDashboard');
+                                            }}>
+                                                <Text style={styles.dropdownText}>My Restaurants</Text>
+                                            </TouchableOpacity>
+                                        )}
                                         <View style={styles.divider} />
                                         <TouchableOpacity style={styles.dropdownItem} onPress={handleLogout}>
                                             <Text style={[styles.dropdownText, { color: colors.danger }]}>Sign Out</Text>
@@ -191,7 +201,7 @@ const stylesFactory = (colors, theme) => StyleSheet.create({
         backgroundColor: colors.background,
         borderRadius: 12,
         padding: 8,
-        width: 140,
+        width: 160,
         borderWidth: 1,
         borderColor: colors.border,
         shadowColor: '#000',

@@ -5,6 +5,7 @@ import RestaurantCard from '../components/RestaurantCard';
 import MenuItemRow from '../components/MenuItemRow';
 import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
+import { apiClient } from '../utils/apiClient';
 
 // The page that shows search results when a user types into the search bar and hits enter.
 // It groups results into matching Restaurants and matching Menu Items.
@@ -26,14 +27,12 @@ const SearchResultsView = () => {
             setError(null);
             
             try {
-                const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
-                const response = await fetch(`${apiUrl}/api/search/${encodeURIComponent(query)}`);
+                const { response, data } = await apiClient(`/api/search/${encodeURIComponent(query)}`);
                 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch search results');
+                    throw new Error(data?.message || 'Failed to fetch search results');
                 }
                 
-                const data = await response.json();
                 setResults(data);
             } catch (err) {
                 console.error(err);

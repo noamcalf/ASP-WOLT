@@ -16,7 +16,7 @@ const RestaurantCard = ({
 
     const handleCardPress = () => {
         if (ownerMode) {
-            navigation.navigate('OwnerRestaurantDetails', { id: restaurant.id });
+            navigation.navigate('OwnerMenuManager', { restaurantId: restaurant.id });
         } else {
             navigation.navigate('RestaurantMenu', { id: restaurant.id });
         }
@@ -24,7 +24,7 @@ const RestaurantCard = ({
 
     const handleManageMenuClick = (e) => {
         if (e && e.preventDefault) e.preventDefault();
-        navigation.navigate('OwnerRestaurantDetails', { id: restaurant.id });
+        navigation.navigate('OwnerMenuManager', { restaurantId: restaurant.id });
     };
 
     return (

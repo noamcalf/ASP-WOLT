@@ -31,6 +31,8 @@ services:
         condition: service_started
       mongodb:
         condition: service_started
+    volumes:
+      - node_uploads:/app/nodejs_server/uploads
 
   # Cpp server
   cpp_backend:
@@ -70,3 +72,4 @@ networks:
 # Define persistent volumes
 volumes:
   mongo_data:
+  node_uploads:

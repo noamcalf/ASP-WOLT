@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Pl
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/authContext'; 
 import { useFormValidation } from '../hooks/useFormValidation';
+import { apiClient } from '../utils/apiClient';
 import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
@@ -45,21 +46,13 @@ const LoginScreen = () => {
         setIsLoading(true);
 
         try {
-            // Note: process.env or import.meta.env behavior differs in Expo.
-            // Using a fallback to localhost, but for Android emulator it often needs 10.0.2.2.
-            const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/api/tokens/`, {
+            const { response, data } = await apiClient('/api/tokens/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
+                body: { 
                     username: formData.username, 
                     password: formData.password 
-                }),
+                },
             });
-
-            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.error || data.message || 'Login failed. Invalid credentials.');

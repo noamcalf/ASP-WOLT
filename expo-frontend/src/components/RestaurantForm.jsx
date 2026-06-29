@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, ScrollView, Platform } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { apiClient } from '../utils/apiClient';
 import { useFormValidation } from '../hooks/useFormValidation';
 import WoltInput from './WoltInput';
+import MainButton from './MainButton';
+import { useThemeStyles } from '../hooks/useThemeStyles';
+import { woltTheme } from '../styles/woltTheme';
 
-// A form component used by owners to either create a new restaurant or edit an existing one.
+const CUISINES = ['Italian', 'Asian', 'Fast Food', 'Vegan', 'Desserts', 'Mexican', 'Middle Eastern', 'Other'];
+
 const RestaurantForm = ({ onSuccess, initialData = null }) => {
     const isEdit = !!initialData;
-    // We no longer manage formData and validation state manually!
-    // All the heavy lifting is outsourced to our custom 'useFormValidation' hook.
+    const { styles, colors } = useThemeStyles(restaurantFormStylesFactory);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -47,10 +52,33 @@ const RestaurantForm = ({ onSuccess, initialData = null }) => {
         image: null
     }, validationRules);
 
-    // This function is called when the user clicks the submit button.
-    // It verifies all fields and then sends the data to the server.
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const pickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        
+        if (permissionResult.granted === false) {
+            alert('Permission to access camera roll is required!');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [16, 9],
+            quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            const asset = result.assets[0];
+            const file = {
+                uri: asset.uri,
+                type: 'image/jpeg',
+                name: 'restaurant_cover.jpg'
+            };
+            handleFileChange('image', file);
+        }
+    };
+
+    const handleSubmit = async () => {
         setError('');
 
         if (!validateAll()) {
@@ -61,8 +89,6 @@ const RestaurantForm = ({ onSuccess, initialData = null }) => {
         setIsLoading(true);
 
         try {
-            // We use FormData to send the data because it can handle image file uploads 
-            // alongside regular text fields like name and cuisine.
             const payload = new FormData();
             
             payload.append('name', formData.name);
@@ -107,97 +133,203 @@ const RestaurantForm = ({ onSuccess, initialData = null }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} noValidate>
-            {error && (
-                <div className="alert alert-danger border-0 p-3 mb-4 wolt-error-alert" role="alert" style={{ borderRadius: '14px', fontSize: '0.9rem' }}>
-                    <div className="fw-bold"><span className="me-2">⚠️</span>{error}</div>
-                </div>
-            )}
+        <View style={styles.container}>
+            {error ? (
+                <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>⚠️ {error}</Text>
+                </View>
+            ) : null}
             
-            <div className="row">
-                <WoltInput 
-                    ref={refs.name} 
-                    label="Restaurant Name *" 
-                    name="name" 
-                    value={formData.name} 
-                    onChange={handleChange} 
-                    isValid={hasSubmitted ? validations.name : null} 
-                    errorMessage="Must be at least 2 characters" 
-                    disabled={isLoading} 
-                    colClass="col-md-6 mb-3" 
-                />
+            <WoltInput 
+                ref={refs.name} 
+                label="Restaurant Name *" 
+                name="name" 
+                value={formData.name} 
+                onChange={(name, text) => handleChange(name, text)} 
+                isValid={hasSubmitted ? validations.name : null} 
+                errorMessage="Must be at least 2 characters" 
+                editable={!isLoading} 
+            />
 
-                <div className="col-md-6 mb-3" ref={refs.cuisine}>
-                    <label className="form-label fw-bold mb-2 small text-uppercase tracking-wider d-block px-1 wolt-text-label" style={{ fontSize: '0.8rem' }}>
-                        Cuisine Category *
-                    </label>
-                    <select 
-                        className={`form-select px-4 py-3 text-dark wolt-input ${hasSubmitted && validations.cuisine === false ? 'wolt-input-invalid' : hasSubmitted && validations.cuisine === true ? 'wolt-input-valid' : ''}`}
-                        name="cuisine"
-                        value={formData.cuisine}
-                        onChange={handleChange}
-                        disabled={isLoading}
-                    >
-                        <option value="" disabled>Select a category...</option>
-                        <option value="Italian">Italian</option>
-                        <option value="Asian">Asian</option>
-                        <option value="Fast Food">Fast Food</option>
-                        <option value="Vegan">Vegan</option>
-                        <option value="Desserts">Desserts</option>
-                        <option value="Mexican">Mexican</option>
-                        <option value="Middle Eastern">Middle Eastern</option>
-                        <option value="Other">Other</option>
-                    </select>
-                    {hasSubmitted && validations.cuisine === false && (
-                        <div className="text-danger mt-1 ms-1" style={{ fontSize: '0.78rem', fontWeight: '600' }}>
-                            Please select a cuisine
-                        </div>
+            <View style={styles.section} ref={refs.cuisine}>
+                <Text style={styles.sectionLabel}>Cuisine Category *</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer}>
+                    {CUISINES.map((cuisine) => (
+                        <TouchableOpacity
+                            key={cuisine}
+                            style={[
+                                styles.chip,
+                                formData.cuisine === cuisine && styles.chipActive,
+                                hasSubmitted && validations.cuisine === false && styles.chipError
+                            ]}
+                            onPress={() => handleChange('cuisine', cuisine)}
+                            disabled={isLoading}
+                        >
+                            <Text style={[
+                                styles.chipText,
+                                formData.cuisine === cuisine && styles.chipTextActive
+                            ]}>{cuisine}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+                {hasSubmitted && validations.cuisine === false && (
+                    <Text style={styles.errorLabel}>Please select a cuisine</Text>
+                )}
+            </View>
+
+            <View style={styles.row}>
+                <View style={styles.flex2}><WoltInput ref={refs.city} label="City *" name="city" value={formData.city} onChange={(name, text) => handleChange(name, text)} isValid={hasSubmitted ? validations.city : null} errorMessage="Invalid city" editable={!isLoading} /></View>
+                <View style={styles.flex2}><WoltInput ref={refs.street} label="Street *" name="street" value={formData.street} onChange={(name, text) => handleChange(name, text)} isValid={hasSubmitted ? validations.street : null} errorMessage="Invalid street" editable={!isLoading} /></View>
+                <View style={styles.flex1}><WoltInput ref={refs.houseNumber} label="No. *" name="houseNumber" value={formData.houseNumber} onChange={(name, text) => handleChange(name, text)} isValid={hasSubmitted ? validations.houseNumber : null} errorMessage="Digits" editable={!isLoading} keyboardType="numeric" /></View>
+            </View>
+
+            <View style={styles.row}>
+                <View style={styles.flex1}><WoltInput ref={refs.latitude} label="Latitude *" name="latitude" placeholder="32.0853" value={formData.latitude} onChange={(name, text) => handleChange(name, text)} isValid={hasSubmitted ? validations.latitude : null} errorMessage="Between -90 and 90" editable={!isLoading} keyboardType="numeric" /></View>
+                <View style={styles.flex1}><WoltInput ref={refs.longitude} label="Longitude *" name="longitude" placeholder="34.7818" value={formData.longitude} onChange={(name, text) => handleChange(name, text)} isValid={hasSubmitted ? validations.longitude : null} errorMessage="Between -180 and 180" editable={!isLoading} keyboardType="numeric" /></View>
+            </View>
+
+            <View style={styles.section} ref={refs.image}>
+                <Text style={styles.sectionLabel}>Cover Image *</Text>
+                <TouchableOpacity 
+                    style={[styles.imageButton, hasSubmitted && validations.image === false && styles.imageButtonError]} 
+                    onPress={pickImage}
+                    disabled={isLoading}
+                >
+                    {formData.image ? (
+                        <Image source={{ uri: formData.image.uri }} style={styles.imagePreview} />
+                    ) : isEdit && initialData?.image ? (
+                        <View style={styles.imagePlaceholder}>
+                            <Text style={styles.imagePlaceholderText}>📸 Current image saved</Text>
+                            <Text style={styles.imageSubText}>Tap to change</Text>
+                        </View>
+                    ) : (
+                        <View style={styles.imagePlaceholder}>
+                            <Text style={styles.imagePlaceholderText}>📸 Tap to choose image</Text>
+                        </View>
                     )}
-                </div>
-            </div>
-
-            <div className="row">
-                <WoltInput ref={refs.city} label="City *" name="city" value={formData.city} onChange={handleChange} isValid={hasSubmitted ? validations.city : null} errorMessage="Invalid city name" disabled={isLoading} colClass="col-md-5 mb-3" />
-                <WoltInput ref={refs.street} label="Street *" name="street" value={formData.street} onChange={handleChange} isValid={hasSubmitted ? validations.street : null} errorMessage="Invalid street name" disabled={isLoading} colClass="col-md-5 mb-3" />
-                <WoltInput ref={refs.houseNumber} label="No. *" name="houseNumber" value={formData.houseNumber} onChange={handleChange} isValid={hasSubmitted ? validations.houseNumber : null} errorMessage="Digits only" disabled={isLoading} colClass="col-md-2 mb-3" />
-            </div>
-
-            <div className="row">
-                <WoltInput ref={refs.latitude} label="Latitude *" name="latitude" placeholder="e.g. 32.0853" value={formData.latitude} onChange={handleChange} isValid={hasSubmitted ? validations.latitude : null} errorMessage="Must be between -90 and 90" disabled={isLoading} colClass="col-md-6 mb-3" />
-                <WoltInput ref={refs.longitude} label="Longitude *" name="longitude" placeholder="e.g. 34.7818" value={formData.longitude} onChange={handleChange} isValid={hasSubmitted ? validations.longitude : null} errorMessage="Must be between -180 and 180" disabled={isLoading} colClass="col-md-6 mb-3" />
-            </div>
-
-            <div className="row">
-                <div className="col-12 mb-3" ref={refs.image}>
-                    <label className="form-label fw-bold mb-2 small text-uppercase tracking-wider d-block px-1 wolt-text-label" style={{ fontSize: '0.8rem' }}>
-                        Cover Image *
-                    </label>
-                    <input 
-                        type="file" 
-                        accept="image/*"
-                        className={`form-control px-4 py-3 text-dark wolt-input ${hasSubmitted && validations.image === false ? 'wolt-input-invalid' : hasSubmitted && validations.image === true ? 'wolt-input-valid' : ''}`}
-                        onChange={(e) => handleFileChange(e, 'image')}
-                        disabled={isLoading}
-                    />
-                    {hasSubmitted && validations.image === false && (
-                        <div className="text-danger mt-1 ms-1" style={{ fontSize: '0.78rem', fontWeight: '600' }}>
-                            An image is required
-                        </div>
-                    )}
-                </div>
-            </div>
+                </TouchableOpacity>
+                {hasSubmitted && validations.image === false && (
+                    <Text style={styles.errorLabel}>An image is required</Text>
+                )}
+            </View>
             
-            <div className="row">
-                <div className="col-12 mt-4 text-end">
-                    <button type="submit" className="wolt-btn text-white px-5 py-3 fw-bold rounded-pill" disabled={isLoading}>
-                        {isLoading ? (
-                            <span><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Saving...</span>
-                        ) : isEdit ? 'Save Changes' : 'Save Restaurant'}
-                    </button>
-                </div>
-            </div>
-        </form>
+            <MainButton 
+                text={isEdit ? 'Save Changes' : 'Save Restaurant'} 
+                onClick={handleSubmit} 
+                isLoading={isLoading} 
+                style={styles.submitButton}
+            />
+        </View>
     );
 };
+
+const restaurantFormStylesFactory = (colors, theme) => StyleSheet.create({
+    container: {
+        width: '100%',
+    },
+    errorContainer: {
+        backgroundColor: colors.dangerBackground,
+        padding: theme.spacing.medium,
+        borderRadius: theme.borderRadius.input,
+        marginBottom: theme.spacing.medium,
+        borderWidth: 1,
+        borderColor: colors.danger,
+    },
+    errorText: {
+        color: colors.danger,
+        fontWeight: 'bold',
+    },
+    section: {
+        marginBottom: theme.spacing.large,
+    },
+    sectionLabel: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.textMuted,
+        textTransform: 'uppercase',
+        marginBottom: 8,
+        marginLeft: 4,
+    },
+    errorLabel: {
+        color: colors.danger,
+        fontSize: 12,
+        fontWeight: 'bold',
+        marginTop: 4,
+        marginLeft: 4,
+    },
+    row: {
+        flexDirection: 'row',
+        gap: theme.spacing.small,
+    },
+    flex1: {
+        flex: 1,
+    },
+    flex2: {
+        flex: 2,
+    },
+    chipsContainer: {
+        flexDirection: 'row',
+        paddingBottom: 4,
+    },
+    chip: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 20,
+        backgroundColor: colors.backgroundAlt,
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
+    chipActive: {
+        backgroundColor: colors.primary,
+        borderColor: colors.primary,
+    },
+    chipError: {
+        borderColor: colors.danger,
+        borderWidth: 1.5,
+    },
+    chipText: {
+        color: colors.textHeading,
+        fontWeight: 'bold',
+    },
+    chipTextActive: {
+        color: '#ffffff',
+    },
+    imageButton: {
+        height: 150,
+        borderRadius: theme.borderRadius.input,
+        backgroundColor: colors.backgroundAlt,
+        borderWidth: 1,
+        borderColor: colors.border,
+        overflow: 'hidden',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    imageButtonError: {
+        borderColor: colors.danger,
+        borderWidth: 1.5,
+    },
+    imagePreview: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    imagePlaceholder: {
+        alignItems: 'center',
+    },
+    imagePlaceholderText: {
+        color: colors.primary,
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    imageSubText: {
+        color: colors.textMuted,
+        fontSize: 12,
+        marginTop: 4,
+    },
+    submitButton: {
+        marginTop: theme.spacing.medium,
+    }
+});
 
 export default RestaurantForm;

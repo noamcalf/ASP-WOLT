@@ -4,8 +4,10 @@ const mongoose = require('mongoose');
 const OrderStatus = Object.freeze({
     PENDING: 'PENDING',
     PREPARING: 'PREPARING',
+    READY: 'READY',
     ON_ITS_WAY: 'ON_ITS_WAY',
-    DELIVERED: 'DELIVERED'
+    DELIVERED: 'DELIVERED',
+    CANCELLED: 'CANCELLED'
 });
 
 // Create the product's schema based on it's fields

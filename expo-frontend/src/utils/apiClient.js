@@ -41,9 +41,15 @@ export const apiClient = async (endpoint, options = {}) => {
     }
 
     // 4. Combine all the configurations
+    let body = options.body;
+    if (body && typeof body === 'object' && !(body instanceof FormData)) {
+        body = JSON.stringify(body);
+    }
+
     const config = {
         ...options,
         headers,
+        body,
     };
 
     try {

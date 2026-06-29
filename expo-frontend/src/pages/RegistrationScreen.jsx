@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useFormValidation } from '../hooks/useFormValidation';
+import { apiClient } from '../utils/apiClient';
 import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
@@ -99,8 +100,6 @@ const RegistrationScreen = () => {
         setIsLoading(true);
 
         try {
-            const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
-            
             const dataToSubmit = new FormData();
             Object.keys(formData).forEach(key => {
                 if (key === 'image' && formData.image) {
@@ -115,16 +114,18 @@ const RegistrationScreen = () => {
                 }
             });
 
-            const response = await fetch(`${apiUrl}/api/users/`, {
+            // Since apiClient uses fetch internally, we can pass FormData as the body directly.
+            // The browser/fetch automatically sets the multipart boundary if we don't set Content-Type to JSON.
+            // But apiClient by default sets Content-Type to application/json. 
+            // So we need to override the headers in apiClient call.
+            const { response, data } = await apiClient('/api/users/', {
                 method: 'POST',
                 headers: {
-                    // Let the browser/fetch automatically set the multipart/form-data boundary
-                    'Accept': 'application/json',
+                    'Accept': 'application/json'
+                    // apiClient will NOT add application/json if body is FormData
                 },
                 body: dataToSubmit,
             });
-
-            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.error || data.message || 'Registration failed.');

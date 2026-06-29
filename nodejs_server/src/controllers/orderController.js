@@ -11,9 +11,20 @@ const getOrdersHistory = async (req, res, next) => {
     try {
         // Get the data from the request (make sure its authenticate)
         const userId = req.authenticatedUser.id;
+        const userRole = req.authenticatedUser.role;
 
-        // Search for orders via model
-        const orders = await Order.find({ userId });
+        let orders = [];
+        if (userRole === 'owner') {
+            // Find all restaurants owned by this user
+            const myRestaurants = await RestaurantModel.find({ ownerId: userId });
+            const restaurantIds = myRestaurants.map(r => r._id);
+            
+            // Fetch orders for these restaurants
+            orders = await Order.find({ restaurantId: { $in: restaurantIds } });
+        } else {
+            // Search for orders placed by the user
+            orders = await Order.find({ userId });
+        }
         
         // Return wanted response
         return res.status(200).json(orders);
@@ -132,7 +143,19 @@ const getOrderDetails = async (req, res, next) => {
 
         // Enforce strict authorization checks to secure access scopes
         const currentUserId = req.authenticatedUser.id;
-        if (String(order.userId) !== String(currentUserId)) {
+        const userRole = req.authenticatedUser.role;
+        let isAuthorized = false;
+        
+        if (String(order.userId) === String(currentUserId)) {
+            isAuthorized = true;
+        } else if (userRole === 'owner') {
+            const restaurant = await RestaurantModel.findById(order.restaurantId);
+            if (restaurant && String(restaurant.ownerId) === String(currentUserId)) {
+                isAuthorized = true;
+            }
+        }
+
+        if (!isAuthorized) {
             return res.status(403).json({ error: "Access denied: You are not authorized to view this order" });
         }
 
@@ -161,14 +184,29 @@ const updateOrderDetails = async (req, res, next) => {
             return res.status(404).json({ error: "Order not found" });
         }
 
-        // Make sure only the user can update his order
+        // Make sure only the user or the restaurant owner can update this order
         const currentUserId = req.authenticatedUser.id;
-        if (String(order.userId) !== String(currentUserId)) {
+        const userRole = req.authenticatedUser.role;
+
+        let isAuthorized = false;
+        if (String(order.userId) === String(currentUserId)) {
+            isAuthorized = true; // Customer updating their own order
+        } else if (userRole === 'owner') {
+            const restaurant = await RestaurantModel.findById(order.restaurantId);
+            if (restaurant && String(restaurant.ownerId) === String(currentUserId)) {
+                isAuthorized = true; // Owner updating their restaurant's order
+            }
+        }
+
+        if (!isAuthorized) {
             return res.status(403).json({ error: "Access denied: You are not authorized to edit this order" });
         }
 
-        if (order.status === "ON_ITS_WAY" || order.status === "DELIVERED" || order.status === "PREPARING") {
-            return res.status(400).json({ error: "Cannot update an order that is already on its way or delivered" });
+        // If the user is a customer, they cannot edit an order that is already preparing/delivered
+        if (String(order.userId) === String(currentUserId)) {
+            if (order.status === "ON_ITS_WAY" || order.status === "DELIVERED" || order.status === "PREPARING") {
+                return res.status(400).json({ error: "Cannot update an order that is already on its way or delivered" });
+            }
         }
 
         // Get the old products id's ,and calculate each one's quantity to makr sure update the cpp server in the wanted way

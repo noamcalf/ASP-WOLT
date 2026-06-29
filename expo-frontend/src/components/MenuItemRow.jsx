@@ -4,6 +4,7 @@ import DeleteButton from './DeleteButton';
 import { getImageUrl } from '../utils/imageUtils';
 import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
+import { formatPrice } from '../utils/formatters';
 
 const MenuItemRow = ({
     product, onClick, ownerMode = false, deleteEndpoint, onDeleteSuccess, onEdit }) => {
@@ -29,7 +30,7 @@ const MenuItemRow = ({
                 
                 <View style={styles.footerRow}>
                     <Text style={styles.price}>
-                        ₪{parseFloat(product.price).toFixed(2)}
+                        ₪{formatPrice(product.price)}
                     </Text>
                     {ownerMode && (
                         <View style={styles.ownerActions}>
@@ -101,6 +102,8 @@ const stylesFactory = (colors, theme) => StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: colors.primary,
+        marginRight: 8,
+        flex: 1,
     },
     ownerActions: {
         flexDirection: 'row',
@@ -111,11 +114,13 @@ const stylesFactory = (colors, theme) => StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: colors.border,
+        borderColor: colors.primary,
+        backgroundColor: colors.backgroundHover,
     },
     editButtonText: {
         fontSize: 12,
-        color: colors.text,
+        fontWeight: 'bold',
+        color: colors.primary,
     },
     deleteButton: {
         paddingHorizontal: 12,
