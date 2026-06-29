@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useFormValidation } from '../hooks/useFormValidation';
@@ -63,18 +64,19 @@ const RegistrationScreen = () => {
         image: null
     }, validationRules);
 
-    // Function to handle the Native Camera
+    // Function to handle the Image Gallery
     const pickImage = async () => {
-        // Request camera permissions explicitly from the mobile OS
-        const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+        // Request gallery permissions explicitly from the mobile OS
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         
         if (permissionResult.granted === false) {
-            setError("Camera permissions are required to take a profile picture!");
+            setError("Gallery permissions are required to choose a profile picture!");
             return;
         }
 
-        // Open the native camera interface
-        const result = await ImagePicker.launchCameraAsync({
+        // Open the native image gallery interface
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [1, 1], // Square image for profile
             quality: 0.5,
@@ -145,102 +147,104 @@ const RegistrationScreen = () => {
             <ImageBackground source={woltBg} style={styles.backgroundImage}>
                 <View style={styles.overlay} />
 
-                <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-                    <View style={styles.card}>
-                        
-                        <Text style={styles.heading}>Join WOLT! 🍔</Text>
-                        <Text style={styles.subheading}>Create an account to start ordering</Text>
+                <SafeAreaView style={{ flex: 1 }}>
+                    <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+                        <View style={styles.card}>
+                            
+                            <Text style={styles.heading}>Join WOLT! 🍔</Text>
+                            <Text style={styles.subheading}>Create an account to start ordering</Text>
 
-                        {error ? (
-                            <View style={styles.errorAlert}>
-                                <Text style={styles.errorAlertText}>⚠️ {error}</Text>
-                            </View>
-                        ) : null}
-                        
-                        {/* Role Selection (Native Implementation) */}
-                        <View style={styles.roleContainer}>
-                            <Text style={styles.sectionLabel}>I am a...</Text>
-                            <View style={styles.roleButtonsRow}>
-                                <TouchableOpacity 
-                                    style={[styles.roleButton, formData.role === 'customer' && styles.roleButtonActive]}
-                                    onPress={() => handleChange('role', 'customer')}
-                                >
-                                    <Text style={[styles.roleButtonText, formData.role === 'customer' && styles.roleButtonTextActive]}>
-                                        Customer 🧑‍💼
-                                    </Text>
-                                </TouchableOpacity>
-                                
-                                <TouchableOpacity 
-                                    style={[styles.roleButton, formData.role === 'owner' && styles.roleButtonActive]}
-                                    onPress={() => handleChange('role', 'owner')}
-                                >
-                                    <Text style={[styles.roleButtonText, formData.role === 'owner' && styles.roleButtonTextActive]}>
-                                        Owner 👨‍🍳
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        <WoltInput ref={refs.name} label="Full Name 🏷️" name="name" value={formData.name} onChange={handleChange} isValid={hasSubmitted ? validations.name : null} errorMessage="Must be at least 2 characters long" disabled={isLoading} />
-
-                        <View style={styles.row}>
-                            <WoltInput ref={refs.username} containerStyle={styles.halfWidth} label="Username 👤" name="username" placeholder="Min 3 chars" value={formData.username} onChange={handleChange} isValid={hasSubmitted ? validations.username : null} errorMessage="Min 3 chars, letters/numbers" disabled={isLoading} />
-                            <WoltInput ref={refs.phone} containerStyle={styles.halfWidth} label="Phone 📱" name="phone" type="phone" placeholder="050..." value={formData.phone} onChange={handleChange} isValid={hasSubmitted ? validations.phone : null} errorMessage="10-digit number" disabled={isLoading} />
-                        </View>
-
-                        <View style={styles.row}>
-                            <WoltInput ref={refs.password} containerStyle={styles.halfWidth} label="Password 🔒" name="password" type="password" placeholder="Min 8 chars" value={formData.password} onChange={handleChange} isValid={hasSubmitted ? validations.password : null} errorMessage="Min 8 chars, 1 letter, 1 number" disabled={isLoading} />
-                            <WoltInput ref={refs.confirmPassword} containerStyle={styles.halfWidth} label="Confirm 🔑" name="confirmPassword" type="password" placeholder="Repeat" value={formData.confirmPassword} onChange={handleChange} isValid={hasSubmitted ? validations.confirmPassword : null} errorMessage="Passwords do not match" disabled={isLoading} />
-                        </View>
-
-                        {formData.role === 'customer' && (
-                            <View>
-                                <View style={styles.divider} />
-                                <Text style={styles.sectionLabel}>Address Details 📍</Text>
-                                <View style={styles.row}>
-                                    <WoltInput ref={refs.city} containerStyle={{ flex: 2 }} name="city" placeholder="City" value={formData.city} onChange={handleChange} isValid={hasSubmitted ? validations.city : null} errorMessage="Invalid" disabled={isLoading} />
-                                    <WoltInput ref={refs.street} containerStyle={{ flex: 2 }} name="street" placeholder="Street" value={formData.street} onChange={handleChange} isValid={hasSubmitted ? validations.street : null} errorMessage="Invalid" disabled={isLoading} />
-                                    <WoltInput ref={refs.streetNumber} containerStyle={{ flex: 1 }} name="streetNumber" placeholder="No." value={formData.streetNumber} onChange={handleChange} isValid={hasSubmitted ? validations.streetNumber : null} errorMessage="Digits" disabled={isLoading} />
+                            {error ? (
+                                <View style={styles.errorAlert}>
+                                    <Text style={styles.errorAlertText}>⚠️ {error}</Text>
                                 </View>
-
-                                <Text style={styles.sectionLabel}>Geolocation 🌍</Text>
-                                <View style={styles.row}>
-                                    <WoltInput ref={refs.latitude} containerStyle={styles.halfWidth} name="latitude" placeholder="Lat (X)" value={formData.latitude} onChange={handleChange} isValid={hasSubmitted ? validations.latitude : null} errorMessage="Invalid" disabled={isLoading} />
-                                    <WoltInput ref={refs.longitude} containerStyle={styles.halfWidth} name="longitude" placeholder="Lng (Y)" value={formData.longitude} onChange={handleChange} isValid={hasSubmitted ? validations.longitude : null} errorMessage="Invalid" disabled={isLoading} />
+                            ) : null}
+                            
+                            {/* Role Selection (Native Implementation) */}
+                            <View style={styles.roleContainer}>
+                                <Text style={styles.sectionLabel}>I am a...</Text>
+                                <View style={styles.roleButtonsRow}>
+                                    <TouchableOpacity 
+                                        style={[styles.roleButton, formData.role === 'customer' && styles.roleButtonActive]}
+                                        onPress={() => handleChange('role', 'customer')}
+                                    >
+                                        <Text style={[styles.roleButtonText, formData.role === 'customer' && styles.roleButtonTextActive]}>
+                                            Customer 🧑‍💼
+                                        </Text>
+                                    </TouchableOpacity>
+                                    
+                                    <TouchableOpacity 
+                                        style={[styles.roleButton, formData.role === 'owner' && styles.roleButtonActive]}
+                                        onPress={() => handleChange('role', 'owner')}
+                                    >
+                                        <Text style={[styles.roleButtonText, formData.role === 'owner' && styles.roleButtonTextActive]}>
+                                            Owner 👨‍🍳
+                                        </Text>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
-                        )}
 
-                        <View style={styles.divider} />
+                            <WoltInput ref={refs.name} label="Full Name 🏷️" name="name" value={formData.name} onChange={handleChange} isValid={hasSubmitted ? validations.name : null} errorMessage="Must be at least 2 characters long" disabled={isLoading} />
 
-                        {/* Native Camera Button */}
-                        <Text style={styles.sectionLabel}>Profile Picture 📸</Text>
-                        <TouchableOpacity 
-                            style={[styles.imageButton, validations.image === false && styles.imageButtonError]} 
-                            onPress={pickImage}
-                            disabled={isLoading}
-                        >
-                            {formData.image ? (
-                                <Image source={{ uri: formData.image.uri }} style={styles.imagePreview} />
-                            ) : (
-                                <Text style={{ fontSize: 40 }}>📷</Text>
+                            <View style={styles.row}>
+                                <WoltInput ref={refs.username} containerStyle={styles.halfWidth} label="Username 👤" name="username" placeholder="Min 3 chars" value={formData.username} onChange={handleChange} isValid={hasSubmitted ? validations.username : null} errorMessage="Min 3 chars, letters/numbers" disabled={isLoading} />
+                                <WoltInput ref={refs.phone} containerStyle={styles.halfWidth} label="Phone 📱" name="phone" type="phone" placeholder="050..." value={formData.phone} onChange={handleChange} isValid={hasSubmitted ? validations.phone : null} errorMessage="10-digit number" disabled={isLoading} />
+                            </View>
+
+                            <View style={styles.row}>
+                                <WoltInput ref={refs.password} containerStyle={styles.halfWidth} label="Password 🔒" name="password" type="password" placeholder="Min 8 chars" value={formData.password} onChange={handleChange} isValid={hasSubmitted ? validations.password : null} errorMessage="Min 8 chars, 1 letter, 1 number" disabled={isLoading} />
+                                <WoltInput ref={refs.confirmPassword} containerStyle={styles.halfWidth} label="Confirm 🔑" name="confirmPassword" type="password" placeholder="Repeat" value={formData.confirmPassword} onChange={handleChange} isValid={hasSubmitted ? validations.confirmPassword : null} errorMessage="Passwords do not match" disabled={isLoading} />
+                            </View>
+
+                            {formData.role === 'customer' && (
+                                <View>
+                                    <View style={styles.divider} />
+                                    <Text style={styles.sectionLabel}>Address Details 📍</Text>
+                                    <View style={styles.row}>
+                                        <WoltInput ref={refs.city} containerStyle={{ flex: 2 }} name="city" placeholder="City" value={formData.city} onChange={handleChange} isValid={hasSubmitted ? validations.city : null} errorMessage="Invalid" disabled={isLoading} />
+                                        <WoltInput ref={refs.street} containerStyle={{ flex: 2 }} name="street" placeholder="Street" value={formData.street} onChange={handleChange} isValid={hasSubmitted ? validations.street : null} errorMessage="Invalid" disabled={isLoading} />
+                                        <WoltInput ref={refs.streetNumber} containerStyle={{ flex: 1 }} name="streetNumber" placeholder="No." value={formData.streetNumber} onChange={handleChange} isValid={hasSubmitted ? validations.streetNumber : null} errorMessage="Digits" disabled={isLoading} />
+                                    </View>
+
+                                    <Text style={styles.sectionLabel}>Geolocation 🌍</Text>
+                                    <View style={styles.row}>
+                                        <WoltInput ref={refs.latitude} containerStyle={styles.halfWidth} name="latitude" placeholder="Lat (X)" value={formData.latitude} onChange={handleChange} isValid={hasSubmitted ? validations.latitude : null} errorMessage="Invalid" disabled={isLoading} />
+                                        <WoltInput ref={refs.longitude} containerStyle={styles.halfWidth} name="longitude" placeholder="Lng (Y)" value={formData.longitude} onChange={handleChange} isValid={hasSubmitted ? validations.longitude : null} errorMessage="Invalid" disabled={isLoading} />
+                                    </View>
+                                </View>
                             )}
-                            <Text style={styles.imageButtonText}>
-                                {formData.image ? 'Retake Photo' : 'Snap a Profile Picture'}
-                            </Text>
-                        </TouchableOpacity>
 
-                        <MainButton text="Sign Up" onClick={handleSubmit} isLoading={isLoading} />
-                        
-                        <TouchableOpacity 
-                            style={styles.linkContainer}
-                            onPress={() => navigation.navigate('Login')}
-                        >
-                            <Text style={styles.linkText}>Already have an account? Login here.</Text>
-                        </TouchableOpacity>
-                        
-                    </View>
-                </ScrollView>
+                            <View style={styles.divider} />
+
+                            {/* Native Camera Button */}
+                            <Text style={styles.sectionLabel}>Profile Picture 🖼️</Text>
+                            <TouchableOpacity 
+                                style={[styles.imageButton, validations.image === false && styles.imageButtonError]} 
+                                onPress={pickImage}
+                                disabled={isLoading}
+                            >
+                                {formData.image ? (
+                                    <Image source={{ uri: formData.image.uri }} style={styles.imagePreview} />
+                                ) : (
+                                    <Text style={{ fontSize: 40 }}>🖼️</Text>
+                                )}
+                                <Text style={styles.imageButtonText}>
+                                    {formData.image ? 'Change Photo' : 'Choose a Profile Picture'}
+                                </Text>
+                            </TouchableOpacity>
+
+                            <MainButton text="Sign Up" onClick={handleSubmit} isLoading={isLoading} />
+                            
+                            <TouchableOpacity 
+                                style={styles.linkContainer}
+                                onPress={() => navigation.navigate('Login')}
+                            >
+                                <Text style={styles.linkText}>Already have an account? Login here.</Text>
+                            </TouchableOpacity>
+                            
+                        </View>
+                    </ScrollView>
+                </SafeAreaView>
             </ImageBackground>
         </KeyboardAvoidingView>
     );

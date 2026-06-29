@@ -8,6 +8,7 @@ import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // A small card representing a single recommended product.
 const RecommendationCard = ({ product, onAddToOrder }) => {
+    const { styles } = useThemeStyles(stylesFactory);
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
     const imageSrc = getImageUrl(product.image, fallbackImage);
 

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { apiClient } from '../utils/apiClient';
 import DeleteButton from './DeleteButton';
+import { useThemeStyles } from '../hooks/useThemeStyles';
+import { woltTheme } from '../styles/woltTheme';
 
 const OrderCard = ({ order, onOrderCancelled, onEditOrder }) => {
-    // Format date string beautifully (English format)
+    const { styles, colors } = useThemeStyles(orderCardStylesFactory);
     const orderDate = new Date(order.createdAt).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -14,78 +17,207 @@ const OrderCard = ({ order, onOrderCancelled, onEditOrder }) => {
 
     const [restaurantName, setRestaurantName] = useState(`Restaurant #${order.restaurantId.slice(0, 8)}`);
 
-    // Effect to fetch the actual restaurant name instead of showing its UUID
     useEffect(() => {
         const fetchRestaurant = async () => {
             try {
-                // Fetch the restaurant details by its ID
                 const { response, data } = await apiClient(`/api/restaurants/${order.restaurantId}`);
                 if (response.ok && data?.name) {
-                    setRestaurantName(data.name); // Replace the UUID with the real name
+                    setRestaurantName(data.name);
                 }
             } catch (err) {
-                // Ignore gracefully, keep fallback name if network fails or restaurant was deleted
+                // Ignore gracefully
             }
         };
         fetchRestaurant();
     }, [order.restaurantId]);
 
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'PENDING': return '#6c757d';
+            case 'PREPARING': return '#f59f00';
+            case 'READY': return '#10b981';
+            case 'DELIVERED': return '#009de0';
+            case 'CANCELLED': return '#ef4444';
+            default: return '#6c757d';
+        }
+    };
+
     return (
-        <div className="card shadow-sm border-0 mb-3 h-100 rounded-4">
-            <div className="card-header bg-white border-bottom-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-                <h5 className="fw-bold mb-0 wolt-text-primary">
-                    {restaurantName}
-                </h5>
-                <span className="badge bg-secondary rounded-pill px-3 py-2">{order.status}</span>
-            </div>
+        <View style={styles.card}>
+            <View style={styles.header}>
+                <Text style={styles.restaurantName} numberOfLines={1}>{restaurantName}</Text>
+                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}>
+                    <Text style={styles.statusText}>{order.status}</Text>
+                </View>
+            </View>
             
-            <div className="card-body d-flex flex-column">
-                <p className="wolt-text-muted small mb-3">📅 {orderDate}</p>
+            <View style={styles.body}>
+                <Text style={styles.dateText}>📅 {orderDate}</Text>
                 
-                <div className="mb-3">
-                    <strong className="d-block mb-2 wolt-text-heading">Items:</strong>
-                    <ul className="list-group list-group-flush">
-                        {order.items && order.items.map((item, index) => (
-                            <li key={index} className="list-group-item px-0 py-2 border-0 d-flex justify-content-between wolt-text-muted bg-transparent">
-                                <span><span className="fw-bold wolt-text-heading">{item.quantity}x</span> {item.name}</span>
-                                <span className="wolt-text-heading">₪{(item.price * item.quantity).toFixed(2)}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                <View style={styles.itemsSection}>
+                    <Text style={styles.itemsHeader}>Items:</Text>
+                    {order.items && order.items.map((item, index) => (
+                        <View key={index} style={styles.itemRow}>
+                            <Text style={styles.itemName}>
+                                <Text style={styles.itemQuantity}>{item.quantity}x </Text> 
+                                {item.name}
+                            </Text>
+                            <Text style={styles.itemPrice}>₪{(item.price * item.quantity).toFixed(2)}</Text>
+                        </View>
+                    ))}
+                </View>
                 
-                <div className="mt-auto">
-                    <div className="d-flex justify-content-between align-items-center pt-3 border-top mb-3">
-                        <span className="fw-bold wolt-text-heading">Total:</span>
-                        <span className="fw-bold fs-5 wolt-text-heading">₪{order.totalPrice?.toFixed(2)}</span>
-                    </div>
+                <View style={styles.footer}>
+                    <View style={styles.totalRow}>
+                        <Text style={styles.totalLabel}>Total:</Text>
+                        <Text style={styles.totalPrice}>₪{order.totalPrice?.toFixed(2)}</Text>
+                    </View>
                 
                 {order.status === 'PENDING' && (
-                    <div className="d-flex gap-2">
+                    <View style={styles.actionButtonsRow}>
                         {onEditOrder && (
-                            <button 
-                                className="btn btn-outline-primary flex-grow-1 rounded-pill py-2 fw-bold"
-                                onClick={onEditOrder}
+                            <TouchableOpacity 
+                                style={styles.editButton}
+                                onPress={onEditOrder}
                             >
-                                Edit Order
-                            </button>
+                                <Text style={styles.editButtonText}>Edit Order</Text>
+                            </TouchableOpacity>
                         )}
                         {onOrderCancelled && (
                             <DeleteButton 
                                 endpoint={`/api/orders/${order.id}`}
                                 confirmationMessage="Are you sure you want to cancel this order?"
                                 onSuccess={onOrderCancelled}
-                                className="btn-outline-danger flex-grow-1 rounded-pill py-2 fw-bold"
+                                style={styles.deleteButtonContainer}
                             >
                                 Cancel Order
                             </DeleteButton>
                         )}
-                    </div>
+                    </View>
                 )}
-                </div>
-            </div>
-        </div>
+                </View>
+            </View>
+        </View>
     );
 };
+
+const orderCardStylesFactory = (colors, theme) => StyleSheet.create({
+    card: {
+        backgroundColor: colors.cardBackground,
+        borderRadius: woltTheme.borderRadius.card,
+        marginBottom: woltTheme.spacing.medium,
+        ...woltTheme.shadows.light,
+        borderWidth: 1,
+        borderColor: colors.border,
+        overflow: 'hidden',
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: woltTheme.spacing.medium,
+        paddingBottom: woltTheme.spacing.small,
+    },
+    restaurantName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.primary,
+        flex: 1,
+        marginRight: 8,
+    },
+    statusBadge: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+    },
+    statusText: {
+        color: '#ffffff',
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
+    body: {
+        padding: woltTheme.spacing.medium,
+        paddingTop: 0,
+        flexDirection: 'column',
+    },
+    dateText: {
+        fontSize: 12,
+        color: colors.textMuted,
+        marginBottom: woltTheme.spacing.medium,
+    },
+    itemsSection: {
+        marginBottom: woltTheme.spacing.medium,
+    },
+    itemsHeader: {
+        fontWeight: 'bold',
+        color: colors.textHeading,
+        marginBottom: woltTheme.spacing.small,
+    },
+    itemRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 6,
+    },
+    itemName: {
+        color: colors.textMuted,
+        flex: 1,
+    },
+    itemQuantity: {
+        fontWeight: 'bold',
+        color: colors.textHeading,
+    },
+    itemPrice: {
+        color: colors.textHeading,
+        fontWeight: '500',
+    },
+    footer: {
+        marginTop: 8,
+    },
+    totalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingTop: woltTheme.spacing.medium,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+        marginBottom: woltTheme.spacing.medium,
+    },
+    totalLabel: {
+        fontWeight: 'bold',
+        color: colors.textHeading,
+    },
+    totalPrice: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.textHeading,
+    },
+    actionButtonsRow: {
+        flexDirection: 'row',
+        gap: woltTheme.spacing.small,
+    },
+    editButton: {
+        flex: 1,
+        borderWidth: 1.5,
+        borderColor: colors.primary,
+        borderRadius: 20,
+        paddingVertical: woltTheme.spacing.small,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    editButtonText: {
+        color: colors.primary,
+        fontWeight: 'bold',
+    },
+    deleteButtonContainer: {
+        flex: 1,
+        borderWidth: 1.5,
+        borderColor: colors.danger,
+        borderRadius: 20,
+        paddingVertical: woltTheme.spacing.small,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
+    }
+});
 
 export default OrderCard;

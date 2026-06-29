@@ -21,6 +21,10 @@ const NativeHeader = (props) => {
     const handleLogout = () => {
         setIsProfileMenuOpen(false);
         logout();
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Dashboard' }],
+        });
     };
 
     const handleProfileClick = () => {

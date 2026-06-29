@@ -1,49 +1,53 @@
 import React from 'react';
+import { View, Text, Image, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import OrderHistory from '../components/OrderHistory';
 import { useAuth } from '../context/authContext';
+import { useThemeStyles } from '../hooks/useThemeStyles';
+import { profileStylesFactory } from '../styles/ProfileScreenStyles';
 
 const ProfileScreen = () => {
     const { user } = useAuth();
+    const { styles, colors } = useThemeStyles(profileStylesFactory);
     const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+
     return (
-        <div className="container-fluid min-vh-100 py-5" style={{ backgroundColor: 'var(--bs-body-bg)' }}>
-            <div className="container">
-                
-                <div className="mb-5 d-flex align-items-center gap-4">
-                    <div className="bg-body rounded-circle shadow-sm d-flex justify-content-center align-items-center overflow-hidden border" style={{ width: '90px', height: '90px' }}>
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.container}>
+                {/* Profile Header section */}
+                <View style={styles.headerRow}>
+                    <View style={styles.avatarContainer}>
                         {user?.image ? (
-                            <img src={`${apiUrl}/${user.image.replace(/\\/g, '/')}`} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <Image 
+                                source={{ uri: `${apiUrl}/${user.image.replace(/\\/g, '/')}` }} 
+                                style={styles.avatarImage} 
+                            />
                         ) : (
-                            <span style={{ fontSize: '3rem' }}>👤</span>
+                            <Text style={styles.avatarFallback}>👤</Text>
                         )}
-                    </div>
-                    <div>
-                        <h1 className="fw-bold mb-1 wolt-text-heading" style={{ letterSpacing: '-0.5px' }}>
+                    </View>
+                    <View style={styles.infoContainer}>
+                        <Text style={styles.nameText}>
                             {user ? user.name || user.username : 'My Profile'}
-                        </h1>
-                        <p className="wolt-text-muted mb-1 fs-5">
+                        </Text>
+                        <Text style={styles.phoneText}>
                             {user ? `📞 ${user.phoneNumber}` : 'Welcome back!'}
-                        </p>
+                        </Text>
                         {user?.address && (
-                            <p className="text-muted small mb-0 fw-medium">
+                            <Text style={styles.addressText}>
                                 📍 {user.address.street} {user.address.houseNumber}, {user.address.city}
-                            </p>
+                            </Text>
                         )}
-                    </div>
-                </div>
+                    </View>
+                </View>
 
                 {/* Main Content Area */}
-                <div className="row">
-                    <div className="col-12">
-                        <div className="bg-body p-4 p-md-5 rounded-4 shadow-sm border" style={{ borderColor: 'var(--bs-border-color-translucent)' }}>
-                            {/* Mount the Order History component */}
-                            <OrderHistory />
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+                <View style={styles.mainContent}>
+                    {/* Mount the Order History component */}
+                    <OrderHistory />
+                </View>
+            </View>
+        </SafeAreaView>
     );
 };
 
