@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { apiClient } from '../utils/apiClient';
 import OrderCard from './OrderCard';
 import EditOrderModal from './EditOrderModal';
 import { useAuth } from '../context/authContext';
+import { useThemeStyles } from '../hooks/useThemeStyles';
+import { woltTheme } from '../styles/woltTheme';
 
 // A component that displays a list of past orders.
 // For customers, it shows what they've bought. For restaurant owners, it shows incoming orders.
 const OrderHistory = () => {
     const { user } = useAuth();
+    const { styles, colors } = useThemeStyles(orderHistoryStylesFactory);
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -42,49 +46,56 @@ const OrderHistory = () => {
         fetchOrders();
     }, []);
 
+    const renderEmptyState = () => (
+        <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>{emptyIcon}</Text>
+            <Text style={styles.emptyTitle}>{emptyTitle}</Text>
+            <Text style={styles.emptyDesc}>{emptyDesc}</Text>
+        </View>
+    );
+
+    const renderHeader = () => (
+        <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>
+                {titleText} ({orders.length})
+            </Text>
+        </View>
+    );
+
     if (isLoading) {
         return (
-            <div className="text-center py-5">
-                <div className="spinner-border wolt-text-primary" role="status"></div>
-                <p className="mt-3 wolt-text-muted fw-bold">Loading order history...</p>
-            </div>
+            <View style={styles.centerContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+                <Text style={styles.loadingText}>Loading order history...</Text>
+            </View>
         );
     }
 
     if (error) {
         return (
-            <div className="alert alert-danger shadow-sm border-0 rounded-4">
-                <span className="fw-bold">⚠️ Error: </span> {error}
-            </div>
+            <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>⚠️ Error: {error}</Text>
+            </View>
         );
     }
 
     return (
-        <div className="order-history-container">
-            <h3 className="fw-bold mb-4 pb-3 border-bottom wolt-text-heading">
-                {titleText} ({orders.length})
-            </h3>
-            
-            {orders.length === 0 ? (
-                <div className="text-center p-5 wolt-role-box rounded-4 mt-4">
-                    <span className="display-1">{emptyIcon}</span>
-                    <h4 className="mt-3 fw-bold wolt-text-muted">{emptyTitle}</h4>
-                    <p className="wolt-text-muted fs-5 mt-2">{emptyDesc}</p>
-                </div>
-            ) : (
-                <div className="row mt-4">
-                    {/* Loop through all orders and display a card for each one */}
-                    {orders.map(order => (
-                        <div key={order.id} className="col-12 col-xl-6 mb-4">
-                            <OrderCard 
-                                order={order} 
-                                onOrderCancelled={fetchOrders} 
-                                onEditOrder={() => setEditingOrder(order)}
-                            />
-                        </div>
-                    ))}
-                </div>
-            )}
+        <View style={styles.container}>
+            <FlatList
+                data={orders}
+                keyExtractor={(item) => item.id}
+                ListHeaderComponent={renderHeader}
+                ListEmptyComponent={renderEmptyState}
+                renderItem={({ item }) => (
+                    <OrderCard 
+                        order={item} 
+                        onOrderCancelled={fetchOrders} 
+                        onEditOrder={() => setEditingOrder(item)}
+                    />
+                )}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+            />
 
             {editingOrder && (
                 <EditOrderModal 
@@ -96,8 +107,76 @@ const OrderHistory = () => {
                     }}
                 />
             )}
-        </div>
+        </View>
     );
 };
+
+const orderHistoryStylesFactory = (colors, theme) => StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: colors.cardBackground,
+    },
+    listContent: {
+        flexGrow: 1,
+        paddingBottom: woltTheme.spacing.xl,
+    },
+    headerContainer: {
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+        paddingBottom: woltTheme.spacing.medium,
+        marginBottom: woltTheme.spacing.medium,
+    },
+    headerText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.textHeading,
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: woltTheme.spacing.xl,
+    },
+    loadingText: {
+        marginTop: woltTheme.spacing.medium,
+        color: colors.textMuted,
+        fontWeight: 'bold',
+    },
+    errorContainer: {
+        backgroundColor: colors.dangerBackground,
+        padding: woltTheme.spacing.medium,
+        borderRadius: woltTheme.borderRadius.card,
+        borderWidth: 1,
+        borderColor: colors.danger,
+    },
+    errorText: {
+        color: colors.danger,
+        fontWeight: 'bold',
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: woltTheme.spacing.xl,
+        backgroundColor: colors.backgroundAlt,
+        borderRadius: woltTheme.borderRadius.card,
+        marginTop: woltTheme.spacing.medium,
+    },
+    emptyIcon: {
+        fontSize: 64,
+        marginBottom: woltTheme.spacing.medium,
+    },
+    emptyTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.textMuted,
+        textAlign: 'center',
+        marginBottom: woltTheme.spacing.small,
+    },
+    emptyDesc: {
+        fontSize: 14,
+        color: colors.textMuted,
+        textAlign: 'center',
+    }
+});
 
 export default OrderHistory;
