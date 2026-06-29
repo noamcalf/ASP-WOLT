@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '../utils/apiClient';
 import { getImageUrl } from '../utils/imageUtils';
 import { useThemeStyles } from '../hooks/useThemeStyles';
+import { useAuth } from '../context/authContext';
+import { formatPrice, formatStatus } from '../utils/formatters';
 import { woltTheme } from '../styles/woltTheme';
-
+import BaseModal from './BaseModal';
 const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
+    const { user } = useAuth();
+    const isOwner = user?.role === 'owner';
     const { styles, colors } = useThemeStyles(editOrderStylesFactory);
     const insets = useSafeAreaInsets();
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
+    
+    const [selectedStatus, setSelectedStatus] = useState(order.status);
     
     // Map of productId -> quantity
     const [itemQuantities, setItemQuantities] = useState({});
@@ -25,8 +31,8 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                 const { response: orderRes, data: orderData } = await apiClient(`/api/orders/${order.id}`);
                 if (!orderRes.ok) throw new Error(orderData?.error || 'Failed to fetch fresh order details');
                 
-                // If the order moved to PREPARING or beyond, block editing
-                if (orderData.status !== 'PENDING') {
+                // If the order moved to PREPARING or beyond, block editing (unless owner)
+                if (orderData.status !== 'PENDING' && !isOwner) {
                     throw new Error('This order is no longer pending and cannot be edited.');
                 }
 
@@ -39,10 +45,25 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                 }
                 setItemQuantities(initialQuantities);
 
-                // 3. Fetch the full restaurant menu so the user can add new items to the order
+                // 3. Fetch the full restaurant menu so we can get product images
                 const { response: menuRes, data: menuData } = await apiClient(`/api/restaurants/${order.restaurantId}/products`);
                 if (!menuRes.ok) throw new Error(menuData?.error || 'Failed to fetch menu');
-                setProducts(menuData);
+
+                if (isOwner) {
+                    // For owner, only show products that are actually in the order, attaching images from the menu
+                    const productsList = orderData.items.map(item => {
+                        const menuProduct = menuData.find(p => String(p.id) === String(item.productId || item.id));
+                        return { 
+                            id: item.productId || item.id, 
+                            name: item.name, 
+                            price: item.price, 
+                            image: menuProduct ? menuProduct.image : null 
+                        };
+                    });
+                    setProducts(productsList);
+                } else {
+                    setProducts(menuData);
+                }
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -87,10 +108,15 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
             return;
         }
 
+        const payload = { items: updatedItems };
+        if (isOwner) {
+            payload.status = selectedStatus;
+        }
+
         try {
             const { response, data } = await apiClient(`/api/orders/${order.id}`, {
                 method: 'PATCH',
-                body: JSON.stringify({ items: updatedItems })
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) throw new Error(data?.error || 'Failed to update order');
@@ -111,28 +137,16 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
     }, 0);
 
     return (
-        <Modal
-            transparent={true}
-            visible={true}
-            animationType="slide"
-            onRequestClose={onClose}
-        >
-            <View style={styles.modalOverlay}>
-                <TouchableOpacity 
-                    style={StyleSheet.absoluteFill} 
-                    activeOpacity={1} 
-                    onPress={onClose}
-                />
-                <View style={styles.modalContent}>
-                    {/* Header */}
-                    <View style={styles.header}>
-                        <Text style={styles.headerTitle}>Edit Order</Text>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <Text style={styles.closeButtonText}>✕</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Content */}
+        <BaseModal visible={true} onClose={onClose}>
+            {/* Header */}
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}>Edit Order</Text>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                    <Text style={styles.closeButtonText}>✕</Text>
+                </TouchableOpacity>
+            </View>
+            
+            {/* Content */}
                     <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
                         {error && (
                             <View style={styles.errorContainer}>
@@ -145,7 +159,32 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                                 <ActivityIndicator size="large" color={colors.primary} />
                             </View>
                         ) : (
-                            <View style={styles.productList}>
+                            <>
+                                {isOwner && (
+                                    <View style={styles.statusSection}>
+                                        <Text style={styles.statusLabel}>Update Status:</Text>
+                                        <View style={styles.statusButtonsContainer}>
+                                            {['PENDING', 'PREPARING', 'READY', 'ON_ITS_WAY', 'DELIVERED', 'CANCELLED'].map((s) => {
+                                                return (
+                                                <TouchableOpacity
+                                                    key={s}
+                                                    style={[
+                                                        styles.statusOptionButton,
+                                                        selectedStatus === s && styles.statusOptionButtonActive
+                                                    ]}
+                                                    onPress={() => setSelectedStatus(s)}
+                                                >
+                                                    <Text style={[
+                                                        styles.statusOptionText,
+                                                        selectedStatus === s && styles.statusOptionTextActive
+                                                    ]}>{formatStatus(s)}</Text>
+                                                </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+                                    </View>
+                                )}
+                                <View style={styles.productList}>
                                 {products.map(product => {
                                     const quantity = itemQuantities[product.id] || 0;
                                     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
@@ -157,32 +196,37 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                                                 <Image source={{ uri: imageSrc }} style={styles.productImage} />
                                                 <View style={styles.productTextContainer}>
                                                     <Text style={styles.productName} numberOfLines={2}>{product.name}</Text>
-                                                    <Text style={styles.productPrice}>₪{product.price.toFixed(2)}</Text>
+                                                    <Text style={styles.productPrice}>₪{formatPrice(product.price)}</Text>
                                                 </View>
                                             </View>
 
                                             <View style={styles.quantityControls}>
-                                                <TouchableOpacity 
-                                                    style={[styles.quantityButton, quantity === 0 && styles.quantityButtonDisabled]}
-                                                    onPress={() => handleUpdateQuantity(product.id, -1)}
-                                                    disabled={quantity === 0}
-                                                >
-                                                    <Text style={[styles.quantityButtonText, quantity === 0 && styles.quantityButtonTextDisabled]}>-</Text>
-                                                </TouchableOpacity>
+                                                {!isOwner && (
+                                                    <TouchableOpacity 
+                                                        style={[styles.quantityButton, quantity === 0 && styles.quantityButtonDisabled]}
+                                                        onPress={() => handleUpdateQuantity(product.id, -1)}
+                                                        disabled={quantity === 0}
+                                                    >
+                                                        <Text style={[styles.quantityButtonText, quantity === 0 && styles.quantityButtonTextDisabled]}>-</Text>
+                                                    </TouchableOpacity>
+                                                )}
                                                 
                                                 <Text style={styles.quantityText}>{quantity}</Text>
                                                 
-                                                <TouchableOpacity 
-                                                    style={styles.quantityButton}
-                                                    onPress={() => handleUpdateQuantity(product.id, 1)}
-                                                >
-                                                    <Text style={styles.quantityButtonText}>+</Text>
-                                                </TouchableOpacity>
+                                                {!isOwner && (
+                                                    <TouchableOpacity 
+                                                        style={styles.quantityButton}
+                                                        onPress={() => handleUpdateQuantity(product.id, 1)}
+                                                    >
+                                                        <Text style={styles.quantityButtonText}>+</Text>
+                                                    </TouchableOpacity>
+                                                )}
                                             </View>
                                         </View>
                                     );
                                 })}
                             </View>
+                            </>
                         )}
                     </ScrollView>
 
@@ -190,7 +234,7 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                     <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, woltTheme.spacing.large) }]}>
                         <View style={styles.totalContainer}>
                             <Text style={styles.totalLabel}>New Total</Text>
-                            <Text style={styles.totalAmount}>₪{newTotal.toFixed(2)}</Text>
+                            <Text style={styles.totalAmount}>₪{formatPrice(newTotal)}</Text>
                         </View>
                         <View style={styles.footerButtons}>
                             <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
@@ -209,27 +253,11 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                             </TouchableOpacity>
                         </View>
                     </View>
-                </View>
-            </View>
-        </Modal>
+        </BaseModal>
     );
 };
 
 const editOrderStylesFactory = (colors, theme) => StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        justifyContent: 'flex-end',
-    },
-    modalContent: {
-        backgroundColor: colors.cardBackground,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        maxHeight: '90%',
-        minHeight: '50%',
-        display: 'flex',
-        flexDirection: 'column',
-    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -405,6 +433,44 @@ const editOrderStylesFactory = (colors, theme) => StyleSheet.create({
     saveButtonText: {
         color: '#fff',
         fontWeight: 'bold',
+    },
+    statusSection: {
+        marginBottom: woltTheme.spacing.large,
+        backgroundColor: colors.backgroundAlt,
+        padding: woltTheme.spacing.medium,
+        borderRadius: woltTheme.borderRadius.card,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
+    statusLabel: {
+        fontWeight: 'bold',
+        color: colors.textHeading,
+        marginBottom: woltTheme.spacing.medium,
+    },
+    statusButtonsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: woltTheme.spacing.small,
+    },
+    statusOptionButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.cardBackground,
+    },
+    statusOptionButtonActive: {
+        backgroundColor: colors.primary,
+        borderColor: colors.primary,
+    },
+    statusOptionText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: colors.textMuted,
+    },
+    statusOptionTextActive: {
+        color: '#fff',
     }
 });
 

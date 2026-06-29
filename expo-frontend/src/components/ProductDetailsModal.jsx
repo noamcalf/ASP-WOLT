@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, ScrollView, Platform } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { useAuth } from '../context/authContext';
 import { getImageUrl } from '../utils/imageUtils';
 import RecommendationCarousel from './RecommendationCarousel';
 import { woltTheme } from '../styles/woltTheme';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeStyles } from '../hooks/useThemeStyles';
+import { formatPrice } from '../utils/formatters';
+import BaseModal from './BaseModal';
 
 const ProductDetailsModal = ({
     product, onClose, onAddToOrder }) => {
@@ -19,62 +21,41 @@ const ProductDetailsModal = ({
     const imageSrc = getImageUrl(product.image, fallbackImage);
 
     return (
-        <Modal transparent={true} animationType="slide" onRequestClose={onClose}>
-            <View style={styles.backdrop}>
-                <TouchableOpacity style={styles.backdropTouchable} activeOpacity={1} onPress={onClose} />
+        <BaseModal visible={true} onClose={onClose}>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+
+            <ScrollView bounces={false} style={styles.scrollContent}>
+                <Image source={{ uri: imageSrc }} style={styles.image} />
                 
-                <View style={[styles.modalContainer, { paddingBottom: insets.bottom || 20 }]}>
-                    <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                        <Text style={styles.closeButtonText}>✕</Text>
-                    </TouchableOpacity>
-
-                    <ScrollView bounces={false} style={styles.scrollContent}>
-                        <Image source={{ uri: imageSrc }} style={styles.image} />
-                        
-                        <View style={styles.content}>
-                            <Text style={styles.title}>{product.name}</Text>
-                            <Text style={styles.description}>{product.description}</Text>
-                            
-                            <RecommendationCarousel productId={product.id} onAddToOrder={onAddToOrder} />
-                        </View>
-                    </ScrollView>
-
-                    {user?.role !== 'owner' && (
-                        <View style={styles.footer}>
-                            <TouchableOpacity 
-                                style={styles.addButton}
-                                onPress={() => {
-                                    onAddToOrder(product);
-                                    onClose();
-                                }}
-                            >
-                                <Text style={styles.addButtonText}>Add to order</Text>
-                                <Text style={styles.addButtonPrice}>₪{parseFloat(product.price).toFixed(2)}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
+                <View style={styles.content}>
+                    <Text style={styles.title}>{product.name}</Text>
+                    <Text style={styles.description}>{product.description}</Text>
+                    
+                    <RecommendationCarousel productId={product.id} onAddToOrder={onAddToOrder} />
                 </View>
-            </View>
-        </Modal>
+            </ScrollView>
+
+            {user?.role !== 'owner' && (
+                <View style={styles.footer}>
+                    <TouchableOpacity 
+                        style={styles.addButton}
+                        onPress={() => {
+                            onAddToOrder(product);
+                            onClose();
+                        }}
+                    >
+                        <Text style={styles.addButtonText}>Add to order</Text>
+                        <Text style={styles.addButtonPrice}>₪{formatPrice(product.price)}</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+        </BaseModal>
     );
 };
 
 const stylesFactory = (colors, theme) => StyleSheet.create({
-    backdrop: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0,0,0,0.6)',
-    },
-    backdropTouchable: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    modalContainer: {
-        backgroundColor: colors.background,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        maxHeight: '90%',
-        overflow: 'hidden',
-    },
     closeButton: {
         position: 'absolute',
         top: 15,

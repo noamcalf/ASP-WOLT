@@ -29,7 +29,9 @@ export const woltTheme = {
             textMuted: '#adb5bd',
             textLabel: '#f8f9fa',
             searchBackground: '#2b3035',
-            searchFocus: '#1a1d20'
+            searchFocus: '#1a1d20',
+            successBackground: '#064e3b',
+            dangerBackground: '#450a0a'
         }
     },
     spacing: {

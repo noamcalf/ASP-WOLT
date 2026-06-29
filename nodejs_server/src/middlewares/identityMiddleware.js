@@ -50,7 +50,8 @@ const identityMiddleware = async (req, res, next) => {
             id: user.id,                  
             phoneNumber: user.phoneNumber,
             username: user.username,
-            address: user.address
+            address: user.address,
+            role: user.role
         };
 
         // The middleware job is finished

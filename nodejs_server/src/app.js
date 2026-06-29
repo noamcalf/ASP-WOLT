@@ -70,6 +70,10 @@ if (process.env.NODE_ENV !== 'test') {
         // Seed database if empty
         await seedDatabase();
 
+        // Inject MongoDB data to CPP server to reconstruct in-memory state
+        const syncDatabaseWithCppServer = require('./utils/syncCpp');
+        await syncDatabaseWithCppServer();
+
         app.listen(PORT, () => {
             console.log(`Web Server is listening on port ${PORT}`);
         });

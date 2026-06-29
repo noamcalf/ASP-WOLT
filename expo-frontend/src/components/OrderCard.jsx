@@ -4,6 +4,7 @@ import { apiClient } from '../utils/apiClient';
 import DeleteButton from './DeleteButton';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 import { woltTheme } from '../styles/woltTheme';
+import { formatPrice, formatStatus } from '../utils/formatters';
 
 const OrderCard = ({ order, onOrderCancelled, onEditOrder }) => {
     const { styles, colors } = useThemeStyles(orderCardStylesFactory);
@@ -35,19 +36,22 @@ const OrderCard = ({ order, onOrderCancelled, onEditOrder }) => {
         switch (status) {
             case 'PENDING': return '#6c757d';
             case 'PREPARING': return '#f59f00';
-            case 'READY': return '#10b981';
+            case 'READY': return '#8b5cf6'; // purple
+            case 'ON_ITS_WAY': return '#10b981';
             case 'DELIVERED': return '#009de0';
             case 'CANCELLED': return '#ef4444';
             default: return '#6c757d';
         }
     };
 
+
+
     return (
         <View style={styles.card}>
             <View style={styles.header}>
                 <Text style={styles.restaurantName} numberOfLines={1}>{restaurantName}</Text>
                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) }]}>
-                    <Text style={styles.statusText}>{order.status}</Text>
+                    <Text style={styles.statusText}>{formatStatus(order.status)}</Text>
                 </View>
             </View>
             
@@ -62,7 +66,7 @@ const OrderCard = ({ order, onOrderCancelled, onEditOrder }) => {
                                 <Text style={styles.itemQuantity}>{item.quantity}x </Text> 
                                 {item.name}
                             </Text>
-                            <Text style={styles.itemPrice}>₪{(item.price * item.quantity).toFixed(2)}</Text>
+                            <Text style={styles.itemPrice}>₪{formatPrice(item.price * item.quantity)}</Text>
                         </View>
                     ))}
                 </View>
@@ -70,10 +74,10 @@ const OrderCard = ({ order, onOrderCancelled, onEditOrder }) => {
                 <View style={styles.footer}>
                     <View style={styles.totalRow}>
                         <Text style={styles.totalLabel}>Total:</Text>
-                        <Text style={styles.totalPrice}>₪{order.totalPrice?.toFixed(2)}</Text>
+                        <Text style={styles.totalPrice}>₪{formatPrice(order.totalPrice)}</Text>
                     </View>
                 
-                {order.status === 'PENDING' && (
+                {(onEditOrder || onOrderCancelled) && (
                     <View style={styles.actionButtonsRow}>
                         {onEditOrder && (
                             <TouchableOpacity 

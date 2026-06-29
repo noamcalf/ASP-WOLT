@@ -45,7 +45,9 @@ const RestaurantHeaderCard = ({
                 </View>
                 
                 <View style={styles.ratingPill}>
-                    <Text style={styles.ratingValue}>{restaurant.rating.toFixed(1)}</Text>
+                    <Text style={styles.ratingValue}>
+                        {restaurant.rating === 0 ? "New" : restaurant.rating.toFixed(1)}
+                    </Text>
                     <Text style={styles.ratingIcon}>⭐</Text>
                 </View>
             </View>

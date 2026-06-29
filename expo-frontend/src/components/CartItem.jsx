@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { woltTheme } from '../styles/woltTheme';
 import { getImageUrl } from '../utils/imageUtils';
 import { useThemeStyles } from '../hooks/useThemeStyles';
+import { formatPrice } from '../utils/formatters';
 
 const CartItem = ({
     item, updateQuantity, removeFromCart }) => {
@@ -16,7 +17,7 @@ const CartItem = ({
                 <Image source={{ uri: imageSrc }} style={styles.itemImage} />
                 <View style={styles.itemTextContainer}>
                     <Text style={styles.itemName} numberOfLines={2}>{item.product.name}</Text>
-                    <Text style={styles.itemPrice}>₪{(item.product.price * item.quantity).toFixed(2)}</Text>
+                    <Text style={styles.itemPrice}>₪{formatPrice(item.product.price * item.quantity)}</Text>
                 </View>
             </View>
             <View style={styles.itemActions}>

@@ -89,8 +89,12 @@ const OrderHistory = () => {
                 renderItem={({ item }) => (
                     <OrderCard 
                         order={item} 
-                        onOrderCancelled={fetchOrders} 
-                        onEditOrder={() => setEditingOrder(item)}
+                        onOrderCancelled={(!isOwner && item.status === 'PENDING') ? fetchOrders : undefined} 
+                        onEditOrder={
+                            (isOwner && item.status !== 'DELIVERED' && item.status !== 'CANCELLED') || (!isOwner && item.status === 'PENDING')
+                                ? () => setEditingOrder(item) 
+                                : undefined
+                        }
                     />
                 )}
                 contentContainerStyle={styles.listContent}

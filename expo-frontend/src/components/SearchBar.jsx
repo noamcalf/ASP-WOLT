@@ -5,6 +5,7 @@ import SearchDropdownTray from './SearchDropdownTray';
 import { woltTheme } from '../styles/woltTheme';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStyles } from '../hooks/useThemeStyles';
+import { apiClient } from '../utils/apiClient';
 
 // SearchBar handles user input for the live search feature.
 // It implements a debounce mechanism to optimize API calls to the backend.
@@ -28,10 +29,8 @@ const SearchBar = () => {
 
         setIsLoading(true);
         try {
-            const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/api/search/${encodeURIComponent(searchQuery)}`);
+            const { response, data } = await apiClient(`/api/search/${encodeURIComponent(searchQuery)}`);
             if (response.ok) {
-                const data = await response.json();
                 setResults(data);
             }
         } catch (error) {

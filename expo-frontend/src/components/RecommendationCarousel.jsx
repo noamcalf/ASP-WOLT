@@ -5,6 +5,7 @@ import { apiClient } from '../utils/apiClient';
 import { getImageUrl } from '../utils/imageUtils';
 import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
+import { formatPrice } from '../utils/formatters';
 
 // A small card representing a single recommended product.
 const RecommendationCard = ({ product, onAddToOrder }) => {
@@ -20,7 +21,7 @@ const RecommendationCard = ({ product, onAddToOrder }) => {
             <View style={styles.cardContent}>
                 <View>
                     <Text style={styles.cardTitle} numberOfLines={1}>{product.name}</Text>
-                    <Text style={styles.cardPrice}>₪{product.price.toFixed(2)}</Text>
+                    <Text style={styles.cardPrice}>₪{formatPrice(product.price)}</Text>
                 </View>
                 <TouchableOpacity 
                     style={styles.addButton}
