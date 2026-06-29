@@ -1,10 +1,10 @@
 import { StyleSheet, Platform } from 'react-native';
 import { woltTheme } from './woltTheme';
 
-export const checkoutStyles = StyleSheet.create({
+export const checkoutStylesFactory = (colors, theme) => StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
     },
     scrollView: {
         flex: 1,
@@ -21,16 +21,16 @@ export const checkoutStyles = StyleSheet.create({
     pageTitle: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: 16,
     },
     sectionContainer: {
-        backgroundColor: woltTheme.colors.cardBackground,
+        backgroundColor: colors.cardBackground,
         borderRadius: 16,
         padding: 16,
         marginBottom: 16,
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -49,7 +49,7 @@ export const checkoutStyles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: 12,
     },
     fieldGroup: {
@@ -58,7 +58,7 @@ export const checkoutStyles = StyleSheet.create({
     fieldLabel: {
         fontSize: 12,
         fontWeight: 'bold',
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         textTransform: 'uppercase',
         marginBottom: 4,
         letterSpacing: 0.5,
@@ -77,26 +77,26 @@ export const checkoutStyles = StyleSheet.create({
     fieldValuePrimary: {
         fontSize: 15,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: 2,
     },
     fieldValueSecondary: {
         fontSize: 13,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
     },
     divider: {
         height: 1,
-        backgroundColor: woltTheme.colors.border,
+        backgroundColor: colors.border,
         marginVertical: 12,
     },
     orderSubtitle: {
         fontSize: 14,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         marginBottom: 16,
     },
     restaurantName: {
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     orderItemRow: {
         flexDirection: 'row',
@@ -111,14 +111,14 @@ export const checkoutStyles = StyleSheet.create({
     orderItemQty: {
         fontWeight: 'bold',
         marginRight: woltTheme.spacing.small,
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     orderItemName: {
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     orderItemPrice: {
         fontWeight: '600',
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     totalRow: {
         flexDirection: 'row',
@@ -129,15 +129,15 @@ export const checkoutStyles = StyleSheet.create({
     totalLabel: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
     },
     totalAmount: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     placeOrderButton: {
-        backgroundColor: woltTheme.colors.primary,
+        backgroundColor: colors.primary,
         paddingVertical: 16,
         borderRadius: 12,
         alignItems: 'center',
@@ -145,7 +145,7 @@ export const checkoutStyles = StyleSheet.create({
         flexDirection: 'row',
     },
     placeOrderButtonDisabled: {
-        backgroundColor: woltTheme.colors.primaryLight,
+        backgroundColor: colors.primaryLight,
     },
     placeOrderText: {
         color: '#fff',

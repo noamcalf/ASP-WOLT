@@ -2,8 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { woltTheme } from '../styles/woltTheme';
 import { getImageUrl } from '../utils/imageUtils';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
-const CartItem = ({ item, updateQuantity, removeFromCart }) => {
+const CartItem = ({
+    const { styles, colors } = useThemeStyles(stylesFactory); item, updateQuantity, removeFromCart }) => {
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&q=80';
     const imageSrc = getImageUrl(item.product.image, fallbackImage);
 
@@ -32,11 +34,11 @@ const CartItem = ({ item, updateQuantity, removeFromCart }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     cartItem: {
         marginBottom: woltTheme.spacing.large,
         borderBottomWidth: 1,
-        borderBottomColor: woltTheme.colors.border,
+        borderBottomColor: colors.border,
         paddingBottom: 15,
     },
     itemInfo: {
@@ -49,19 +51,19 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 8,
         marginRight: 12,
-        backgroundColor: woltTheme.colors.border,
+        backgroundColor: colors.border,
     },
     itemTextContainer: {
         flex: 1,
     },
     itemName: {
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: 4,
     },
     itemPrice: {
         fontWeight: 'bold',
-        color: woltTheme.colors.primary,
+        color: colors.primary,
     },
     itemActions: {
         flexDirection: 'row',
@@ -71,15 +73,15 @@ const styles = StyleSheet.create({
     actionButton: {
         fontSize: 20,
         padding: 5,
-        backgroundColor: woltTheme.colors.cardBackground,
+        backgroundColor: colors.cardBackground,
         borderRadius: 5,
         overflow: 'hidden',
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     quantity: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     removeButton: {
         marginLeft: 'auto',

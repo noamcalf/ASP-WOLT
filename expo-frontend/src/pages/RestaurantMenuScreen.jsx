@@ -4,16 +4,18 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { apiClient } from '../utils/apiClient';
 import { useAuth } from '../context/authContext';
 import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
-import { restaurantMenuStyles as styles } from '../styles/RestaurantMenuScreen.styles';
+import { restaurantMenuStylesFactory } from '../styles/RestaurantMenuScreen.styles';
 import { woltTheme } from '../styles/woltTheme';
 
 import RestaurantHeaderCard from '../components/RestaurantHeaderCard';
 import MenuSection from '../components/MenuSection';
 import ProductDetailsModal from '../components/ProductDetailsModal';
 import { useCart } from '../context/CartContext';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // This screen shows the details of a specific restaurant and its full menu
 const RestaurantMenuScreen = () => {
+    const { styles, colors } = useThemeStyles(restaurantMenuStylesFactory);
     // In React Native Navigation, we extract params from useRoute() instead of useParams()
     const route = useRoute();
     const id = route.params?.id;

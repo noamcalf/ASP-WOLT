@@ -6,11 +6,13 @@ import { useFormValidation } from '../hooks/useFormValidation';
 import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
-import { registrationStyles as styles } from '../styles/registrationScreenStyles';
+import { registrationStylesFactory } from '../styles/registrationScreenStyles';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // The sign-up page where new users can create an account.
 // Refactored to React Native layout with Native Camera integration.
 const RegistrationScreen = () => {
+    const { styles, colors } = useThemeStyles(registrationStylesFactory);
     const navigation = useNavigation();
     
     const [isLoading, setIsLoading] = useState(false);

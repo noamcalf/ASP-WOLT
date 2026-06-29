@@ -4,8 +4,10 @@ import { useCart } from '../context/CartContext';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { woltTheme } from '../styles/woltTheme';
 import CartItem from './CartItem';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const CartDrawer = () => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const { cartItems, totalItems, totalPrice, removeFromCart, updateQuantity } = useCart();
     const navigation = useNavigation();
 
@@ -52,10 +54,10 @@ const CartDrawer = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
         paddingTop: 50, // Safe area top
     },
     header: {
@@ -63,16 +65,16 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         padding: woltTheme.spacing.large,
         borderBottomWidth: 1,
-        borderBottomColor: woltTheme.colors.border,
+        borderBottomColor: colors.border,
     },
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     closeButton: {
         fontSize: 20,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
     },
     cartItems: {
         flex: 1,
@@ -83,22 +85,22 @@ const styles = StyleSheet.create({
         marginTop: 50,
     },
     emptyText: {
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         fontSize: 16,
     },
     footer: {
         padding: woltTheme.spacing.large,
         borderTopWidth: 1,
-        borderTopColor: woltTheme.colors.border,
+        borderTopColor: colors.border,
     },
     totalText: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 15,
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     checkoutButton: {
-        backgroundColor: woltTheme.colors.primary,
+        backgroundColor: colors.primary,
         padding: 15,
         borderRadius: 10,
         alignItems: 'center',

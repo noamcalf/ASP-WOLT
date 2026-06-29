@@ -5,7 +5,8 @@ import CategoryCarousel from '../components/CategoryCarousel';
 import SearchBar from '../components/SearchBar';
 import { useAuth } from '../context/authContext';
 import { calculateDistance, estimateDeliveryTime } from '../utils/geolocationUtils';
-import { dashboardStyles as styles } from '../styles/DashboardScreen.styles';
+import { dashboardStylesFactory } from '../styles/DashboardScreen.styles';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // A generic sorting utility to prevent code duplication for custom carousels.
 // It sorts an array of restaurants by a specific key (e.g. distance, rating), 
@@ -23,6 +24,7 @@ const getTopRestaurants = (restaurants, sortKey, order = 'asc', limit = 5) => {
 
 // The main discovery screen for the app. Shows carousels of restaurants.
 const DashboardScreen = () => {
+    const { styles, colors } = useThemeStyles(dashboardStylesFactory);
     const [restaurants, setRestaurants] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);

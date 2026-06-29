@@ -4,8 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import DeleteButton from './DeleteButton';
 import { getImageUrl } from '../utils/imageUtils';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
-const RestaurantCard = ({ restaurant, ownerMode = false, onDelete }) => {
+const RestaurantCard = ({
+    const { styles, colors } = useThemeStyles(stylesFactory); restaurant, ownerMode = false, onDelete }) => {
     // If the restaurant doesn't have an image, we use a placeholder that fits the Wolt theme.
     const imageSrc = getImageUrl(restaurant.image, 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80');
 
@@ -87,13 +89,13 @@ const RestaurantCard = ({ restaurant, ownerMode = false, onDelete }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     cardContainer: {
-        backgroundColor: woltTheme.colors.cardBackground,
+        backgroundColor: colors.cardBackground,
         borderRadius: 16,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
         flexDirection: 'column',
         ...Platform.select({
             ios: {
@@ -128,12 +130,12 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: 4,
     },
     subtitle: {
         fontSize: 14,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
     },
     footerContainer: {
         padding: woltTheme.spacing.medium,
@@ -141,25 +143,25 @@ const styles = StyleSheet.create({
     },
     footerInner: {
         borderTopWidth: 1,
-        borderTopColor: woltTheme.colors.border,
+        borderTopColor: colors.border,
         paddingTop: woltTheme.spacing.small,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
     ratingPill: {
-        backgroundColor: woltTheme.colors.cardBackground,
+        backgroundColor: colors.cardBackground,
         borderRadius: 16,
         paddingHorizontal: 8,
         paddingVertical: 4,
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
     },
     ratingValue: {
         fontWeight: 'bold',
-        color: woltTheme.colors.primary,
+        color: colors.primary,
         fontSize: 14,
     },
     ratingIcon: {
@@ -171,12 +173,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     deliveryText: {
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         fontWeight: '600',
         fontSize: 13,
     },
     deliveryBullet: {
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         marginHorizontal: 4,
     },
     ownerActions: {
@@ -188,14 +190,14 @@ const styles = StyleSheet.create({
     manageButton: {
         flex: 1,
         borderWidth: 1,
-        borderColor: woltTheme.colors.primary,
+        borderColor: colors.primary,
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 6,
     },
     manageButtonText: {
-        color: woltTheme.colors.primary,
+        color: colors.primary,
         fontWeight: 'bold',
         fontSize: 14,
     },

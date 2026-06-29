@@ -5,8 +5,10 @@ import { getImageUrl } from '../utils/imageUtils';
 import RecommendationCarousel from './RecommendationCarousel';
 import { woltTheme } from '../styles/woltTheme';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
-const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
+const ProductDetailsModal = ({
+    const { styles, colors } = useThemeStyles(stylesFactory); product, onClose, onAddToOrder }) => {
     const { user } = useAuth();
     const insets = useSafeAreaInsets();
     
@@ -56,7 +58,7 @@ const ProductDetailsModal = ({ product, onClose, onAddToOrder }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     backdrop: {
         flex: 1,
         justifyContent: 'flex-end',
@@ -66,7 +68,7 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
     },
     modalContainer: {
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         maxHeight: '90%',
@@ -79,7 +81,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 10,
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
     },
     closeButtonText: {
         fontSize: 20,
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     scrollContent: {
         width: '100%',
@@ -103,23 +105,23 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: 8,
     },
     description: {
         fontSize: 16,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         marginBottom: 20,
         lineHeight: 24,
     },
     footer: {
         padding: woltTheme.spacing.large,
         borderTopWidth: 1,
-        borderTopColor: woltTheme.colors.border,
-        backgroundColor: woltTheme.colors.background,
+        borderTopColor: colors.border,
+        backgroundColor: colors.background,
     },
     addButton: {
-        backgroundColor: woltTheme.colors.primary,
+        backgroundColor: colors.primary,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',

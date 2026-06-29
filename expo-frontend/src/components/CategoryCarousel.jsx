@@ -3,8 +3,10 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import RestaurantCard from './RestaurantCard';
 import CardSkeletonLoader from './CardSkeletonLoader';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
-const CategoryCarousel = ({ title, restaurants, isLoading }) => {
+const CategoryCarousel = ({
+    const { styles, colors } = useThemeStyles(stylesFactory); title, restaurants, isLoading }) => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>{title}</Text>
@@ -40,7 +42,7 @@ const CategoryCarousel = ({ title, restaurants, isLoading }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     container: {
         marginBottom: woltTheme.spacing.extraLarge,
         marginTop: woltTheme.spacing.medium,
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 22,
         fontWeight: '900',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: woltTheme.spacing.large,
         paddingHorizontal: woltTheme.spacing.large,
         letterSpacing: -0.5,
@@ -62,7 +64,7 @@ const styles = StyleSheet.create({
         marginRight: woltTheme.spacing.medium,
     },
     emptyText: {
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         fontStyle: 'italic',
         padding: woltTheme.spacing.medium,
     }

@@ -2,10 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import MenuItemRow from './MenuItemRow';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // A section component that groups menu items by category (e.g., "Starters", "Mains").
 // It handles rendering the title and a responsive grid of MenuItemRows.
-const MenuSection = ({ title, products, onProductClick }) => {
+const MenuSection = ({
+    const { styles, colors } = useThemeStyles(stylesFactory); title, products, onProductClick }) => {
     if (!products || products.length === 0) return null;
 
     return (
@@ -24,14 +26,14 @@ const MenuSection = ({ title, products, onProductClick }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     container: {
         marginBottom: 40,
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: woltTheme.spacing.large,
         paddingHorizontal: woltTheme.spacing.large,
     },

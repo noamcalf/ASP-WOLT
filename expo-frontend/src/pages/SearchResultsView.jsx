@@ -4,10 +4,12 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import RestaurantCard from '../components/RestaurantCard';
 import MenuItemRow from '../components/MenuItemRow';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // The page that shows search results when a user types into the search bar and hits enter.
 // It groups results into matching Restaurants and matching Menu Items.
 const SearchResultsView = () => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const route = useRoute();
     const navigation = useNavigation();
     
@@ -62,7 +64,7 @@ const SearchResultsView = () => {
 
             {isLoading ? (
                 <View style={styles.centerContainer}>
-                    <ActivityIndicator size="large" color={woltTheme.colors.primary} />
+                    <ActivityIndicator size="large" color={colors.primary} />
                 </View>
             ) : error ? (
                 <View style={styles.errorContainer}>
@@ -119,10 +121,10 @@ const SearchResultsView = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
     },
     contentContainer: {
         padding: woltTheme.spacing.large,
@@ -131,11 +133,11 @@ const styles = StyleSheet.create({
     pageTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: woltTheme.spacing.large,
     },
     highlightText: {
-        color: woltTheme.colors.primary,
+        color: colors.primary,
     },
     centerContainer: {
         paddingVertical: 60,
@@ -144,23 +146,23 @@ const styles = StyleSheet.create({
     },
     errorContainer: {
         padding: woltTheme.spacing.medium,
-        backgroundColor: woltTheme.colors.dangerBackground,
+        backgroundColor: colors.dangerBackground,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: woltTheme.colors.danger,
+        borderColor: colors.danger,
     },
     errorText: {
-        color: woltTheme.colors.danger,
+        color: colors.danger,
     },
     noResultsTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         marginBottom: 8,
     },
     noResultsSubtitle: {
         fontSize: 15,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         textAlign: 'center',
     },
     section: {
@@ -169,7 +171,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: woltTheme.spacing.medium,
     },
     horizontalScrollContent: {
