@@ -5,15 +5,22 @@ import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { woltTheme } from '../styles/woltTheme';
 import CartItem from './CartItem';
 import { useThemeStyles } from '../hooks/useThemeStyles';
+import { useAuth } from '../context/authContext';
 
 const CartDrawer = () => {
     const { styles, colors } = useThemeStyles(stylesFactory);
     const { cartItems, totalItems, totalPrice, removeFromCart, updateQuantity } = useCart();
+    const { isAuthenticated } = useAuth(); // Import useAuth to check auth status
     const navigation = useNavigation();
 
     const handleCheckout = () => {
         navigation.dispatch(DrawerActions.closeDrawer());
-        navigation.navigate('Checkout');
+        if (isAuthenticated) {
+            navigation.navigate('Checkout');
+        } else {
+            // Redirect guests to the Login screen if they try to checkout
+            navigation.navigate('Login');
+        }
     };
 
     return (

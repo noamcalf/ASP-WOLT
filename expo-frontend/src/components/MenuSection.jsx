@@ -7,7 +7,8 @@ import { useThemeStyles } from '../hooks/useThemeStyles';
 // A section component that groups menu items by category (e.g., "Starters", "Mains").
 // It handles rendering the title and a responsive grid of MenuItemRows.
 const MenuSection = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); title, products, onProductClick }) => {
+    title, products, onProductClick }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     if (!products || products.length === 0) return null;
 
     return (

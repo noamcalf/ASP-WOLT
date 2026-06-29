@@ -8,7 +8,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const ProductDetailsModal = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); product, onClose, onAddToOrder }) => {
+    product, onClose, onAddToOrder }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const { user } = useAuth();
     const insets = useSafeAreaInsets();
     

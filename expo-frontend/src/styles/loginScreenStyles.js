@@ -3,7 +3,7 @@ import { woltTheme } from './woltTheme';
 
 // Styles specific to the Login Screen.
 // Centralizing these styles here keeps the main component file clean and readable.
-export const loginStyles = StyleSheet.create({
+export const loginStylesFactory = (colors, theme) => StyleSheet.create({
     // Main container wrapping the entire screen
     container: {
         flex: 1,
@@ -30,7 +30,7 @@ export const loginStyles = StyleSheet.create({
     card: {
         width: '100%',
         maxWidth: 460,
-        backgroundColor: '#ffffff',
+        backgroundColor: colors.background,
         borderRadius: 24,
         padding: 30,
         shadowColor: '#000',
@@ -45,12 +45,12 @@ export const loginStyles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 24,
-        color: woltTheme.colors.textDark,
+        color: colors.text,
         letterSpacing: -0.5,
     },
     // Container for displaying login errors
     errorAlert: {
-        backgroundColor: '#ffebee',
+        backgroundColor: colors.dangerBackground,
         borderRadius: 14,
         padding: 15,
         marginBottom: 20,
@@ -58,7 +58,7 @@ export const loginStyles = StyleSheet.create({
         alignItems: 'center',
     },
     errorAlertText: {
-        color: '#c62828',
+        color: colors.danger,
         fontWeight: 'bold',
         fontSize: 14,
     },
@@ -68,7 +68,7 @@ export const loginStyles = StyleSheet.create({
         alignItems: 'center',
     },
     linkText: {
-        color: woltTheme.colors.primary,
+        color: colors.primary,
         fontWeight: '600',
         fontSize: 15,
     }

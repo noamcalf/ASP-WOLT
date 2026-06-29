@@ -6,7 +6,8 @@ import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const RestaurantHeaderCard = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); restaurant }) => {
+    restaurant }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const navigation = useNavigation();
     
     if (!restaurant) return null;

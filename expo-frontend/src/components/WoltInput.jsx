@@ -6,7 +6,6 @@ import { useThemeStyles } from '../hooks/useThemeStyles';
 // A reusable input field (like a text box) styled specifically for the Wolt theme.
 // It handles labels, error messages, and even a "show password" toggle button automatically.
 const WoltInput = forwardRef(({
-    const { styles, colors } = useThemeStyles(stylesFactory); 
     label, 
     type = "text", 
     name, 
@@ -18,6 +17,7 @@ const WoltInput = forwardRef(({
     disabled, 
     containerStyle // Replaces colClass for React Native
 }, ref) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const [showPassword, setShowPassword] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 
@@ -102,6 +102,9 @@ const stylesFactory = (colors, theme) => StyleSheet.create({
     input: {
         ...woltTheme.components.input,
         width: '100%',
+        backgroundColor: colors.background, // Dynamic dark mode background
+        borderColor: colors.border,         // Dynamic dark mode border
+        color: colors.text                  // Dynamic dark mode text
     },
     inputWithIcon: {
         paddingRight: 45, // Make room for eye icon

@@ -6,7 +6,8 @@ import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const CategoryCarousel = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); title, restaurants, isLoading }) => {
+    title, restaurants, isLoading }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     return (
         <View style={styles.container}>
             <Text style={styles.title}>{title}</Text>

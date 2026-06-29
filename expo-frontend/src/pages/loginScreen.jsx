@@ -66,8 +66,8 @@ const LoginScreen = () => {
             }
 
             login(data.token); 
-            // In React Navigation, auth context usually switches stacks automatically,
-            // but we can also explicitly navigate to Dashboard if needed.
+            // Navigate to Dashboard upon successful login
+            navigation.replace('Dashboard');
 
         } catch (err) {
             setError(err.message || 'Connection error. Please try again.');

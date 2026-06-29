@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Platform, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/authContext';
 import { useCart } from '../context/CartContext';
@@ -64,10 +64,17 @@ const NativeHeader = (props) => {
                     {isAuthenticated ? (
                         <>
                             <TouchableOpacity 
-                                style={styles.iconButton} 
+                                style={[styles.iconButton, { overflow: 'hidden', padding: user?.image ? 0 : 8 }]} 
                                 onPress={() => setIsProfileMenuOpen(true)}
                             >
-                                <Text style={styles.iconText}>👤</Text>
+                                {user?.image ? (
+                                    <Image 
+                                        source={{ uri: `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'}/${user.image.replace(/\\/g, '/')}` }} 
+                                        style={{ width: 34, height: 34, borderRadius: 12 }} 
+                                    />
+                                ) : (
+                                    <Text style={styles.iconText}>👤</Text>
+                                )}
                             </TouchableOpacity>
 
                             {/* Dropdown Menu Modal */}

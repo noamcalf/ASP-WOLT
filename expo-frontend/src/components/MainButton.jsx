@@ -4,7 +4,8 @@ import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const MainButton = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); text, loadingText = "Loading... ⏳", isLoading, type = "submit", onClick, disabled }) => {
+    text, loadingText = "Loading... ⏳", isLoading, type = "submit", onClick, disabled }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     return (
         // Native version for the button tag
         <TouchableOpacity 

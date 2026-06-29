@@ -6,7 +6,8 @@ import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // A reusable, red "Delete" button that asks for confirmation before actually deleting something.
 const DeleteButton = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); endpoint, confirmationMessage, onSuccess, style, children }) => {
+    endpoint, confirmationMessage, onSuccess, style, children }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const [isDeleting, setIsDeleting] = useState(false);
 
     const performDelete = async () => {

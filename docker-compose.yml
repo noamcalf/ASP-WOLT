@@ -59,8 +59,14 @@ services:
       - "27017:27017"
     networks:
       - wolt_network
+    volumes:
+      - mongo_data:/data/db
 
 # Create the private connected-network between the containers
 networks:
   wolt_network:
     driver: bridge
+
+# Define persistent volumes
+volumes:
+  mongo_data:

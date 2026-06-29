@@ -5,7 +5,8 @@ import { getImageUrl } from '../utils/imageUtils';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const CartItem = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); item, updateQuantity, removeFromCart }) => {
+    item, updateQuantity, removeFromCart }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&q=80';
     const imageSrc = getImageUrl(item.product.image, fallbackImage);
 

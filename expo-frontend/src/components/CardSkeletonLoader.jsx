@@ -4,8 +4,8 @@ import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const CardSkeletonLoader = () => {
-    const { styles, colors } = useThemeStyles(stylesFactory);
     // Create an animated value for opacity, starting at 0.3
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const opacityAnim = useRef(new Animated.Value(0.3)).current;
 
     useEffect(() => {

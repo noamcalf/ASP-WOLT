@@ -7,7 +7,8 @@ import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const RestaurantCard = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); restaurant, ownerMode = false, onDelete }) => {
+    restaurant, ownerMode = false, onDelete }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     // If the restaurant doesn't have an image, we use a placeholder that fits the Wolt theme.
     const imageSrc = getImageUrl(restaurant.image, 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80');
 

@@ -20,6 +20,7 @@ export const woltTheme = {
         black: '#000000',
         dark: {
             background: '#212529',
+            backgroundAlt: '#343a40',
             backgroundHover: '#343a40',
             cardBackground: '#2b3035',
             border: '#495057',

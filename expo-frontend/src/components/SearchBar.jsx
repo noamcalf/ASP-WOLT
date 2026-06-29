@@ -108,7 +108,7 @@ const stylesFactory = (colors, theme) => StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: colors.cardBackground,
         borderRadius: 12,
         paddingHorizontal: woltTheme.spacing.medium,
         ...woltTheme.shadows.small,

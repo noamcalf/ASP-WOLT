@@ -35,7 +35,8 @@ const RecommendationCard = ({ product, onAddToOrder }) => {
 // A component that fetches and displays a horizontal list of recommended products.
 // It uses collaborative filtering ("People also bought") from the backend.
 const RecommendationCarousel = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); productId, onAddToOrder }) => {
+    productId, onAddToOrder }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const { user } = useAuth();
     const [recommendations, setRecommendations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);

@@ -6,7 +6,8 @@ import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const MenuItemRow = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); product, onClick, ownerMode = false, deleteEndpoint, onDeleteSuccess, onEdit }) => {
+    product, onClick, ownerMode = false, deleteEndpoint, onDeleteSuccess, onEdit }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
     const imageSrc = getImageUrl(product.image, fallbackImage);
 

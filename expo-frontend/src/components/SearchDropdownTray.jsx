@@ -8,7 +8,8 @@ import { useThemeStyles } from '../hooks/useThemeStyles';
 // SearchDropdownTray is an absolute-positioned overlay that displays live search results.
 // It renders lists of matching restaurants and menu items below the SearchBar.
 const SearchDropdownTray = ({
-    const { styles, colors } = useThemeStyles(stylesFactory); results, isLoading, isOpen, searchQuery, onClose }) => {
+    results, isLoading, isOpen, searchQuery, onClose }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const navigation = useNavigation();
 
     if (!isOpen || !searchQuery.trim()) return null;
@@ -109,7 +110,7 @@ const stylesFactory = (colors, theme) => StyleSheet.create({
         left: 0,
         right: 0,
         marginTop: 8,
-        backgroundColor: '#fff',
+        backgroundColor: colors.cardBackground,
         borderRadius: 16,
         maxHeight: 400,
         ...woltTheme.shadows.medium,
