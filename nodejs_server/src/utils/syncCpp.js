@@ -11,8 +11,8 @@ const syncDatabaseWithCppServer = async () => {
     try {
         console.log('[Sync] Starting MongoDB to C++ Server synchronization...');
         
-        // 1. Fetch all users
-        const users = await User.find({});
+        // 1. Fetch all users, sorted by _id to guarantee deterministic integer mapping
+        const users = await User.find({}).sort({ _id: 1 });
         if (users.length === 0) {
             console.log('[Sync] No users found. Synchronization skipped.');
             return;
@@ -25,8 +25,8 @@ const syncDatabaseWithCppServer = async () => {
         }
         console.log(`[Sync] Dispatched POST commands for ${users.length} users.`);
 
-        // 3. Fetch all orders that have products
-        const orders = await Order.find({ items: { $exists: true, $not: { $size: 0 } } });
+        // 3. Fetch all orders that have products, sorted by _id to guarantee deterministic mapping
+        const orders = await Order.find({ items: { $exists: true, $not: { $size: 0 } } }).sort({ _id: 1 });
 
         // 4. Send PATCH commands to rebuild the recommendation history
         let patchCount = 0;

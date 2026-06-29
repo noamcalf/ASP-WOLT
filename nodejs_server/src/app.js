@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 // Set premission to the origin URL (frontend react server port) to communicate with this server using cors
 app.use(cors({ 
-    origin: 'http://localhost:5173', 
+    origin: true, 
     credentials: true 
 }));
 
@@ -71,6 +71,8 @@ if (process.env.NODE_ENV !== 'test') {
         await seedDatabase();
 
         // Inject MongoDB data to CPP server to reconstruct in-memory state
+        const { waitForCppServer } = require('./utils/tcpClient');
+        await waitForCppServer();
         const syncDatabaseWithCppServer = require('./utils/syncCpp');
         await syncDatabaseWithCppServer();
 
