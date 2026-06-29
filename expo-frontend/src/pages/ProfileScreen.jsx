@@ -12,7 +12,7 @@ const ProfileScreen = () => {
     const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView edges={['bottom', 'left', 'right']} style={styles.safeArea}>
             <View style={styles.container}>
                 {/* Profile Header section */}
                 <View style={styles.headerRow}>

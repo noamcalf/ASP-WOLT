@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, Image, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { apiClient } from '../utils/apiClient';
 import { getImageUrl } from '../utils/imageUtils';
 import { useThemeStyles } from '../hooks/useThemeStyles';
@@ -7,6 +8,7 @@ import { woltTheme } from '../styles/woltTheme';
 
 const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
     const { styles, colors } = useThemeStyles(editOrderStylesFactory);
+    const insets = useSafeAreaInsets();
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -115,16 +117,13 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
             animationType="slide"
             onRequestClose={onClose}
         >
-            <TouchableOpacity 
-                style={styles.modalOverlay} 
-                activeOpacity={1} 
-                onPress={onClose}
-            >
+            <View style={styles.modalOverlay}>
                 <TouchableOpacity 
-                    style={styles.modalContent} 
+                    style={StyleSheet.absoluteFill} 
                     activeOpacity={1} 
-                    onPress={() => {}}
-                >
+                    onPress={onClose}
+                />
+                <View style={styles.modalContent}>
                     {/* Header */}
                     <View style={styles.header}>
                         <Text style={styles.headerTitle}>Edit Order</Text>
@@ -188,7 +187,7 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                     </ScrollView>
 
                     {/* Footer */}
-                    <View style={styles.footer}>
+                    <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, woltTheme.spacing.large) }]}>
                         <View style={styles.totalContainer}>
                             <Text style={styles.totalLabel}>New Total</Text>
                             <Text style={styles.totalAmount}>₪{newTotal.toFixed(2)}</Text>
@@ -210,8 +209,8 @@ const EditOrderModal = ({ order, onClose, onSaveSuccess }) => {
                             </TouchableOpacity>
                         </View>
                     </View>
-                </TouchableOpacity>
-            </TouchableOpacity>
+                </View>
+            </View>
         </Modal>
     );
 };
@@ -371,7 +370,7 @@ const editOrderStylesFactory = (colors, theme) => StyleSheet.create({
         color: colors.textMuted,
     },
     totalAmount: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: 'bold',
         color: colors.textHeading,
     },
