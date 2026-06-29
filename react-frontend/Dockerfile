@@ -1,18 +1,18 @@
-# Stage 1: Build the React Application
+# Stage 1: Build the Universal Expo Application for Web
 FROM node:22-alpine AS builder
 
 # We'll set the working directory for the frontend
-WORKDIR /app/react-frontend
+WORKDIR /app/expo-frontend
 
 # Copy package.json and install dependencies
-COPY react-frontend/package*.json ./
+COPY expo-frontend/package*.json ./
 RUN npm install
 
 # Copy the rest of the frontend source code
-COPY react-frontend/ ./
+COPY expo-frontend/ ./
 
-# Build the React application (Vite outputs to 'dist' folder)
-RUN npm run build
+# Build the Expo application for the web (outputs to 'dist' folder)
+RUN npx expo export -p web
 
 # Stage 2: Setup the Node.js Backend and serve the static files
 FROM node:22-alpine
@@ -29,8 +29,8 @@ COPY nodejs_server/ ./
 # Copy the seed images to the container's /app/images directory
 COPY images/ /app/images/
 
-# Copy the compiled React static assets from Stage 1 directly into the 'public' folder
-COPY --from=builder /app/react-frontend/dist ./public
+# Copy the compiled Expo web static assets from Stage 1 directly into the 'public' folder
+COPY --from=builder /app/expo-frontend/dist ./public
 
 # Expose the unified port (3000)
 EXPOSE 3000

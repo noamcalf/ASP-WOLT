@@ -27,6 +27,35 @@ const connectToCppServer = () => {
 };
 
 /**
+ * Pings the C++ server every 2 seconds until it accepts a connection.
+ * Used during startup to wait for the C++ server to finish compiling before syncing.
+ */
+const waitForCppServer = () => {
+    return new Promise((resolve) => {
+        console.log(`[TCP Client] Waiting for C++ Server to come online at ${HOST}:${PORT}...`);
+        
+        const tryConnect = () => {
+            const client = new net.Socket();
+            
+            client.once('connect', () => {
+                console.log(`[TCP Client] C++ Server is online!`);
+                client.destroy();
+                resolve();
+            });
+            
+            client.once('error', (err) => {
+                // If connection refused, wait 2 seconds and try again
+                setTimeout(tryConnect, 2000);
+            });
+            
+            client.connect(PORT, HOST);
+        };
+        
+        tryConnect();
+    });
+};
+
+/**
  * Encapsulated utility handler to dispatch cross-server event notifications.
  * Opens a brief connection, sends the data, and closes it gracefully ONLY AFTER
  * the data has been fully flushed to the network to prevent race conditions.
@@ -72,6 +101,7 @@ const resetReconnectFlag = () => {
 
 module.exports = {
     connectToCppServer,
+    waitForCppServer,
     sendTelemetry,
     closeConnection,
     resetReconnectFlag
