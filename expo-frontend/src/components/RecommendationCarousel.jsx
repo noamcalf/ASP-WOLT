@@ -4,6 +4,7 @@ import { useAuth } from '../context/authContext';
 import { apiClient } from '../utils/apiClient';
 import { getImageUrl } from '../utils/imageUtils';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // A small card representing a single recommended product.
 const RecommendationCard = ({ product, onAddToOrder }) => {
@@ -33,7 +34,9 @@ const RecommendationCard = ({ product, onAddToOrder }) => {
 
 // A component that fetches and displays a horizontal list of recommended products.
 // It uses collaborative filtering ("People also bought") from the backend.
-const RecommendationCarousel = ({ productId, onAddToOrder }) => {
+const RecommendationCarousel = ({
+    productId, onAddToOrder }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const { user } = useAuth();
     const [recommendations, setRecommendations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -67,7 +70,7 @@ const RecommendationCarousel = ({ productId, onAddToOrder }) => {
             <View style={styles.container}>
                 <Text style={styles.heading}>People also bought</Text>
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="small" color={woltTheme.colors.primary} />
+                    <ActivityIndicator size="small" color={colors.primary} />
                 </View>
             </View>
         );
@@ -106,7 +109,7 @@ const RecommendationCarousel = ({ productId, onAddToOrder }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     container: {
         marginTop: woltTheme.spacing.large,
         marginBottom: woltTheme.spacing.medium,
@@ -114,7 +117,7 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: woltTheme.spacing.medium,
         paddingHorizontal: woltTheme.spacing.medium,
     },
@@ -128,12 +131,12 @@ const styles = StyleSheet.create({
     },
     cardContainer: {
         width: 180,
-        backgroundColor: woltTheme.colors.cardBackground,
+        backgroundColor: colors.cardBackground,
         borderRadius: 12,
         marginRight: 16,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -166,23 +169,23 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: 4,
     },
     cardPrice: {
         fontSize: 14,
         fontWeight: '600',
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
     },
     addButton: {
         marginTop: woltTheme.spacing.medium,
-        backgroundColor: woltTheme.colors.primaryLight,
+        backgroundColor: colors.primaryLight,
         paddingVertical: 6,
         borderRadius: 8,
         alignItems: 'center',
     },
     addButtonText: {
-        color: woltTheme.colors.primary,
+        color: colors.primary,
         fontWeight: 'bold',
         fontSize: 14,
     }

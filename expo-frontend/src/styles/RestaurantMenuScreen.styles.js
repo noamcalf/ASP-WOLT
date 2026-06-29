@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
 import { woltTheme } from './woltTheme';
 
-export const restaurantMenuStyles = StyleSheet.create({
+export const restaurantMenuStylesFactory = (colors, theme) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
     },
     scrollContent: {
         paddingBottom: 40,
@@ -18,11 +18,11 @@ export const restaurantMenuStyles = StyleSheet.create({
     errorText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: woltTheme.colors.error,
+        color: colors.error,
         marginBottom: woltTheme.spacing.large,
     },
     backButton: {
-        backgroundColor: woltTheme.colors.primary,
+        backgroundColor: colors.primary,
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 8,
@@ -34,13 +34,13 @@ export const restaurantMenuStyles = StyleSheet.create({
     emptyContainer: {
         alignItems: 'center',
         padding: 40,
-        backgroundColor: woltTheme.colors.cardBackground,
+        backgroundColor: colors.cardBackground,
         borderRadius: 16,
         margin: woltTheme.spacing.large,
     },
     emptyText: {
         fontSize: 16,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         fontWeight: 'bold',
     },
     menuContent: {

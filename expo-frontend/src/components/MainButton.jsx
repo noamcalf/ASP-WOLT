@@ -1,8 +1,11 @@
 import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, View } from 'react-native';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
-const MainButton = ({ text, loadingText = "Loading... ⏳", isLoading, type = "submit", onClick, disabled }) => {
+const MainButton = ({
+    text, loadingText = "Loading... ⏳", isLoading, type = "submit", onClick, disabled }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     return (
         // Native version for the button tag
         <TouchableOpacity 
@@ -26,7 +29,7 @@ const MainButton = ({ text, loadingText = "Loading... ⏳", isLoading, type = "s
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     button: {
         ...woltTheme.components.button,
         marginTop: woltTheme.spacing.small,

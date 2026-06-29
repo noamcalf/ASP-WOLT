@@ -3,7 +3,7 @@ import { woltTheme } from './woltTheme';
 
 // Styles specific to the Registration Screen.
 // This handles the layout for the complex registration form, including role selection and camera input.
-export const registrationStyles = StyleSheet.create({
+export const registrationStylesFactory = (colors, theme) => StyleSheet.create({
     // Main container wrapping the entire screen
     container: {
         flex: 1,
@@ -28,7 +28,7 @@ export const registrationStyles = StyleSheet.create({
     card: {
         width: '100%',
         maxWidth: 650,
-        backgroundColor: '#ffffff',
+        backgroundColor: colors.background,
         borderRadius: 24,
         padding: 30,
         shadowColor: '#000',
@@ -42,18 +42,18 @@ export const registrationStyles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 8,
-        color: woltTheme.colors.textDark,
+        color: colors.text,
         letterSpacing: -0.5,
     },
     subheading: {
         textAlign: 'center',
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         marginBottom: 24,
         fontSize: 15,
     },
     // Validation error banner
     errorAlert: {
-        backgroundColor: '#ffebee',
+        backgroundColor: colors.dangerBackground,
         borderRadius: 14,
         padding: 15,
         marginBottom: 20,
@@ -61,7 +61,7 @@ export const registrationStyles = StyleSheet.create({
         alignItems: 'center',
     },
     errorAlertText: {
-        color: '#c62828',
+        color: colors.danger,
         fontWeight: 'bold',
         fontSize: 14,
     },
@@ -70,14 +70,14 @@ export const registrationStyles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 12,
         letterSpacing: 1,
-        color: woltTheme.colors.textLabel,
+        color: colors.textLabel,
         marginBottom: 10,
         textTransform: 'uppercase',
     },
     // --- Role Selection Buttons (Customer vs Owner) ---
     roleContainer: {
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
         borderRadius: 14,
         padding: 15,
         marginBottom: 20,
@@ -90,26 +90,26 @@ export const registrationStyles = StyleSheet.create({
         flex: 1,
         paddingVertical: 12,
         borderWidth: 1.5,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
         borderRadius: 10,
         alignItems: 'center',
-        backgroundColor: woltTheme.colors.backgroundAlt,
+        backgroundColor: colors.backgroundAlt,
     },
     roleButtonActive: {
-        borderColor: woltTheme.colors.primary,
-        backgroundColor: '#e6f5fb',
+        borderColor: colors.primary,
+        backgroundColor: colors.primaryBackground || '#e6f5fb',
     },
     roleButtonText: {
         fontWeight: '600',
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
     },
     roleButtonTextActive: {
-        color: woltTheme.colors.primary,
+        color: colors.primary,
     },
     // Horizontal separator line between form sections
     divider: {
         height: 1,
-        backgroundColor: woltTheme.colors.border,
+        backgroundColor: colors.border,
         marginVertical: 20,
     },
     // Places two inputs side-by-side
@@ -123,9 +123,9 @@ export const registrationStyles = StyleSheet.create({
     },
     // --- Camera & Profile Picture ---
     imageButton: {
-        backgroundColor: '#f8fafc',
+        backgroundColor: colors.backgroundAlt,
         borderWidth: 2,
-        borderColor: '#e2e8f0',
+        borderColor: colors.border,
         borderStyle: 'dashed',
         borderRadius: 14,
         padding: 20,
@@ -133,11 +133,11 @@ export const registrationStyles = StyleSheet.create({
         marginBottom: 20,
     },
     imageButtonError: {
-        borderColor: woltTheme.colors.danger,
-        backgroundColor: woltTheme.colors.dangerBackground,
+        borderColor: colors.danger,
+        backgroundColor: colors.dangerBackground,
     },
     imageButtonText: {
-        color: woltTheme.colors.primary,
+        color: colors.primary,
         fontWeight: '600',
         fontSize: 16,
         marginTop: 8,
@@ -155,7 +155,7 @@ export const registrationStyles = StyleSheet.create({
         alignItems: 'center',
     },
     linkText: {
-        color: woltTheme.colors.primary,
+        color: colors.primary,
         fontWeight: '600',
         fontSize: 15,
     }

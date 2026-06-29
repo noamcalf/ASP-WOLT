@@ -4,10 +4,12 @@ import { useNavigation } from '@react-navigation/native';
 import SearchDropdownTray from './SearchDropdownTray';
 import { woltTheme } from '../styles/woltTheme';
 import { Ionicons } from '@expo/vector-icons';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // SearchBar handles user input for the live search feature.
 // It implements a debounce mechanism to optimize API calls to the backend.
 const SearchBar = () => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState({ restaurants: [], products: [] });
     const [isLoading, setIsLoading] = useState(false);
@@ -70,11 +72,11 @@ const SearchBar = () => {
     return (
         <View style={styles.wrapper}>
             <View style={styles.inputContainer}>
-                <Ionicons name="search" size={20} color={woltTheme.colors.textMuted} style={styles.searchIcon} />
+                <Ionicons name="search" size={20} color={colors.textMuted} style={styles.searchIcon} />
                 <TextInput 
                     style={styles.input}
                     placeholder="Search in Wolt..." 
-                    placeholderTextColor={woltTheme.colors.textMuted}
+                    placeholderTextColor={colors.textMuted}
                     value={query}
                     onChangeText={handleInputChange}
                     onFocus={handleFocus}
@@ -96,7 +98,7 @@ const SearchBar = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     wrapper: {
         width: '100%',
         maxWidth: 500,
@@ -106,7 +108,7 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: colors.cardBackground,
         borderRadius: 12,
         paddingHorizontal: woltTheme.spacing.medium,
         ...woltTheme.shadows.small,
@@ -118,7 +120,7 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         fontSize: 16,
-        color: woltTheme.colors.text,
+        color: colors.text,
         height: '100%',
     }
 });

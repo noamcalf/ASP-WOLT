@@ -3,10 +3,13 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator
 import { useNavigation } from '@react-navigation/native';
 import { woltTheme } from '../styles/woltTheme';
 import { getImageUrl } from '../utils/imageUtils';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // SearchDropdownTray is an absolute-positioned overlay that displays live search results.
 // It renders lists of matching restaurants and menu items below the SearchBar.
-const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }) => {
+const SearchDropdownTray = ({
+    results, isLoading, isOpen, searchQuery, onClose }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const navigation = useNavigation();
 
     if (!isOpen || !searchQuery.trim()) return null;
@@ -37,7 +40,7 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
         <View style={styles.container}>
             {isLoading ? (
                 <View style={styles.centerContent}>
-                    <ActivityIndicator size="small" color={woltTheme.colors.primary} />
+                    <ActivityIndicator size="small" color={colors.primary} />
                     <Text style={styles.mutedText}>Searching...</Text>
                 </View>
             ) : !hasResults ? (
@@ -100,20 +103,20 @@ const SearchDropdownTray = ({ results, isLoading, isOpen, searchQuery, onClose }
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     container: {
         position: 'absolute',
         top: '100%',
         left: 0,
         right: 0,
         marginTop: 8,
-        backgroundColor: '#fff',
+        backgroundColor: colors.cardBackground,
         borderRadius: 16,
         maxHeight: 400,
         ...woltTheme.shadows.medium,
         elevation: 5,
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
         zIndex: 1050,
         overflow: 'hidden',
     },
@@ -128,7 +131,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     mutedText: {
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         fontSize: 14,
     },
     section: {
@@ -139,7 +142,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         fontSize: 12,
         fontWeight: 'bold',
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         letterSpacing: 1,
     },
     row: {
@@ -153,16 +156,16 @@ const styles = StyleSheet.create({
         height: 40,
         borderRadius: 20,
         marginRight: 12,
-        backgroundColor: woltTheme.colors.border,
+        backgroundColor: colors.border,
     },
     titleText: {
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         fontSize: 15,
         marginBottom: 2,
     },
     subtitleText: {
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         fontSize: 13,
     },
     viewAllRow: {
@@ -172,11 +175,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderTopWidth: 1,
-        borderTopColor: woltTheme.colors.border,
+        borderTopColor: colors.border,
         marginTop: 4,
     },
     viewAllText: {
-        color: woltTheme.colors.primary,
+        color: colors.primary,
         fontWeight: 'bold',
         fontSize: 14,
     }

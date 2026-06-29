@@ -26,7 +26,7 @@ const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 function MainStack() {
-  const { user } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   return (
     // Define the NativeHeader (Old NavBar) as a field in the stack
     // If the user is a owner, he has more screens
@@ -34,13 +34,20 @@ function MainStack() {
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="RestaurantMenu" component={RestaurantMenuScreen} />
       <Stack.Screen name="Search" component={SearchResultsView} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="Checkout" component={CheckoutScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Register" component={RegistrationScreen} options={{ headerShown: false }} />
       
-      {user?.role === 'owner' && (
+      {isAuthenticated && (
         <>
-          <Stack.Screen name="OwnerDashboard" component={OwnerDashboardScreen} />
-          <Stack.Screen name="OwnerMenuManager" component={OwnerMenuManagerScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Checkout" component={CheckoutScreen} />
+          
+          {user?.role === 'owner' && (
+            <>
+              <Stack.Screen name="OwnerDashboard" component={OwnerDashboardScreen} />
+              <Stack.Screen name="OwnerMenuManager" component={OwnerMenuManagerScreen} />
+            </>
+          )}
         </>
       )}
     </Stack.Navigator>
@@ -48,7 +55,7 @@ function MainStack() {
 }
 
 function RootNavigator() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     // Now we are using a async function to get the token from the mobile's memory, so until this command will end we will present an empty page
@@ -56,17 +63,8 @@ function RootNavigator() {
     return null; 
   }
 
-  // If the user is not Authenticated it has only login and registration screen's
-  if (!isAuthenticated) {
-    return (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegistrationScreen} />
-      </Stack.Navigator>
-    );
-  }
-
-  // If the user is Authenticated, show the full MainStack
+  // The main app layout is always available, even for guests.
+  // Guests will see the Dashboard but won't be able to access protected screens.
   return (
     <Drawer.Navigator 
       drawerPosition="right" 

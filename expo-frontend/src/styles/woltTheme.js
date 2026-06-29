@@ -12,16 +12,20 @@ export const woltTheme = {
         backgroundAlt: '#f8fafc',
         backgroundHover: '#f8f9fa',
         textHeading: '#202125',
+        text: '#202125',
         textMuted: '#6c757d',
         textLabel: '#3a3c42',
+        cardBackground: '#ffffff',
         white: '#ffffff',
         black: '#000000',
         dark: {
             background: '#212529',
+            backgroundAlt: '#343a40',
             backgroundHover: '#343a40',
             cardBackground: '#2b3035',
             border: '#495057',
             textHeading: '#f8f9fa',
+            text: '#f8f9fa',
             textMuted: '#adb5bd',
             textLabel: '#f8f9fa',
             searchBackground: '#2b3035',
@@ -109,4 +113,14 @@ export const woltTheme = {
             alignItems: 'center'
         }
     }
+};
+
+export const getColors = (theme) => {
+    if (theme === 'dark') {
+        return {
+            ...woltTheme.colors,
+            ...woltTheme.colors.dark,
+        };
+    }
+    return woltTheme.colors;
 };

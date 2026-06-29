@@ -1,13 +1,15 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Platform, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../context/authContext';
 import { useCart } from '../context/CartContext';
 import { ThemeContext } from '../context/themeContext';
 import { useNavigation } from '@react-navigation/native';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const NativeHeader = (props) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const { isAuthenticated, user, logout } = useAuth();
     const { totalItems } = useCart();
     const { theme, toggleTheme } = useContext(ThemeContext);
@@ -62,10 +64,17 @@ const NativeHeader = (props) => {
                     {isAuthenticated ? (
                         <>
                             <TouchableOpacity 
-                                style={styles.iconButton} 
+                                style={[styles.iconButton, { overflow: 'hidden', padding: user?.image ? 0 : 8 }]} 
                                 onPress={() => setIsProfileMenuOpen(true)}
                             >
-                                <Text style={styles.iconText}>👤</Text>
+                                {user?.image ? (
+                                    <Image 
+                                        source={{ uri: `${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'}/${user.image.replace(/\\/g, '/')}` }} 
+                                        style={{ width: 34, height: 34, borderRadius: 12 }} 
+                                    />
+                                ) : (
+                                    <Text style={styles.iconText}>👤</Text>
+                                )}
                             </TouchableOpacity>
 
                             {/* Dropdown Menu Modal */}
@@ -81,7 +90,7 @@ const NativeHeader = (props) => {
                                         </TouchableOpacity>
                                         <View style={styles.divider} />
                                         <TouchableOpacity style={styles.dropdownItem} onPress={handleLogout}>
-                                            <Text style={[styles.dropdownText, { color: woltTheme.colors.danger }]}>Sign Out</Text>
+                                            <Text style={[styles.dropdownText, { color: colors.danger }]}>Sign Out</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </TouchableOpacity>
@@ -98,11 +107,11 @@ const NativeHeader = (props) => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     safeArea: {
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
         borderBottomWidth: 1,
-        borderBottomColor: woltTheme.colors.border,
+        borderBottomColor: colors.border,
         zIndex: 999, // Ensure dropdown stays on top of content
     },
     container: {
@@ -120,7 +129,7 @@ const styles = StyleSheet.create({
     brand: {
         fontSize: 22,
         fontWeight: '900',
-        color: woltTheme.colors.primary, 
+        color: colors.primary, 
         letterSpacing: -0.5,
     },
     rightSection: {
@@ -131,10 +140,10 @@ const styles = StyleSheet.create({
     iconButton: {
         padding: 8,
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
         borderRadius: 12,
         position: 'relative',
-        backgroundColor: woltTheme.colors.backgroundAlt,
+        backgroundColor: colors.backgroundAlt,
     },
     iconText: {
         fontSize: 16,
@@ -143,14 +152,14 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: -6,
         right: -6,
-        backgroundColor: woltTheme.colors.danger,
+        backgroundColor: colors.danger,
         borderRadius: 12,
         minWidth: 20,
         height: 20,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: woltTheme.colors.background,
+        borderColor: colors.background,
     },
     badgeText: {
         color: '#fff',
@@ -159,7 +168,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 4,
     },
     loginButton: {
-        backgroundColor: woltTheme.colors.primary,
+        backgroundColor: colors.primary,
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 20,
@@ -175,12 +184,12 @@ const styles = StyleSheet.create({
     dropdownMenu: {
         position: 'absolute',
         right: woltTheme.spacing.large,
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
         borderRadius: 12,
         padding: 8,
         width: 140,
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
@@ -194,11 +203,11 @@ const styles = StyleSheet.create({
     dropdownText: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     divider: {
         height: 1,
-        backgroundColor: woltTheme.colors.border,
+        backgroundColor: colors.border,
         marginVertical: 4,
     }
 });

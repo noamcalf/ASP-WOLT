@@ -6,10 +6,12 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/authContext';
 import { apiClient } from '../utils/apiClient';
 import { placeOrder } from '../services/orderService';
-import { checkoutStyles as styles } from '../styles/CheckoutScreen.styles';
+import { checkoutStylesFactory } from '../styles/CheckoutScreen.styles';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const CheckoutScreen = () => {
+    const { styles, colors } = useThemeStyles(checkoutStylesFactory);
     // 1. Pull necessary data from our global contexts (Cart and Auth)
     const { cartItems, totalPrice, activeRestaurantId, clearCart } = useCart();
     const { user } = useAuth();

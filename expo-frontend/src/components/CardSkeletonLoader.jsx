@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const CardSkeletonLoader = () => {
     // Create an animated value for opacity, starting at 0.3
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const opacityAnim = useRef(new Animated.Value(0.3)).current;
 
     useEffect(() => {
@@ -48,7 +50,7 @@ const CardSkeletonLoader = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     card: {
         ...woltTheme.components.card,
         height: '100%',

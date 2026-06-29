@@ -3,8 +3,11 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import DeleteButton from './DeleteButton';
 import { getImageUrl } from '../utils/imageUtils';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
-const MenuItemRow = ({ product, onClick, ownerMode = false, deleteEndpoint, onDeleteSuccess, onEdit }) => {
+const MenuItemRow = ({
+    product, onClick, ownerMode = false, deleteEndpoint, onDeleteSuccess, onEdit }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
     const imageSrc = getImageUrl(product.image, fallbackImage);
 
@@ -60,17 +63,17 @@ const MenuItemRow = ({ product, onClick, ownerMode = false, deleteEndpoint, onDe
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     container: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: woltTheme.spacing.medium,
         marginBottom: woltTheme.spacing.medium,
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
         marginHorizontal: woltTheme.spacing.small,
         ...woltTheme.shadows.light,
     },
@@ -81,12 +84,12 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: 4,
     },
     description: {
         fontSize: 14,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         marginBottom: 8,
     },
     footerRow: {
@@ -97,7 +100,7 @@ const styles = StyleSheet.create({
     price: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: woltTheme.colors.primary,
+        color: colors.primary,
     },
     ownerActions: {
         flexDirection: 'row',
@@ -108,11 +111,11 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
     },
     editButtonText: {
         fontSize: 12,
-        color: woltTheme.colors.text,
+        color: colors.text,
     },
     deleteButton: {
         paddingHorizontal: 12,

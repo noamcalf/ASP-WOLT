@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
+import { useAuth } from './authContext';
 
 const CartContext = createContext(null);
 
@@ -71,6 +72,18 @@ export const CartProvider = ({ children }) => {
             setActiveRestaurantId(null);
         }
     }, [cartItems]);
+
+    // Clear cart when an authenticated user logs out
+    const { isAuthenticated } = useAuth();
+    const wasAuthenticated = React.useRef(isAuthenticated);
+
+    React.useEffect(() => {
+        if (wasAuthenticated.current && !isAuthenticated) {
+            // Transition from logged-in to logged-out: Clear the cart for privacy
+            clearCart();
+        }
+        wasAuthenticated.current = isAuthenticated;
+    }, [isAuthenticated]);
 
     return (
         <CartContext.Provider value={{

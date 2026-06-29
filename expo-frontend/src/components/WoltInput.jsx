@@ -1,10 +1,11 @@
 import React, { forwardRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // A reusable input field (like a text box) styled specifically for the Wolt theme.
 // It handles labels, error messages, and even a "show password" toggle button automatically.
-const WoltInput = forwardRef(({ 
+const WoltInput = forwardRef(({
     label, 
     type = "text", 
     name, 
@@ -16,6 +17,7 @@ const WoltInput = forwardRef(({
     disabled, 
     containerStyle // Replaces colClass for React Native
 }, ref) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const [showPassword, setShowPassword] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 
@@ -48,7 +50,7 @@ const WoltInput = forwardRef(({
                         disabled && styles.inputDisabled
                     ]}
                     placeholder={placeholder}
-                    placeholderTextColor={woltTheme.colors.textMuted}
+                    placeholderTextColor={colors.textMuted}
                     value={value} 
                     onChangeText={handleChangeText} 
                     secureTextEntry={secureTextEntry}
@@ -80,7 +82,7 @@ const WoltInput = forwardRef(({
     );
 });
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     container: {
         marginBottom: woltTheme.spacing.medium,
         width: '100%',
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
     label: {
         fontWeight: 'bold',
         marginBottom: woltTheme.spacing.small,
-        color: woltTheme.colors.textLabel,
+        color: colors.textLabel,
         fontSize: 12,
         letterSpacing: 1,
         paddingHorizontal: 4,
@@ -100,25 +102,28 @@ const styles = StyleSheet.create({
     input: {
         ...woltTheme.components.input,
         width: '100%',
+        backgroundColor: colors.background, // Dynamic dark mode background
+        borderColor: colors.border,         // Dynamic dark mode border
+        color: colors.text                  // Dynamic dark mode text
     },
     inputWithIcon: {
         paddingRight: 45, // Make room for eye icon
     },
     inputFocused: {
-        borderColor: woltTheme.colors.primary,
+        borderColor: colors.primary,
         ...woltTheme.shadows.focus,
     },
     inputValid: {
-        borderColor: woltTheme.colors.success,
-        backgroundColor: woltTheme.colors.successBackground,
+        borderColor: colors.success,
+        backgroundColor: colors.successBackground,
     },
     inputInvalid: {
-        borderColor: woltTheme.colors.danger,
-        backgroundColor: woltTheme.colors.dangerBackground,
+        borderColor: colors.danger,
+        backgroundColor: colors.dangerBackground,
     },
     inputDisabled: {
         opacity: 0.7,
-        backgroundColor: woltTheme.colors.border,
+        backgroundColor: colors.border,
     },
     eyeIcon: {
         position: 'absolute',
@@ -127,7 +132,7 @@ const styles = StyleSheet.create({
         zIndex: 5,
     },
     errorText: {
-        color: woltTheme.colors.danger,
+        color: colors.danger,
         marginTop: 4,
         marginLeft: 4,
         fontSize: 12,

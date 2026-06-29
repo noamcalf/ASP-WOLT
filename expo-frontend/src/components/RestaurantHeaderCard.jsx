@@ -3,8 +3,11 @@ import { View, Text, ImageBackground, TouchableOpacity, StyleSheet } from 'react
 import { useNavigation } from '@react-navigation/native';
 import { getImageUrl } from '../utils/imageUtils';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
-const RestaurantHeaderCard = ({ restaurant }) => {
+const RestaurantHeaderCard = ({
+    restaurant }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const navigation = useNavigation();
     
     if (!restaurant) return null;
@@ -50,9 +53,9 @@ const RestaurantHeaderCard = ({ restaurant }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     container: {
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
         borderBottomLeftRadius: 16,
         borderBottomRightRadius: 16,
         overflow: 'hidden',
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
     backButton: {
         width: 45,
         height: 45,
-        backgroundColor: woltTheme.colors.background,
+        backgroundColor: colors.background,
         borderRadius: 22.5,
         justifyContent: 'center',
         alignItems: 'center',
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
     },
     backButtonText: {
         fontSize: 24,
-        color: woltTheme.colors.text,
+        color: colors.text,
         fontWeight: 'bold',
     },
     contentContainer: {
@@ -91,12 +94,12 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 32,
         fontWeight: 'bold',
-        color: woltTheme.colors.text,
+        color: colors.text,
         marginBottom: 4,
     },
     subtitle: {
         fontSize: 18,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
         marginBottom: 8,
     },
     detailsRow: {
@@ -105,22 +108,22 @@ const styles = StyleSheet.create({
     },
     detailsText: {
         fontSize: 14,
-        color: woltTheme.colors.textMuted,
+        color: colors.textMuted,
     },
     ratingPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: woltTheme.colors.backgroundAlt,
+        backgroundColor: colors.backgroundAlt,
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: woltTheme.colors.border,
+        borderColor: colors.border,
     },
     ratingValue: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: woltTheme.colors.primary,
+        color: colors.primary,
     },
     ratingIcon: {
         fontSize: 16,

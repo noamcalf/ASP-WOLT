@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { apiClient } from '../utils/apiClient';
 import { woltTheme } from '../styles/woltTheme';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // A reusable, red "Delete" button that asks for confirmation before actually deleting something.
-const DeleteButton = ({ endpoint, confirmationMessage, onSuccess, style, children }) => {
+const DeleteButton = ({
+    endpoint, confirmationMessage, onSuccess, style, children }) => {
+    const { styles, colors } = useThemeStyles(stylesFactory);
     const [isDeleting, setIsDeleting] = useState(false);
 
     const performDelete = async () => {
@@ -63,7 +66,7 @@ const DeleteButton = ({ endpoint, confirmationMessage, onSuccess, style, childre
             activeOpacity={0.7}
         >
             {isDeleting ? (
-                <ActivityIndicator size="small" color={woltTheme.colors.danger} />
+                <ActivityIndicator size="small" color={colors.danger} />
             ) : (
                 <Text style={styles.text}>
                     {children || 'Delete'}
@@ -73,10 +76,10 @@ const DeleteButton = ({ endpoint, confirmationMessage, onSuccess, style, childre
     );
 };
 
-const styles = StyleSheet.create({
+const stylesFactory = (colors, theme) => StyleSheet.create({
     button: {
         borderWidth: 1.5,
-        borderColor: woltTheme.colors.danger,
+        borderColor: colors.danger,
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 8,
@@ -85,7 +88,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     text: {
-        color: woltTheme.colors.danger,
+        color: colors.danger,
         fontWeight: 'bold',
         fontSize: 14,
     }

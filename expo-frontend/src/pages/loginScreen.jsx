@@ -6,11 +6,13 @@ import { useFormValidation } from '../hooks/useFormValidation';
 import woltBg from '../assets/wolt-bg.png';
 import WoltInput from '../components/WoltInput';
 import MainButton from '../components/MainButton';
-import { loginStyles as styles } from '../styles/loginScreenStyles';
+import { loginStylesFactory } from '../styles/loginScreenStyles';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 // The page where users log into their accounts.
 // Refactored to React Native layout.
 const LoginScreen = () => {
+    const { styles, colors } = useThemeStyles(loginStylesFactory);
     const navigation = useNavigation();
     const { login } = useAuth(); 
     
@@ -64,8 +66,8 @@ const LoginScreen = () => {
             }
 
             login(data.token); 
-            // In React Navigation, auth context usually switches stacks automatically,
-            // but we can also explicitly navigate to Dashboard if needed.
+            // Navigate to Dashboard upon successful login
+            navigation.replace('Dashboard');
 
         } catch (err) {
             setError(err.message || 'Connection error. Please try again.');
