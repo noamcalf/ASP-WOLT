@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { apiClient } from '../utils/apiClient';
 import { useFormValidation } from '../hooks/useFormValidation';
@@ -88,7 +88,13 @@ const MenuItemForm = ({ restaurantId, onSuccess, initialData = null }) => {
             payload.append('description', formData.description);
 
             if (formData.image) {
-                payload.append('image', formData.image);
+                if (Platform.OS === 'web') {
+                    const res = await fetch(formData.image.uri);
+                    const blob = await res.blob();
+                    payload.append('image', blob, formData.image.name || 'menu_item.jpg');
+                } else {
+                    payload.append('image', formData.image);
+                }
             }
 
             const endpoint = isEdit ? `/api/restaurants/${restaurantId}/products/${initialData.id}` : `/api/restaurants/${restaurantId}/products`;

@@ -101,18 +101,25 @@ const RegistrationScreen = () => {
 
         try {
             const dataToSubmit = new FormData();
-            Object.keys(formData).forEach(key => {
+            for (const key of Object.keys(formData)) {
                 if (key === 'image' && formData.image) {
-                    // React Native specific format for sending files via FormData
-                    dataToSubmit.append('image', {
-                        uri: formData.image.uri,
-                        name: formData.image.fileName || 'profile.jpg',
-                        type: formData.image.mimeType || 'image/jpeg'
-                    });
+                    if (Platform.OS === 'web') {
+                        // Web browsers require the image to be a Blob or File object for FormData
+                        const res = await fetch(formData.image.uri);
+                        const blob = await res.blob();
+                        dataToSubmit.append('image', blob, formData.image.fileName || 'profile.jpg');
+                    } else {
+                        // React Native specific format for sending files via FormData
+                        dataToSubmit.append('image', {
+                            uri: formData.image.uri,
+                            name: formData.image.fileName || 'profile.jpg',
+                            type: formData.image.mimeType || 'image/jpeg'
+                        });
+                    }
                 } else {
                     dataToSubmit.append(key, formData[key]);
                 }
-            });
+            }
 
             // Since apiClient uses fetch internally, we can pass FormData as the body directly.
             // The browser/fetch automatically sets the multipart boundary if we don't set Content-Type to JSON.

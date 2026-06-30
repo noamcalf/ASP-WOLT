@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ScrollView, View, Text } from 'react-native';
+import { ScrollView, View, Text, Platform } from 'react-native';
 import { apiClient } from '../utils/apiClient';
 import CategoryCarousel from '../components/CategoryCarousel';
 import SearchBar from '../components/SearchBar';
@@ -95,14 +95,15 @@ const DashboardScreen = () => {
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
             {/* Header Section */}
-            <View style={styles.headerContainer}>
+            {/* Fix for Web: zIndex must be explicitly defined here so the SearchBar dropdown is above the lists */}
+            <View style={[styles.headerContainer, Platform.OS === 'web' && { zIndex: 1000 }]}>
                 <Text style={styles.headerTitle}>
                     Discovery
                 </Text>
                 <Text style={styles.headerSubtitle}>Find the best food in town, delivered fast.</Text>
 
                 {/* Search Bar */}
-                <View style={{ marginTop: 16 }}>
+                <View style={{ marginTop: 16, ...(Platform.OS === 'web' ? { zIndex: 1000 } : {}) }}>
                     <SearchBar />
                 </View>
             </View>

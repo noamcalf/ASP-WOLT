@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, Alert, StyleSheet, Platform } from 'react-native';
 import { apiClient } from '../utils/apiClient';
 import { woltTheme } from '../styles/woltTheme';
 import { useThemeStyles } from '../hooks/useThemeStyles';
@@ -38,24 +38,25 @@ const DeleteButton = ({
         if (e && e.stopPropagation) e.stopPropagation();
 
         const defaultMessage = 'Are you sure you want to delete this? This action cannot be undone.';
+        const message = confirmationMessage || defaultMessage;
         
-        // This unified Alert works on Mobile, and automatically translates to window.confirm on Web
-        Alert.alert(
-            'Confirm Deletion',
-            confirmationMessage || defaultMessage,
-            [
-                {
-                    text: 'Cancel',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Delete',
-                    style: 'destructive',
-                    onPress: performDelete,
-                },
-            ],
-            { cancelable: true }
-        );
+        if (Platform.OS === 'web') {
+            // Native web confirmation dialog for browser support (React Native Alert is unreliable on web)
+            if (window.confirm(message)) {
+                performDelete();
+            }
+        } else {
+            // This unified Alert works on Mobile
+            Alert.alert(
+                'Confirm Deletion',
+                message,
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Delete', style: 'destructive', onPress: performDelete },
+                ],
+                { cancelable: true }
+            );
+        }
     };
 
     return (
