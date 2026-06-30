@@ -4,23 +4,30 @@ The WOLT-ASP system provides a full and secure authentication mechanism based on
 
 ---
 
+## 🧐 Guest Access (Unregistered Mode)
+
+Users are not strictly required to log in to browse the app. When opening the app, a user lands on the main Dashboard and can act as a Guest, browsing the restaurants and viewing menus. However, certain actions (like placing orders) are restricted to registered users.
+
+![Unregistered Dashboard](images/dashboard-unregisted-mobile.PNG)
+
+---
+
 ## 📝 Registration Flow
 
-When a new user launches the application, they are directed to the Registration Screen.
-On this screen, the user enters their personal details, selects whether they are a customer or a restaurant owner, and can optionally upload a profile picture directly from their device's gallery.
+To gain full access to the system, users must create an account.
+On the Registration screen, the user enters their personal details, selects whether they are a customer or a restaurant owner, and can upload a profile picture directly from their device's gallery.
 
 **Demo Steps for Evaluation:**
-1. Open the application and click on "Don't have an account? Sign up".
-2. Fill in the user details (Name, Email, Password).
-3. Select a profile picture (the app will request gallery/camera permissions if necessary).
-4. Choose the user type (e.g., `customer`).
-5. Click on "Create Account".
+1. From the main Dashboard, click the "Login" button at the top to access the Login Screen.
+2. At the bottom of the Login Screen, click on "New user? Sign up here!".
+3. Fill in the required user details (Full Name, Username, Phone Number, Password).
+![Registration Step 1](images/registration1-mobile.PNG)
 
-*[Insert Screenshot: Registration Screen filled with details]*
-*[Insert Screenshot: Success message / Routing back to Login]*
-
-### Behind the Scenes:
-The data is sent using `FormData` (to support binary image uploads) to the `POST /api/users/` endpoint. The Node.js server parses the request, saves the image to the local filesystem, hashes the password securely, and saves the new user document into the MongoDB database.
+4. Choose the user type (e.g., `Customer`).
+5. Select a profile picture (the app will request gallery/camera permissions if necessary).
+6. Fill in your address details and Geolocation (Lat/Lng).
+7. Click the "Sign up" button at the bottom of the form.
+![Registration Step 2 - Image Upload](images/registration2-mobile.PNG)
 
 ---
 
@@ -29,14 +36,17 @@ The data is sent using `FormData` (to support binary image uploads) to the `POST
 After account creation (or for existing users), the login process takes place.
 
 **Demo Steps for Evaluation:**
-1. On the Home Screen (Login Screen), enter the email and password of the user you just created.
-2. Click on "Login".
-3. If the credentials are correct, the system will identify the user type and route them to the appropriate screen:
-   - **Customer:** Redirected to the `Dashboard` (Main feed for discovering food).
-   - **Owner:** Redirected to the `OwnerDashboard` (Restaurant management screen).
+1. From the main Dashboard, click the "Log in" button at the top.
+2. Enter the Username and Password of the account you just created.
+3. Click on "Login".
+![Login Screen](images/login-screen-mobile.PNG)
 
-*[Insert Screenshot: Login Screen]*
-*[Insert Screenshot: The Dashboard the user was redirected to]*
+4. If the credentials are correct, you will be successfully logged in and can access all features of the application.
 
-### Behind the Scenes:
-The login request is sent to `POST /api/users/login`. The server verifies the password and issues a signed `JWT Token`. The Frontend saves this token in `AsyncStorage` (local device memory) and automatically attaches it (using our custom `apiClient` interceptor) to every future server request inside the `Authorization` header.
+---
+
+## 👤 User Profile
+
+Once logged in, a user can navigate to the Profile screen to view their personal details and orders.
+
+![Client Profile](images/profile-client-screen-mobile.jpeg)
