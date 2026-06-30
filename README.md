@@ -28,7 +28,7 @@ We treated this project as a real-world production application, strictly adherin
 
 * **Test-Driven Development (TDD):** Backend routing, error handling middleware, and validation schemas were developed alongside comprehensive integration test suites using supertest(NodeJS) and Gtest(C++) to ensure API reliability.
 
-* **Sprint Execution & Status Meetings:** We conducted structured status meetings at key milestones within each Sprint. Led by a designated Scrum Master, these syncs were used to evaluate sprint objectives, document architectural insights, and proactively mitigate risks (blockers) to ensure continuous, unblocked delivery.
+* **Sprint Execution & Status Meetings:** We conducted structured status meetings at key milestones within each Sprint. Led by a designated Scrum Master, these syncs were used to evaluate sprint objectives, document architectural insights, and proactively mitigate risks (blockers) to ensure continuos work.
 
 ---
 
@@ -43,28 +43,61 @@ Before you begin, ensure you have the following installed on your machine:
 
 ## 🛠️ Installation & Execution
 
-We have optimized the execution flow using a **Multi-Stage Docker Build**. A single command compiles the React frontend, sets up the Node.js API, compiles the C++ engine, and links them all together.
+**Detailed Guide**: For a comprehensive, step-by-step guide including screenshots and troubleshooting, please refer to our full documentation: ```wiki/environment_Setup.md ```.
 
-**1. Clone the repository:**
+We have optimized the execution flow using a **Multi-Stage Docker Build**. A single command sets up the Node.js API, compiles the C++ engine, and links them all together.
+
+
+**Note:** For testing convenience and rapid evaluation, all necessary backend environment variables and secrets are pre-configured directly in the ```docker-compose.yml``` file. You do not need to create a ```.env``` file for the backend.
+
+**1. Start the Backend Infrastructure:**
 ```bash
 git clone https://github.com/noamcalf/ASP-WOLT.git
 cd ASP-WOLT
-```
-![Git clone](./images/gitclone.jpeg)
-
-**2. Build and start the infrastructure using Docker Compose:**
-```bash
 docker-compose up --build
 ```
-![Buil1](./images/build1.jpeg)
-![Buil2](./images/build2.jpeg)
-![Buil3](./images/build3.jpeg)
+Wait until you see that the servers have successfully started (MongoDB is ready, Node is listening on port 3000, and C++ is listening on port 8080).
 
-*(Docker will handle downloading the images, compiling the React App into static files, compiling the C++ code, and launching the services).*
+**2. Run the Client Application (Frontend):**
 
-**3. Access the Application:**
-Once the terminal shows both servers are running, simply open your web browser and navigate to:
-👉 **[http://localhost:3000](http://localhost:3000)**
+Open a new terminal window, navigate to the client directory, and install the dependencies:
+
+```bash
+cd expo-frontend
+npm install
+```
+
+**3. Lunch the app:**
+
+You can launch the application in two different ways depending on how you wish to evaluate it:
+
+**3.1. 💻 Option A: Quick Web Run (No Config Requierd):**
+
+Run the application directly in your computer's browser. It automatically detects the local environment and directs API calls to localhost.
+
+```bash
+npm run web
+```
+
+**3.2. 💻 Option B: Physical Device (via Expo Go App):**
+
+To run the app on your personal phone, you must provide your computer's local IP address so the phone can reach the local servers.
+
+3.2.1. Create a ```.env``` file inside the ```expo-frontend``` directory.
+
+3.2.2. Add the following line (replace the IP with your computer's actual local IP, e.g., 192.168.1.15) to ```expo-frontend/.env```:
+
+```bash
+EXPO_PUBLIC_API_URL=http://<YOUR_LOCAL_IP>:3000
+```
+**Make sure the after you add this line, this file contains only the line you added**
+
+3.2.3. Start the server and scan the generated QR code using the Expo Go app on your phone:
+
+```bash
+npm start
+```
+
 ---
 
 ## 📌 Version Control & Branch Management
