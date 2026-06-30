@@ -108,7 +108,13 @@ const RestaurantForm = ({ onSuccess, initialData = null }) => {
             payload.append('geolocation', JSON.stringify(geolocation));
 
             if (formData.image) {
-                payload.append('image', formData.image);
+                if (Platform.OS === 'web') {
+                    const res = await fetch(formData.image.uri);
+                    const blob = await res.blob();
+                    payload.append('image', blob, formData.image.name || 'restaurant_cover.jpg');
+                } else {
+                    payload.append('image', formData.image);
+                }
             }
 
             const endpoint = isEdit ? `/api/restaurants/${initialData.id}` : '/api/restaurants';

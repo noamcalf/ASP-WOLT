@@ -7,6 +7,7 @@ import MenuItemForm from '../components/MenuItemForm';
 import MenuItemRow from '../components/MenuItemRow';
 import DeleteButton from '../components/DeleteButton';
 import RestaurantForm from '../components/RestaurantForm';
+import RestaurantHeaderCard from '../components/RestaurantHeaderCard';
 import { useThemeStyles } from '../hooks/useThemeStyles';
 import { ownerMenuManagerStylesFactory } from '../styles/OwnerMenuManagerStyles';
 
@@ -68,19 +69,9 @@ const OwnerMenuManagerScreen = () => {
 
     const renderHeader = () => (
         <View>
-            <TouchableOpacity 
-                style={styles.backButton} 
-                onPress={() => navigation.goBack()}
-            >
-                <Text style={styles.backButtonText}>←</Text>
-            </TouchableOpacity>
+            <RestaurantHeaderCard restaurant={restaurant} />
 
-            <View style={styles.headerRow}>
-                <View style={styles.headerTextContainer}>
-                    <Text style={styles.title}>{restaurant?.name} - Menu</Text>
-                    <Text style={styles.subtitle}>Manage your dishes and catalog items</Text>
-                </View>
-                <View style={styles.headerButtonsContainer}>
+                <View style={[styles.headerButtonsContainer, { padding: 16, alignItems: 'center' }]}>
                     <View style={{ flexDirection: 'row', gap: 8 }}>
                         <TouchableOpacity 
                             style={styles.editRestaurantButton}
@@ -110,7 +101,6 @@ const OwnerMenuManagerScreen = () => {
                         </Text>
                     </TouchableOpacity>
                 </View>
-            </View>
 
             {showEditRestaurantForm && (
                 <View style={styles.formContainer}>

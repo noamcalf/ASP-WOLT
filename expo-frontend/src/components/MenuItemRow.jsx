@@ -29,7 +29,8 @@ const MenuItemRow = ({
                 </Text>
                 
                 <View style={styles.footerRow}>
-                    <Text style={styles.price}>
+                    {/* numberOfLines and adjustsFontSizeToFit ensure the price doesn't break lines on narrow screens */}
+                    <Text style={styles.price} numberOfLines={1} adjustsFontSizeToFit={true}>
                         ₪{formatPrice(product.price)}
                     </Text>
                     {ownerMode && (
