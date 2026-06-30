@@ -1,15 +1,34 @@
-# 🍕 ASP-WOLT: Full-Stack Web Application & Recommendation System
+# 🍕 ASP-WOLT: Full-Stack React-native Application & Recommendation System
 
 ## 📖 Overview
-**ASP-WOLT** is a complete, multi-tier Full-Stack Web Application designed for restaurant data management, food ordering, and collaborative filtering product recommendations. The system is built on a robust 3-tier architecture:
+**WOLT-ASP** is a complete, multi-tier Full-Stack Cross-Platform Application designed for restaurant data management, food ordering, and collaborative filtering product recommendations. The system is built on a robust, persistent 3-tier architecture:
 
-1. **Frontend (React SPA):** A modern, responsive Single Page Application built with React and Bootstrap. Features a polished UI inspired by Wolt, including dynamic cart management, geolocation-based distance calculations, and Dark Mode.
-2. **Web Server / API Gateway (Node.js & Express):** Serves the React frontend natively, handles JWT authentication, provides RESTful HTTP APIs, and manages the in-memory data store.
-3. **Telemetry & Recommendation Engine (C++):** A high-performance background server connected via persistent **TCP Sockets** (Port 8080). It records system telemetry and executes collaborative filtering algorithms to provide real-time recommendations.
+1. **Frontend (Expo Cross-Platform):** A modern, responsive application built with React Native and managed by Expo. Following a **"Write Once, Run Everywhere"** approach, it fully supports simultaneous deployment on Web, iOS, and Android. Features a polished UI inspired by Wolt, including dynamic cart management, a global Dark Mode theme, native image-picking capabilities, and cross-platform session persistence.
+2. **Web Server & API Gateway (Node.js & Express):** Serves as the core backend controller, providing RESTful HTTP APIs and managing secure JWT-based authentication. It coordinates data persistence and enforces chronological middleware routing (Parsing ➔ Routes ➔ Global Error Handlers).
+3. **Persistent Database Layer (MongoDB & Mongoose):** A production-ready data layer replacing legacy in-memory arrays. Enforces strict schema validations for nested data structures.
 
+### 🧠 Advanced Feature: C++ Microservice
+
+**Telemetry & Recommendation Engine (C++):** A high-performance background microservice connected via persistent **TCP Sockets** (Port 8080). It records system telemetry and executes collaborative filtering algorithms to provide real-time recommendations.
 The architecture implements cross-server fault tolerance, allowing the Node.js server to handle C++ connection drops without crashing or disrupting the client-facing service.
 
-*The project was developed as part of the Advanced Software Programming (ASP) curriculum at Bar-Ilan University (Assignment 4).*
+*The project was developed as part of the Advanced Software Programming (ASP) curriculum at Bar-Ilan University (Assignment 5).*
+
+---
+
+## 🔄 Our Workflow & Methodology
+
+We treated this project as a real-world production application, strictly adhering to **Agile/Scrum** methodologies and maintaining high code quality standards.
+
+* **Task Management (Jira):** The project was divided into Epics (e.g., Epic 1: MongoDB Migration, Epic 2: React Native Migration). Every feature, bug fix, or refactor was tracked using Jira tickets (e.g., `WOLT-238`) - each ticket represent a unique task.
+
+* **Branching Strategy:** We utilized a strict GitHub flow. No code was committed directly to the `main` branch. Every task had its own dedicated branch containing the Jira issue key.
+
+* **Code Reviews:** A Pull Request (PR) architecture was enforced. The teammate who did *not* write the code acted as the reviewer. Tasks were only moved to "Done" after successful peer review and merge.
+
+* **Test-Driven Development (TDD):** Backend routing, error handling middleware, and validation schemas were developed alongside comprehensive integration test suites using supertest(NodeJS) and Gtest(C++) to ensure API reliability.
+
+* **Sprint Execution & Status Meetings:** We conducted structured status meetings at key milestones within each Sprint. Led by a designated Scrum Master, these syncs were used to evaluate sprint objectives, document architectural insights, and proactively mitigate risks (blockers) to ensure continuous, unblocked delivery.
 
 ---
 
@@ -46,75 +65,6 @@ docker-compose up --build
 **3. Access the Application:**
 Once the terminal shows both servers are running, simply open your web browser and navigate to:
 👉 **[http://localhost:3000](http://localhost:3000)**
-
----
-
-## ✨ Features & Visual Walkthrough
-
-*(Replace the placeholder images below with actual screenshots of your running application before submission).*
-
-### 🔐 1. Authentication (Login & Registration)
-The app features secure JWT-based authentication. Users must log in or register to access the marketplace. 
-- Form validation ensures correct inputs (e.g., matching passwords, valid phone numbers).
-- Separate roles exist for `customer` and `owner`.
-
-![Login Screen](./images/login-screen.png)
-*(The secure Login Screen for returning users)*
-
-![Registration Screen](./images/register-screen.png)
-*(The Registration Screen with form validation for new customers and owners)*
-
-### 🍔 2. Discovery Dashboard
-The main screen organizes restaurants into smart, dynamic carousels:
-- **Promoted Restaurants:** Automatically highlights the top-rated restaurants.
-- **Nearby Restaurants:** Uses the user's geolocation and the restaurant's coordinates to calculate distance (`km`) and dynamically sorts the closest options first.
-- **Categorized Carousels:** Groups restaurants dynamically by Cuisine (Fast Food, Italian, Desserts, etc.).
-
-![Dashboard Screen](./images/dashboard-screen.png)
-*(The main Dashboard screen showing categorized carousels, including Nearby and Promoted restaurants)*
-
-### 🛒 3. Restaurant Menu & Cart Management
-Navigating to a restaurant displays its full menu. 
-- Users can click on products to view details and add them to their cart.
-- A floating Cart Drawer manages the active order, calculates the total price dynamically, and allows quantity adjustments.
-- Placing an order triggers a background telemetry event to the C++ server to improve future recommendations.
-
-![Menu and Cart](./images/cart&menu.png)
-*(A Restaurant Menu with the interactive Cart Drawer open on the right)*
-
-![Checkout Screen](./images/checkout-screen.png)
-*(The Checkout Summary screen finalizing the active order)*
-
-### 🌙 4. Dark Mode & Responsive Design
-The entire application supports a seamless **Dark Mode**. A toggle in the navigation bar instantly swaps the global theme, recalculating text and background colors for optimal viewing in low-light environments. The layout is fully responsive using Bootstrap grids.
-
-![Dark Mode](./images/dark-mode.png)
-*(The application seamlessly rendering in Dark Mode)*
-
-### 👨‍🍳 5. Owner Portal (Role-Based Access)
-Users with the `owner` role have access to a dedicated Owner Dashboard. From here, they can:
-- Manage their restaurant's details.
-- Add, edit, or delete products from their menu.
-- View and manage incoming customer orders.
-
-![Owner Dashboard](./images/owner-resturants-screen.png)
-*(The Owner Dashboard listing the owner's active restaurants)*
-
-![Edit Menu](./images/edit-menu.png)
-*(The Menu Manager allowing restaurant owners to edit products and view orders)*
-
-### 🤖 6. Collaborative Filtering Recommendations
-Powered by the C++ engine, the system analyzes user purchase histories to offer real-time product recommendations. When a user clicks on a product, the system suggests complementary items that similar users have bought.
-
-![Recommendations Example](./images/recomandations-example.png)
-*(The Product Details Modal displaying 'People also bought' recommendations powered by the C++ backend)*
-
-### 👤 7. Client Profile & History
-Customers can access their personal profile to view and edit their orders, updating dynamically via the Node.js API.
-
-![Client Profile](./images/profile-client-screen.png)
-*(The Customer Profile screen showing order history and account details)*
-
 ---
 
 ## 📌 Version Control & Branch Management
@@ -124,5 +74,6 @@ To comply with the assignment requirements and ensure proper, isolated grading e
 * **Assignment 2:** Locked in the `ex2-submition` branch.
 * **Assignment 3:** Locked in the `ex3-submition` branch.
 * **Assignment 4:** All Full-Stack and React developments are organized in the `ex4-submission` branch.
+* **Assignment 5:** All Full-Stack and React-native developments are organized in the `ex5-submission` branch.
 
 This explicit separation ensures that the ongoing work does not mix with or overwrite the finalized submissions of previous assignments.
